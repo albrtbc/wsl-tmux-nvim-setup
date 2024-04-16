@@ -2,6 +2,9 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+export PATH="/opt/nvim-linux64/bin:$PATH"
+alias vim="nvim"
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -132,41 +135,6 @@ fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-# enable bash-git-prompt
-#GIT_PROMPT_ONLY_IN_REPO=1
-#source ~/.bash-git-prompt/gitprompt.sh
-
-# git functions
-git-reset(){
-    local current_branch="$(git branch --show-current)"
-    echo "Reset soft from $current_branch to $1 branch..."
-
-    git fetch
-    git pull
-    git switch $1
-    git pull
-    git switch $current_branch
-    git reset --soft $1
-}
-
-git-push(){
-    echo "Pulling..."
-    git pull
-    git add -A
-    git status
-    echo "Do you want to continue? (Y/N)"
-    read proceed
-    if [[ $proceed == "Y" || $proceed == "y" || $proceed == "" ]]; then
-        git commit -m "$1"
-        echo "Pushing..."
-        git push
-    elif [[ $proceed == "N" || $proceed == "n" ]]; then
-        echo "Operation cancelled."
-    else
-        echo "Invalid input. Operation cancelled."
-    fi
-}
-
 # This solves windows slow git on ntfs filesystem
 # checks to see if we are in a windows or linux dir
 function isWinDir {
@@ -234,3 +202,10 @@ function git_tably () {
     # Paste the columns together and show the table-like output
     paste -d' ' <(echo -e "$time_all") <(echo -e "$branch_all") <(echo -e "$graph_all") <(echo -e "$hash_all") <(echo -e "$message_all")
 }
+
+##-----------------------------------------------------
+## synth-shell-prompt.sh
+if [ -f /home/albert/.config/synth-shell/synth-shell-prompt.sh ] && [ -n "$( echo $- | grep i )" ]; then
+	source /home/albert/.config/synth-shell/synth-shell-prompt.sh
+fi
+
