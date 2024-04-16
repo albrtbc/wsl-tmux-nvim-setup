@@ -28,10 +28,13 @@ mkdir -p ~/.git-scripts/
 mv ~/vim-complex-sensible/.git-scripts/* ~/.git-scripts/
 chmod -R +x ~/.git-scripts/
 
+# Install neovim plugins
+mkdir ~/.nvim/undodir
+mkdir ~/.config/nvim
+mv ~/vim-complex-sensible/nvim/* ~/.config/nvim/
+echo "Syncing neovim packages! PackerSync:"
+nvim +"PackerSync" +qall
+
 # Clean up
 rm -rf ~/vim-complex-sensible
 
-# Install neovim plugins
-mkdir ~/.nvim/undodir
-echo "Syncing neovim packages! PackerSync:"
-nvim +"PackerSync" +qall
