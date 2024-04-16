@@ -10,6 +10,9 @@ vim.opt.autoread = true
 vim.opt.wrap = false
 vim.opt.mouse = ""
 
+--setnowrap toggle
+vim.api.nvim_set_keymap('n', '<leader>tw', ':set wrap!<CR>', {noremap = true, silent = true})
+
 --use spaces for tabs
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
