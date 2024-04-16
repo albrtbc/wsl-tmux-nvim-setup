@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "Rollback all staged and unstaged changes"
+
+git status
+
+echo "Do you want to continue? (Y/N)"
+read proceed
+if [[ $proceed == "Y" || $proceed == "y" || $proceed == "s" || $proceed == "" ]]; then
+    echo "Executing 'git reset --hard'..."
+    git reset --hard
+    echo "Executing 'git checkout -- .'..."
+    git checkout -- .
+else
+    echo "Operation cancelled."
+fi
+

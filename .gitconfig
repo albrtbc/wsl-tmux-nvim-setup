@@ -1,0 +1,122 @@
+[user]
+	email = albrtbc@users.noreply.github.com
+	name = Albert Blanco-Cuaresma
+
+[push]
+	default = simple
+[diff]
+    tool = vimdiff
+[difftool]
+    prompt = false
+[alias]
+    d = difftool
+    rollback = "!$HOME/.git-scripts/git-rollback"                                
+    s = "!$HOME/.git-scripts/git-switch"                                         
+    p = "!$HOME/.git-scripts/git-push"                                           
+    r = "!$HOME/.git-scripts/git-reset"                                          
+    del = "!$HOME/.git-scripts/git-branch-delete"    
+	l2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(yellow)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all
+    # Delimiter used in every mylog alias as column seperator
+    delim     = ^
+
+    # Short overview about the last hashes without graph
+    mylog     = log --all --decorate=short --color --pretty=format:'^%C(dim white)%>(12,trunc)%cr%C(reset)^%C(bold 214)%<(7,trunc)%h%C(reset)^%C(bold black)%<(80,trunc)%s%C(reset)' -5
+
+    # Log with hashes besides graph tree
+    lg    = log --all --graph --decorate=short --color --pretty=format:'%C(bold 214)%<(7,trunc)%h%C(reset)^%C(dim white)%>(12,trunc)%cr%C(reset)^%C(auto)%>(30,trunc)%D%C(reset)^%C(bold black)%<(50,trunc)%s%C(reset)'
+    lg-col= 3
+
+    l     = !bash -c '" \
+                \
+                \
+                declare -A col_length; \
+                apost=$(echo -e \"\\u0027\"); \
+                delim=$(git config alias.delim); \
+                git_log_cmd=$(git config alias.$1); \
+                git_tre_col=${2:-$(git config alias.$1-col)}; \
+                [[ -z "$git_tre_col" ]] && git_tre_col=1; \
+                [[ -z "$git_log_cmd" ]] && { git $1;exit; }; \
+                \
+                \
+                i=0; \
+                n=0; \
+                while IFS= read -r line;do \
+                  ((n++)); \
+                  while read -d\"$delim\" -r col_info;do \
+                    ((i++)); \
+                    [[ -z \"$col_info\" ]] && col_length[\"$n:$i\"]=${col_length[\"${last[$i]:-1}:$i\"]} && ((i--)) && continue; \
+                    [[ $i -gt ${i_max:-0} ]] && i_max=$i; \
+                    col_length[\"$n:$i\"]=$(grep -Eo \"\\([0-9]*,[lm]*trunc\\)\" <<< \"$col_info\" | grep -Eo \"[0-9]*\" | head -n 1); \
+                    [[ -n \"${col_length[\"$n:$i\"]}\" ]] && last[$i]=$n; \
+                    chars_extra=$(grep -Eo \"trunc\\).*\" <<< \"$col_info\"); \
+                    chars_extra=${chars_extra#trunc)}; \
+                    chars_begin=${chars_extra%%\\%*}; \
+                    chars_extra=${chars_extra%$apost*}; \
+                    chars_extra=${chars_extra#*\\%}; \
+                    case \" ad aD ae aE ai aI al aL an aN ar as at b B cd cD ce cE ci cI cl cL cn cN cr \
+                            cs ct d D e f G? gd gD ge gE GF GG GK gn gN GP gs GS GT h H N p P s S t T \" in \
+                      *\" ${chars_extra:0:2} \"*) \
+                        chars_extra=${chars_extra:2}; \
+                        chars_after=${chars_extra%%\\%*}; \
+                        ;; \
+                      *\" ${chars_extra:0:1} \"*) \
+                        chars_extra=${chars_extra:1}; \
+                        chars_after=${chars_extra%%\\%*}; \
+                        ;; \
+                      *) \
+                        echo \"No Placeholder found. Probably no tablelike output.\"; \
+                        continue; \
+                        ;; \
+                    esac; \
+                    if [[ -n \"$chars_begin$chars_after\" ]];then \
+                      len_extra=$(echo \"$chars_begin$chars_after\" | wc -m); \
+                      col_length["$n:$i"]=$((${col_length["$n:$i"]}+$len_extra-1)); \
+                    fi; \
+                  done <<< \"${line#*=format:}$delim\"; \
+                  i=1; \
+                done <<< \"$(echo -e \"${git_log_cmd//\\%n/\\\\n}\")\"; \
+                \
+                \
+                git_log_fst_part=\"${git_log_cmd%%\"$apost\"*}\"; \
+                git_log_lst_part=\"${git_log_cmd##*\"$apost\"}\"; \
+                git_log_tre_part=\"${git_log_cmd%%\"$delim\"*}\"; \
+                git_log_tre_part=\"${git_log_tre_part##*\"$apost\"}\"; \
+                git_log_cmd_count=\"$git_log_fst_part$apost $git_log_tre_part$apost$git_log_lst_part\"; \
+                col_length[\"1:1\"]=$(eval git \"${git_log_cmd_count// --color}\" | wc -L); \
+                \
+                \
+                i=0; \
+                while IFS=\"$delim\" read -r graph rest;do \
+                  ((i++)); \
+                  graph_line[$i]=\"$graph\"; \
+                done < <(eval git \"${git_log_cmd/ --color}\" && echo); \
+                \
+                \
+                i=0; \
+                l=0; \
+                while IFS= read -r line;do \
+                  c=0; \
+                  ((i++)); \
+                  ((l++)); \
+                  [[ $l -gt $n ]] && l=1; \
+                  while IFS= read -d\"$delim\" -r col_content;do \
+                    ((c++)); \
+                    [[ $c -le $git_tre_col ]] && c_corr=-1 || c_corr=0; \
+                    if [[ $c -eq 1 ]];then \
+                      [[ \"${col_content/\\*}\" = \"$col_content\" ]] && [[ $l -eq 1 ]] && l=$n; \
+                      count=$(wc -L <<< \"${graph_line[$i]}\"); \
+                      whitespaces=$(seq -s\" \" $((${col_length[\"1:1\"]}-$count))|tr -d \"[:digit:]\"); \
+                      col_content[$git_tre_col]=\"${col_content}$whitespaces\"; \
+                    else \
+                      col_content[$c+$c_corr]=\"$(printf \"%-${col_length[\"$l:$c\"]}s\" \"${col_content:-\"\"}\")\"; \
+                    fi; \
+                  done <<< \"$line$delim\"; \
+                  for ((k=$c+1;k<=$i_max;k++));do \
+                    [[ $k -le $git_tre_col ]] && c_corr=-1 || c_corr=0; \
+                    col_content[$k+$c_corr]=\"$(printf \"%-${col_length[\"$l:$k\"]:-${col_length[\"${last[$k]:-1}:$k\"]:-0}}s\" \"\")\"; \
+                  done; \
+                  unset col_content[0]; \
+                  echo -e \"${col_content[*]}\"; \
+                  unset col_content[*]; \
+                done < <(eval git \"$git_log_cmd\" && echo); \
+                "' "git-tably lg"

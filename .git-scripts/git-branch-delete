@@ -1,0 +1,19 @@
+#!/bin/bash
+
+branch=$1
+
+if [ ! -z "$1" ]
+then
+    git branch -D $branch
+    echo "Do you want to delete remote branch? (Y/N)"
+    read proceed
+    if [[ $proceed == "Y" || $proceed == "y" || $proceed == "s" || $proceed == "" ]]; then
+        git push -d origin $branch
+    elif [[ $proceed == "N" || $proceed == "n" ]]; then
+        echo "Operation cancelled."
+    else
+        echo "Invalid input. Operation cancelled."
+    fi
+else
+    echo "Branch name is not specified"
+fi
