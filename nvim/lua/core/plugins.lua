@@ -23,13 +23,22 @@ return require('packer').startup(function(use)
     tag = '0.1.6',
     requires = { {'nvim-lua/plenary.nvim'} }
   }
-  use 'github/copilot.vim'
   use {
     'kdheepak/tabline.nvim',
     requires = { { 'hoob3rt/lualine.nvim', opt=true }, {'kyazdani42/nvim-web-devicons', opt = true} }
   }
   use 'easymotion/vim-easymotion'
   use 'preservim/nerdcommenter'
+  --:Copilot auth
+  use {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    event = "InsertEnter",
+    config = function()
+      require("copilot").setup({})
+    end,
+  }
+  use {'neoclide/coc.nvim', branch = 'release'}
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins

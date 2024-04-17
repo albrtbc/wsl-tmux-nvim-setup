@@ -56,8 +56,10 @@ vim.opt.visualbell = false
 vim.opt.tm = 500
 vim.opt.vb = true
 
+--
+--
 --persistent undo
-vim.opt.undodir = os.getenv('HOME') .. '/.nvim/undodir'
+vim.opt.undodir = os.getenv('HOME') .. '/.vim/undodir'
 vim.opt.undofile = true
 vim.opt.undolevels = 1000
 vim.opt.undoreload = 10000
@@ -75,6 +77,9 @@ vim.cmd([[
         \   exe "normal g'\"" |
         \ endif
 ]])
+
+--fileformat
+vim.opt.ffs:append { "unix", "dos" }
 
 --WSL yank support
 vim.opt.clipboard:append { 'unnamed', 'unnamedplus' }
