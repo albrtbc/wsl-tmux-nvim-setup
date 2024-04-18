@@ -4,7 +4,7 @@ set -e
 set -x
 
 # Install dependencies
--- https://github.com/nvim-lua/kickstart.nvim#Install-Recipes
+# https://github.com/nvim-lua/kickstart.nvim#Install-Recipes
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
 sudo apt update
 sudo apt install -y make gcc ripgrep unzip git tmux unzip neovim kitty
