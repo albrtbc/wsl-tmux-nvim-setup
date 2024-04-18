@@ -4,37 +4,41 @@ set -e
 set -x
 
 # Install dependencies
-sudo apt-get update
-sudo apt-get install -y neovim git tmux unzip kitty
+-- https://github.com/nvim-lua/kickstart.nvim#Install-Recipes
+sudo add-apt-repository ppa:neovim-ppa/unstable -y
+sudo apt update
+sudo apt install -y make gcc ripgrep unzip git tmux unzip neovim kitty
 
 # Install Synth Shell
 wget https://github.com/andresgongora/synth-shell/raw/master/setup.sh
 chmod +x setup.sh
 ./setup.sh
 
-# Clone vim-complex-sensible
-git clone https://github.com/albrtbc/vim-complex-sensible.git ~/vim-complex-sensible
+# Clone wsl-tmux-nvim-setup
+git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git ~/wsl-tmux-nvim-setup
 
-# Move neovim / bash / tmux / git / kitty / synth-shell config files
-mv ~/vim-complex-sensible/.gitconfig ~/.gitconfig
-mv ~/vim-complex-sensible/.bashrc ~/.bashrc
-mv ~/vim-complex-sensible/.tmux.conf ~/.tmux.conf
+# Move bash / tmux / git / kitty / synth-shell config files
+mv ~/wsl-tmux-nvim-setup/.gitconfig ~/.gitconfig
+mv ~/wsl-tmux-nvim-setup/.bashrc ~/.bashrc
+mv ~/wsl-tmux-nvim-setup/.tmux.conf ~/.tmux.conf
 mkdir -p ~/.conf/kitty/
-mv ~/vim-complex-sensible/kitty.conf ~/.conf/kitty/kitty.conf
-mv ~/vim-complex-sensible/synth-shell/* ~/.conf/synth-shell/*
+mv ~/wsl-tmux-nvim-setup/kitty.conf ~/.conf/kitty/kitty.conf
+mv ~/wsl-tmux-nvim-setup/synth-shell/* ~/.conf/synth-shell/*
 
 # Move git scripts
 mkdir -p ~/.git-scripts/
-mv ~/vim-complex-sensible/.git-scripts/* ~/.git-scripts/
+mv ~/wsl-tmux-nvim-setup/.git-scripts/* ~/.git-scripts/
 chmod -R +x ~/.git-scripts/
 
-# Install neovim plugins
-mkdir ~/.nvim/undodir
+# Install kickstart nvim
+#mkdir ~/.nvim/undodir
 mkdir ~/.config/nvim
-mv ~/vim-complex-sensible/nvim/* ~/.config/nvim/
-echo "Syncing neovim packages! PackerSync:"
-nvim +"PackerSync" +qall
+#mv ~/wsl-tmux-nvim-setup/nvim/* ~/.config/nvim/
+#echo "Syncing neovim packages! PackerSync:"
+#nvim +"PackerSync" +qall
+git clone https://github.com/albrtbc/kickstart.nvim.git "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim
+nvim
 
 # Clean up
-rm -rf ~/vim-complex-sensible
+rm -rf ~/wsl-tmux-nvim-setup
 
