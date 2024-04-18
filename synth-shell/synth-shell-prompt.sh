@@ -639,9 +639,9 @@ synth_shell_prompt()
 ##
 getGitBranch()
 {
-	if ( which git.exe > /dev/null 2>&1 ); then
+	if ( which git > /dev/null 2>&1 ); then
 		## CHECK IF IN A GIT REPOSITORY, OTHERWISE SKIP
-		local branch=$(git.exe branch 2> /dev/null |\
+		local branch=$(git branch 2> /dev/null |\
 		             sed -n '/^[^*]/d;s/*\s*\(.*\)/\1/p')
 		if [[ -n "$branch" ]]; then
 			## UPDATE LOCAL GIT BRANCH (i.e., fetch)
@@ -672,7 +672,7 @@ getGitBranch()
 					local current_timestamp=$(date +%s)
 					local elapsed_minutes=$(((current_timestamp-git_last_update)/60))
 					if [ "$elapsed_minutes" -ge "$SSP_GIT_UPDATE_PERIOD_MINUTES" ]; then
-						git.exe fetch --recurse-submodules > /dev/null 2>&1 &
+						git fetch --recurse-submodules > /dev/null 2>&1 &
 					fi
 				fi
 			fi
@@ -688,13 +688,13 @@ getGitBranch()
 			## NOTE: this requires that you fetch your repository,
 			##       otherwise your information is outdated.
 			local is_dirty=false &&\
-				       [[ -n "$(git.exe status --porcelain)" ]] &&\
+				       [[ -n "$(git status --porcelain)" ]] &&\
 				       is_dirty=true
 			local is_ahead=false &&\
-				       [[ "$(git.exe status --porcelain -u no -b)" == *"ahead"* ]] &&\
+				       [[ "$(git status --porcelain -u no -b)" == *"ahead"* ]] &&\
 				       is_ahead=true
 			local is_behind=false &&\
-				        [[ "$(git.exe status --porcelain -u no -b)" == *"behind"* ]] &&\
+				        [[ "$(git status --porcelain -u no -b)" == *"behind"* ]] &&\
 				        is_behind=true
 			## SELECT SYMBOL
 			if   $is_dirty && $is_ahead && $is_behind; then
@@ -715,7 +715,7 @@ getGitBranch()
 				local symbol=$SSP_GIT_SYNCED
 			fi
             ## GET TAG (if any)
-            [[ -n "$(git.exe tag --points-at HEAD)" ]] && local readonly tag=" $(git.exe tag --points-at HEAD)" || local readonly tag=""
+            [[ -n "$(git tag --points-at HEAD)" ]] && local readonly tag=" $(git tag --points-at HEAD)" || local readonly tag=""
             ## CHECK IF REPOSITORY HAS STASHED CODE
             #local git_stash=""
             #local readonly stashed_elements=$(git stash list 2> /dev/null | wc -l)
