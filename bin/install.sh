@@ -20,16 +20,20 @@ rm -rf synth-shell
 git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git ~/wsl-tmux-nvim-setup
 
 # Move bash / tmux / git / kitty / synth-shell config files
-mv ~/wsl-tmux-nvim-setup/.gitconfig ~/.gitconfig
-mv ~/wsl-tmux-nvim-setup/.bashrc ~/.bashrc
-mv ~/wsl-tmux-nvim-setup/.tmux.conf ~/.tmux.conf
+cp ~/wsl-tmux-nvim-setup/.gitconfig ~/.gitconfig
+cp ~/wsl-tmux-nvim-setup/.bashrc ~/.bashrc
+cp ~/wsl-tmux-nvim-setup/.tmux.conf ~/.tmux.conf
 mkdir -p ~/.conf/kitty/
-mv ~/wsl-tmux-nvim-setup/kitty.conf ~/.conf/kitty/kitty.conf
-mv ~/wsl-tmux-nvim-setup/synth-shell/* ~/.conf/synth-shell/*
+cp ~/wsl-tmux-nvim-setup/kitty.conf ~/.conf/kitty/kitty.conf
+cp ~/wsl-tmux-nvim-setup/synth-shell/* ~/.config/synth-shell/
+
+# Install Tmux TPM
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+~/.tmux/plugins/tpm/scripts/install_plugins.sh
 
 # Move git scripts
 mkdir -p ~/.git-scripts/
-mv ~/wsl-tmux-nvim-setup/.git-scripts/* ~/.git-scripts/
+cp ~/wsl-tmux-nvim-setup/.git-scripts/* ~/.git-scripts/
 chmod -R +x ~/.git-scripts/
 
 # Install kickstart nvim
@@ -43,4 +47,3 @@ nvim
 
 # Clean up
 rm -rf ~/wsl-tmux-nvim-setup
-
