@@ -10,9 +10,11 @@ sudo apt update
 sudo apt install -y make gcc ripgrep unzip git tmux unzip neovim kitty
 
 # Install Synth Shell
-wget https://github.com/andresgongora/synth-shell/raw/master/setup.sh
-chmod +x setup.sh
+git clone -recursive https://github.com/andresgongora/synth-shell.git
+cd synth-shell
 ./setup.sh
+cd ..
+rm -rf synth-shell
 
 # Clone wsl-tmux-nvim-setup
 git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git ~/wsl-tmux-nvim-setup
