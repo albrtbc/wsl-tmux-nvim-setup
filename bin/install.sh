@@ -10,7 +10,7 @@ sudo apt update
 sudo apt install -y make gcc ripgrep unzip git tmux unzip neovim kitty
 
 # Install Synth Shell
-git clone -recursive https://github.com/andresgongora/synth-shell.git
+git clone --recursive https://github.com/andresgongora/synth-shell.git
 cd synth-shell
 ./setup.sh
 cd ..
