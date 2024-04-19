@@ -6,8 +6,9 @@ set -x
 # Install dependencies
 # https://github.com/nvim-lua/kickstart.nvim#Install-Recipes
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt update
-sudo apt install -y make gcc ripgrep unzip git tmux unzip neovim kitty
+sudo apt install -y make gcc ripgrep unzip git tmux unzip neovim kitty nodejs
 
 # Install Synth Shell
 git clone --recursive https://github.com/andresgongora/synth-shell.git
