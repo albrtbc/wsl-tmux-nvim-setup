@@ -30,6 +30,7 @@ cp ~/wsl-tmux-nvim-setup/synth-shell/* ~/.config/synth-shell/
 
 # Install Tmux TPM
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+source ~/. tmux. conf
 ~/.tmux/plugins/tpm/scripts/install_plugins.sh
 
 # Move git scripts
