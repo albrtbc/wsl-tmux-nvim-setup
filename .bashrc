@@ -4,6 +4,7 @@
 
 export PATH="/opt/nvim-linux64/bin:$PATH"
 alias vim="nvim"
+alias lg="lazygit"
 
 # If not running interactively, don't do anything
 case $- in
