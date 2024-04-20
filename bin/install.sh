@@ -15,6 +15,8 @@ if [ -z "$WSL_DISTRO_NAME" ]; then
     sudo apt install -y kitty xclip 
 fi
 
+# Install NERDFonts
+./nerdfont-install.sh
 
 # Install Synth Shell
 git clone --recursive https://github.com/andresgongora/synth-shell.git
@@ -36,6 +38,9 @@ if [ -z "$WSL_DISTRO_NAME" ]; then
     cp ~/wsl-tmux-nvim-setup/kitty.conf ~/.config/kitty/kitty.conf
     gsettings set org.gnome.desktop.default-applications.terminal exec 'kitty'
 fi
+
+# Install NERDFont FiraCode
+curl -sSfL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/master/install.sh | bash -s -- FiraCode
 
 # Install Tmux TPM
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
