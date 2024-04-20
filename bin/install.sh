@@ -45,6 +45,7 @@ cp ~/wsl-tmux-nvim-setup/.gitconfig ~/.gitconfig
 cp ~/wsl-tmux-nvim-setup/.bashrc ~/.bashrc
 cp ~/wsl-tmux-nvim-setup/.tmux.conf ~/.tmux.conf
 cp ~/wsl-tmux-nvim-setup/synth-shell/* ~/.config/synth-shell/
+cp ~/wsl-tmux-nvim-setup/yazi/* ~/.config/yazi/
 if [ -z "$WSL_DISTRO_NAME" ]; then
     mkdir -p ~/.config/kitty/
     cp ~/wsl-tmux-nvim-setup/kitty.conf ~/.config/kitty/kitty.conf
