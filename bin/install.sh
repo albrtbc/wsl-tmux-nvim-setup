@@ -28,7 +28,7 @@ sudo apt install -y cargo
 cargo install --locked yazi-fm
 
 # Install NERDFonts
-./nerdfont-install.sh
+curl https://raw.githubusercontent.com/albrtbc/wsl-tmux-nvim-setup/main/bin/nerdfont-install.sh -sSf | sh
 
 # Install Synth Shell
 git clone --recursive https://github.com/andresgongora/synth-shell.git
@@ -45,7 +45,7 @@ cp ~/wsl-tmux-nvim-setup/.gitconfig ~/.gitconfig
 cp ~/wsl-tmux-nvim-setup/.bashrc ~/.bashrc
 cp ~/wsl-tmux-nvim-setup/.tmux.conf ~/.tmux.conf
 cp ~/wsl-tmux-nvim-setup/synth-shell/* ~/.config/synth-shell/
-cp ~/wsl-tmux-nvim-setup/yazi/* ~/.config/yazi/
+cp -r ~/wsl-tmux-nvim-setup/yazi/* ~/.config/yazi/
 if [ -z "$WSL_DISTRO_NAME" ]; then
     mkdir -p ~/.config/kitty/
     cp ~/wsl-tmux-nvim-setup/kitty.conf ~/.config/kitty/kitty.conf
