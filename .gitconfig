@@ -4,7 +4,7 @@
 [push]
     default = simple
 [diff]
-    tool = vimdiff
+    tool = nvimdiff
 [difftool]
     prompt = false
 [alias]
