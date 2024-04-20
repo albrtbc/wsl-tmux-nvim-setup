@@ -1,9 +1,8 @@
 [user]
-	email = albrtbc@users.noreply.github.com
-	name = Albert Blanco-Cuaresma
-
+    email = albrtbc@users.noreply.github.com
+    name = Albert Blanco-Cuaresma
 [push]
-	default = simple
+    default = simple
 [diff]
     tool = vimdiff
 [difftool]
@@ -15,7 +14,7 @@
     p = "!$HOME/.git-scripts/git-push"                                           
     r = "!$HOME/.git-scripts/git-reset"                                          
     del = "!$HOME/.git-scripts/git-branch-delete"    
-	l2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(yellow)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all
+    l2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(yellow)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all
     # Delimiter used in every mylog alias as column seperator
     delim     = ^
 
