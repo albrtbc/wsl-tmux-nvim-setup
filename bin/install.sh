@@ -22,6 +22,11 @@ tar xf lazygit.tar.gz lazygit
 sudo install lazygit /usr/local/bin
 rm -rf lazygit lazygit.tar.gz
 
+# Install yazi
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+sudo apt install -y cargo
+cargo install --locked yazi-fm
+
 # Install NERDFonts
 ./nerdfont-install.sh
 
