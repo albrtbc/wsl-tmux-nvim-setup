@@ -10,9 +10,9 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt update
 sudo apt install -y make gcc ripgrep unzip git tmux unzip neovim nodejs
 
-# Install kitty only if it's not executed in WSL
+# Install ubuntu dependencies
 if [ -z "$WSL_DISTRO_NAME" ]; then
-    sudo apt install -y kitty
+    sudo apt install -y kitty xclip 
 fi
 
 
