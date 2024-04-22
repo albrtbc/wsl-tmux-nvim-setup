@@ -1,0 +1,41 @@
+{
+  "components": [
+    {
+      "name": "Dependencies",
+      "script": "install_dependencies.sh"
+    },
+    {
+      "name": "Lazygit",
+      "script": "install_lazygit.sh"
+    },
+    {
+      "name": "Yazi",
+      "script": "install_yazi.sh"
+    },
+    {
+      "name": "NERDFonts",
+      "script": "install_nerdfonts.sh"
+    },
+    {
+      "name": "Synth Shell",
+      "script": "install_synth_shell.sh"
+    },
+    {
+      "name": "Tmux",
+      "script": "install_tmux.sh"
+    },
+    {
+      "name": "Neovim",
+      "script": "install_nvim.sh"
+    },
+    {
+      "name": "Kitty",
+      "script": "install_kitty.sh"
+    },
+    {
+      "name": "Git",
+      "script": "install_git.sh"
+    }
+  ]
+}
+
