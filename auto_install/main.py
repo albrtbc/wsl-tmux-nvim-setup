@@ -4,7 +4,7 @@ import json
 import subprocess
 
 def load_components():
-    dir_path = os.path.dirname(os.path.abspath(__file__))
+    dir_path = os.path.expanduser('~/.config/auto_install/')
     json_path = os.path.join(dir_path, 'components.json')
     
     with open(json_path, 'r') as file:
@@ -15,7 +15,7 @@ def configure_terminal():
     subprocess.run('stty onlcr', shell=True, check=True)
 
 def run_script(script):
-    dir_path = os.path.dirname(os.path.abspath(__file__))
+    dir_path = os.path.expanduser('~/.config/auto_install/')
     script_path = os.path.join(dir_path, 'components', script)
 
     try:
