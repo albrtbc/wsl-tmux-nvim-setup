@@ -7,6 +7,9 @@ set -x
 cleanup() {
     echo "Cleaning up..."
     rm -rf /tmp/wsl-tmux-nvim-setup
+
+    # Execute Install
+    python3 ~/bin/auto_install/main.py
 }
 
 trap cleanup EXIT INT TERM
@@ -28,5 +31,3 @@ echo 'alias gasbo="python3 ~/bin/auto_install/main.py"' >> ~/.bashrc
 # Clean up
 rm -rf /tmp/wsl-tmux-nvim-setup
 
-# Execute Install
-python3 ~/bin/auto_install/main.py
