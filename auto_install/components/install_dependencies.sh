@@ -3,6 +3,14 @@ set -u
 set -e
 set -x
 
+# Clean up
+cleanup() {
+    echo "Cleaning up..."
+    rm -rf /tmp/wsl-tmux-nvim-setup
+}
+
+trap cleanup EXIT INT TERM
+
 # Install dependencies
 # https://github.com/nvim-lua/kickstart.nvim#Install-Recipes
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
@@ -21,6 +29,3 @@ git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-
 # Move bash config files
 cp /tmp/wsl-tmux-nvim-setup/.gitconfig ~/.gitconfig
 cp /tmp/wsl-tmux-nvim-setup/.bashrc ~/.bashrc
-
-# Clean up
-rm -rf /tmp/wsl-tmux-nvim-setup
