@@ -3,17 +3,6 @@ set -u
 set -e
 set -x
 
-# Clean up
-cleanup() {
-    echo "Cleaning up..."
-    rm -rf /tmp/wsl-tmux-nvim-setup
-
-    # Execute Install
-    python3 ~/bin/auto_install/main.py
-}
-
-trap cleanup EXIT INT TERM
-
 sudo apt install git python3
 
 # Clone wsl-tmux-nvim-setup
@@ -29,5 +18,9 @@ echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
 echo 'alias gasbo="python3 ~/bin/auto_install/main.py"' >> ~/.bashrc
 
 # Clean up
+echo "Cleaning up..."
 rm -rf /tmp/wsl-tmux-nvim-setup
 
+# Execute Install
+echo "Installing..."
+python3 ~/bin/auto_install/main.py
