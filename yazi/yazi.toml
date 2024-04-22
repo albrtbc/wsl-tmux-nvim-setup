@@ -26,8 +26,9 @@ ueberzug_offset = [ 0, 0, 0, 0 ]
 
 [opener]
 edit = [
-	{ run = 'nvim "$@"', desc = "$EDITOR", block = true, for = "unix" },
-	{ run = 'rider64.exe "$@"', desc = "Open with Rider", block = true, for = "unix" },
+	{ run = 'nvim "$@"', desc = "NVIM", block = true, for = "unix" },
+	{ run = 'tmux split-window -v "nvim $@"', desc = "NVIM new pane", block = true, for = "unix" },
+	{ run = 'rider64.exe "$@"', desc = "Rider", block = true, for = "unix" },
 	{ run = 'code "%*"',    orphan = true, desc = "code",         for = "windows" },
 	{ run = 'code -w "%*"', block = true,  desc = "code (block)", for = "windows" },
 ]
@@ -42,7 +43,7 @@ reveal = [
 	{ run = 'explorer.exe .', block = true, desc = "Reveal current path", for = "unix" },
 ]
 extract = [
-	{ run = 'unar "$1"', desc = "Extract here", for = "unix" },
+	{ run = 'unzip "$1"', desc = "Extract here", for = "unix" },
 	{ run = 'unar "%1"', desc = "Extract here", for = "windows" },
 ]
 play = [
