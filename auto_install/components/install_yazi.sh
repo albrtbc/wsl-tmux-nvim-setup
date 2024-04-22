@@ -12,7 +12,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # Install yazi
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 sudo apt install -y cargo
 cargo install --locked yazi-fm
 
