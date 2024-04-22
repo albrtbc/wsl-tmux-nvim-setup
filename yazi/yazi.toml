@@ -3,11 +3,11 @@
 "$schema" = "https://yazi-rs.github.io/schemas/yazi.json"
 
 [manager]
-ratio          = [ 1, 4, 3 ]
+ratio          = [ 2, 5, 3 ]
 sort_by        = "alphabetical"
 sort_sensitive = false
 sort_reverse   = false
-sort_dir_first = false
+sort_dir_first = true
 linemode       = "none"
 show_hidden    = false
 show_symlink   = true
@@ -27,18 +27,19 @@ ueberzug_offset = [ 0, 0, 0, 0 ]
 [opener]
 edit = [
 	{ run = 'nvim "$@"', desc = "$EDITOR", block = true, for = "unix" },
+	{ run = 'rider64.exe "$@"', desc = "Open with Rider", block = true, for = "unix" },
 	{ run = 'code "%*"',    orphan = true, desc = "code",         for = "windows" },
 	{ run = 'code -w "%*"', block = true,  desc = "code (block)", for = "windows" },
 ]
 open = [
-	{ run = 'xdg-open "$@"',                desc = "Open", for = "linux" },
 	{ run = 'open "$@"',                    desc = "Open", for = "macos" },
 	{ run = 'start "" "%1"', orphan = true, desc = "Open", for = "windows" },
 ]
 reveal = [
 	{ run = 'open -R "$1"',                          desc = "Reveal", for = "macos" },
 	{ run = 'explorer /select, "%1"', orphan = true, desc = "Reveal", for = "windows" },
-	{ run = '''exiftool "$1"; echo "Press enter to exit"; read _''', block = true, desc = "Show EXIF", for = "unix" },
+	{ run = 'explorer.exe /select, "%1"', block = true, desc = "Reveal file", for = "unix" },
+	{ run = 'explorer.exe .', block = true, desc = "Reveal current path", for = "unix" },
 ]
 extract = [
 	{ run = 'unar "$1"', desc = "Extract here", for = "unix" },
