@@ -57,3 +57,5 @@ keybinding:
   universal:
     prevBlock-alt: 'K' # scroll left within list view
     nextBlock-alt: 'J' # scroll right within list view
+    scrollUpMain-alt1: '<c-k>' # main panel scroll up
+    scrollDownMain-alt1: '<c-j>'
