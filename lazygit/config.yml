@@ -13,6 +13,16 @@ customCommands:
     command: "git fetch origin {{.SelectedLocalBranch.Name}}:{{.SelectedLocalBranch.Name}} --update-head-ok"
     description: 'Pull selected branch'
     loadingText: 'Pulling branch'
+  - key: '<c-p>'
+    context: 'global'
+    prompts:
+      - type: 'input'
+        title: 'What is the commit text?'
+        key: 'CommitText'
+        initialValue: ''
+    command: 'git p "{{.Form.CommitText}}"'
+    description: 'Add, Commit & Push all changes'
+    loadingText: 'Pushing changes'
   - key: 'n'
     context: 'localBranches'
     prompts:
