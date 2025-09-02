@@ -211,3 +211,6 @@ if [ -f /home/albert/.config/synth-shell/synth-shell-prompt.sh ] && [ -n "$( ech
 	source /home/albert/.config/synth-shell/synth-shell-prompt.sh
 fi
 
+
+# AWS Lambda deploy script
+alias deploy-lambda="~/.aws-scripts/deploy-lambda.sh"
