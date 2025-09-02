@@ -26,6 +26,8 @@
     s = "!$HOME/.git-scripts/git-switch"                                         
     p = "!$HOME/.git-scripts/git-push"                                           
     r = "!$HOME/.git-scripts/git-reset"                                          
+    pr = "!$HOME/.git-scripts/git-pr"                                           
+    search = "!$HOME/.git-scripts/git-search"
     del = "!$HOME/.git-scripts/git-branch-delete"    
     l2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(yellow)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all
     # Delimiter used in every mylog alias as column seperator

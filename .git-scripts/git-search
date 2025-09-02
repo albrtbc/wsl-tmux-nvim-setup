@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# Default search type
+search_type="code"
+
+# Parse arguments
+if [ "$1" == "--help" ] || [ "$1" == "-h" ] || [ -z "$1" ]; then
+    echo "Usage: git-search [--pr|--code] <search-query> [additional-gh-options]"
+    echo ""
+    echo "Options:"
+    echo "  --code    Search in code (default)"
+    echo "  --pr      Search in pull requests"
+    echo "  --help    Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  git-search 'function authenticate'           # Search in code"
+    echo "  git-search --code 'TODO'                    # Explicitly search in code"
+    echo "  git-search --pr 'bug fix'                   # Search in PRs"
+    echo "  git-search --pr 'feature' --state=open      # Search open PRs"
+    echo "  git-search --code 'error' --json            # Get code results as JSON"
+    exit 0
+fi
+
+# Check for search type flag
+if [ "$1" == "--pr" ]; then
+    search_type="pr"
+    shift  # Remove the flag from arguments
+elif [ "$1" == "--code" ]; then
+    search_type="code"
+    shift  # Remove the flag from arguments
+fi
+
+# Check if search query is provided
+if [ -z "$1" ]; then
+    echo "Error: No search query provided"
+    echo "Run 'git-search --help' for usage information"
+    exit 1
+fi
+
+# Check if gh is installed
+if ! command -v gh &> /dev/null; then
+    echo "Error: GitHub CLI (gh) is not installed."
+    echo "Install it from: https://cli.github.com/"
+    exit 1
+fi
+
+# Get the remote URL
+remote_url=$(git config --get remote.origin.url)
+
+if [ -z "$remote_url" ]; then
+    echo "Error: No remote origin found. Make sure you're in a Git repository."
+    exit 1
+fi
+
+# Extract owner/repo from the remote URL
+if [[ "$remote_url" == git@github.com:* ]]; then
+    # SSH URL format: git@github.com:owner/repo.git
+    repo_path=${remote_url#git@github.com:}
+    repo_path=${repo_path%.git}
+elif [[ "$remote_url" == https://github.com/* ]]; then
+    # HTTPS URL format: https://github.com/owner/repo.git
+    repo_path=${remote_url#https://github.com/}
+    repo_path=${repo_path%.git}
+elif [[ "$remote_url" == git://github.com/* ]]; then
+    # Git protocol URL format: git://github.com/owner/repo.git
+    repo_path=${remote_url#git://github.com/}
+    repo_path=${repo_path%.git}
+else
+    echo "Error: Unrecognized remote URL format: $remote_url"
+    echo "Expected GitHub repository URL"
+    exit 1
+fi
+
+# Check if authenticated
+if ! gh auth status &> /dev/null; then
+    echo "Warning: GitHub CLI not authenticated. Run 'gh auth login' for better results."
+    echo ""
+fi
+
+# Perform the search
+search_query="$1"
+shift  # Remove first argument to pass remaining args to gh
+
+if [ "$search_type" == "pr" ]; then
+    echo "Searching for '$search_query' in pull requests of: $repo_path"
+    echo "----------------------------------------"
+    # For PR search, we use gh search prs with repo filter
+    gh search prs "$search_query" --repo "$repo_path" "$@"
+else
+    echo "Searching for '$search_query' in code of: $repo_path"
+    echo "----------------------------------------"
+    # For code search, we use gh search code
+    gh search code "$search_query" --repo "$repo_path" "$@"
+fi

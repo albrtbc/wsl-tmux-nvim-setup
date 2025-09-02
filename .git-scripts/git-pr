@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Get current branch name
+current_branch=$(git branch --show-current)
+main_branch="main"
+
+# Check if we're already on main
+if [ "$current_branch" == "$main_branch" ]; then
+    echo "Error: Already on $main_branch branch. Switch to a feature branch first."
+    exit 1
+fi
+
+# Check for uncommitted changes
+if ! git diff-index --quiet HEAD --; then
+    echo "You have uncommitted changes. Commit them first or stash them."
+    git status --short
+    exit 1
+fi
+
+# Push current branch to remote if needed
+echo "Ensuring branch is pushed to remote..."
+if ! git ls-remote --exit-code --heads origin "$current_branch" > /dev/null 2>&1; then
+    echo "Pushing branch to remote..."
+    git push --set-upstream origin "$current_branch"
+else
+    echo "Pushing latest changes..."
+    git push
+fi
+
+# Determine which tool to use for creating PR
+if command -v gh &> /dev/null; then
+    echo "Creating PR using GitHub CLI..."
+    
+    # Check if already authenticated
+    if ! gh auth status &> /dev/null; then
+        echo "GitHub CLI not authenticated. Run 'gh auth login' first."
+        exit 1
+    fi
+    
+    # Create PR
+    if [ -n "$1" ]; then
+        # Use provided title
+        gh pr create --base "$main_branch" --head "$current_branch" --title "$1" --body "$2"
+    else
+        # Interactive mode
+        gh pr create --base "$main_branch" --head "$current_branch"
+    fi
+    
+elif command -v hub &> /dev/null; then
+    echo "Creating PR using hub..."
+    
+    if [ -n "$1" ]; then
+        # Use provided title
+        hub pull-request -b "$main_branch" -h "$current_branch" -m "$1"
+    else
+        # Interactive mode
+        hub pull-request -b "$main_branch" -h "$current_branch"
+    fi
+    
+else
+    echo "No PR tool found. Install GitHub CLI (gh) or hub:"
+    echo "  - GitHub CLI: https://cli.github.com/"
+    echo "  - Hub: https://hub.github.com/"
+    echo ""
+    echo "Your branch '$current_branch' has been pushed to remote."
+    echo "You can create a PR manually at:"
+    
+    # Try to get remote URL
+    remote_url=$(git config --get remote.origin.url)
+    if [[ "$remote_url" == git@github.com:* ]]; then
+        # SSH URL format
+        repo_path=${remote_url#git@github.com:}
+        repo_path=${repo_path%.git}
+        echo "  https://github.com/$repo_path/pull/new/$current_branch"
+    elif [[ "$remote_url" == https://github.com/* ]]; then
+        # HTTPS URL format
+        repo_path=${remote_url#https://github.com/}
+        repo_path=${repo_path%.git}
+        echo "  https://github.com/$repo_path/pull/new/$current_branch"
+    else
+        echo "  Check your repository's web interface"
+    fi
+fi
