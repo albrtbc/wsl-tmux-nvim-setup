@@ -154,7 +154,7 @@ class TestCIWorkflowJobs:
         """Test documentation job configuration."""
         docs_job = ci_workflow["jobs"]["test-documentation"]
 
-        step_names = [step.get("name", "") for step in step_names for step in docs_job["steps"]]
+        step_names = [step.get("name", "") for step in docs_job["steps"]]
 
         # Should validate documentation
         assert any(
@@ -461,7 +461,7 @@ class TestWorkflowEndToEnd:
         # CI workflow should generate test report
         report_content = """## CI Test Summary
 - ✅ Lint and validation completed
-- ✅ Multi-platform installation tested  
+- ✅ Multi-platform installation tested
 - ✅ Update scripts validated
 - ✅ Security scan performed
 - ✅ Documentation checked"""
