@@ -423,20 +423,20 @@ jobs:
             unzip "$ARCHIVE"
             ;;
         esac
-        
+
         echo "✅ Extraction successful"
-        
+
         # List extracted contents
         echo "📂 Extracted contents:"
         ls -la
-        
+
         # Test basic file presence
         EXTRACT_DIR=$(ls -d wsl-tmux-nvim-setup-* | head -1)
         if [ -d "$EXTRACT_DIR" ]; then
           cd "$EXTRACT_DIR"
           echo "📋 Contents of $EXTRACT_DIR:"
           ls -la
-          
+
           # Check for critical files
           for file in install.sh version.json; do
             if [ -f "$file" ]; then
@@ -452,9 +452,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare-assets, verify-assets, test-installation]
     if: always() && inputs.test_mode == true
-    
+
     steps:
-    - name: Clean up test artifacts
-      run: |
-        echo "🧹 Cleaning up test artifacts..."
-        echo "Test mode was enabled, artifacts will be cleaned up automatically"
+      - name: Clean up test artifacts
+        run: |
+          echo "🧹 Cleaning up test artifacts..."
+          echo "Test mode was enabled, artifacts will be cleaned up automatically"
