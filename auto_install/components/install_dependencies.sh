@@ -3,16 +3,46 @@ set -u
 set -e
 set -x
 
+# Parse command line arguments
+DRY_RUN=false
+for arg in "$@"; do
+    case $arg in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --help)
+            echo "Usage: $0 [--dry-run] [--help]"
+            echo "  --dry-run: Show what would be installed without actually installing"
+            echo "  --help: Show this help message"
+            exit 0
+            ;;
+    esac
+done
+
 # Clean up
 cleanup() {
     echo "Cleaning up..."
-    rm -rf /tmp/wsl-tmux-nvim-setup
+    if [ "$DRY_RUN" = false ]; then
+        rm -rf /tmp/wsl-tmux-nvim-setup
+    fi
 }
 
 trap cleanup EXIT INT TERM
 
+if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would install system dependencies"
+    echo "[DRY RUN] Would add neovim PPA"
+    echo "[DRY RUN] Would add NodeJS repository"
+    echo "[DRY RUN] Would install: make gcc ripgrep unzip git tmux neovim nodejs"
+    echo "[DRY RUN] Would install git-delta"
+    exit 0
+fi
+
 # Install dependencies
 # https://github.com/nvim-lua/kickstart.nvim#Install-Recipes
+sudo apt update
+sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt update

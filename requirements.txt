@@ -12,7 +12,7 @@ pyyaml>=6.0
 
 # File operations and compression
 pathlib2>=2.3.7; python_version<"3.4"
-tarfile
+# tarfile - built-in module
 
 # Progress bars and user interface
 tqdm>=4.64.0
@@ -28,4 +28,4 @@ python-dateutil>=2.8.0
 psutil>=5.9.0
 
 # Checksums and security
-hashlib
+# hashlib - built-in module

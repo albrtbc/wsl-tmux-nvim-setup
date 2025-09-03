@@ -3,13 +3,38 @@ set -u
 set -e
 set -x
 
+# Parse command line arguments
+DRY_RUN=false
+for arg in "$@"; do
+    case $arg in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --help)
+            echo "Usage: $0 [--dry-run] [--help]"
+            echo "  --dry-run: Show what would be configured without actually configuring"
+            echo "  --help: Show this help message"
+            exit 0
+            ;;
+    esac
+done
+
 # Clean up
 cleanup() {
     echo "Cleaning up..."
-    rm -rf /tmp/wsl-tmux-nvim-setup
+    if [ "$DRY_RUN" = false ]; then
+        rm -rf /tmp/wsl-tmux-nvim-setup
+    fi
 }
 
 trap cleanup EXIT INT TERM
+
+if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would clone repository and configure git settings"
+    echo "[DRY RUN] Would copy .gitconfig and .gitignore_global"
+    exit 0
+fi
 
 # Clone wsl-tmux-nvim-setup
 git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-setup
