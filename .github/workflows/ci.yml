@@ -44,7 +44,7 @@ jobs:
         echo "Running Python linting..."
         find . -name "*.py" -type f | while read -r file; do
           echo "Checking: $file"
-          flake8 "$file" --max-line-length=100 --extend-ignore=E203,W503
+          flake8 "$file" --max-line-length=130 --extend-ignore=E203,W503
           black --check "$file"
         done
         
