@@ -19,11 +19,13 @@ from typing import Dict, Tuple, Optional
 
 class VersionManagerError(Exception):
     """Custom exception for version manager errors"""
+
     pass
 
 
 class SemanticVersion:
     """Semantic version parser and manipulator"""
+
     def __init__(self, version_string: str):
         self.original = version_string
         parts = self._parse(version_string)
@@ -32,10 +34,10 @@ class SemanticVersion:
     def _parse(self, version: str) -> Tuple[int, int, int, Optional[str]]:
         """Parse semantic version string"""
         # Remove 'v' prefix if present
-        version = version.lstrip('v')
+        version = version.lstrip("v")
 
         # Pattern for semantic versioning
-        pattern = r'^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9\-\.]+))?$'
+        pattern = r"^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9\-\.]+))?$"
         match = re.match(pattern, version)
 
         if not match:
@@ -46,13 +48,13 @@ class SemanticVersion:
 
         return major, minor, patch, prerelease
 
-    def bump(self, version_type: str) -> 'SemanticVersion':
+    def bump(self, version_type: str) -> "SemanticVersion":
         """Bump version according to type"""
-        if version_type == 'major':
+        if version_type == "major":
             return SemanticVersion(f"{self.major + 1}.0.0")
-        elif version_type == 'minor':
+        elif version_type == "minor":
             return SemanticVersion(f"{self.major}.{self.minor + 1}.0")
-        elif version_type == 'patch':
+        elif version_type == "patch":
             return SemanticVersion(f"{self.major}.{self.minor}.{self.patch + 1}")
         else:
             raise VersionManagerError(f"Invalid version type: {version_type}")
@@ -82,7 +84,7 @@ class VersionManager:
     def load_version_data(self) -> Dict:
         """Load version data from version.json"""
         try:
-            with open(self.version_file, 'r', encoding='utf-8') as f:
+            with open(self.version_file, "r", encoding="utf-8") as f:
                 return json.load(f)
         except (json.JSONDecodeError, IOError) as e:
             raise VersionManagerError(f"Error reading version file: {e}")
@@ -90,26 +92,26 @@ class VersionManager:
     def save_version_data(self, data: Dict) -> None:
         """Save version data to version.json"""
         try:
-            with open(self.version_file, 'w', encoding='utf-8') as f:
+            with open(self.version_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-                f.write('\n')  # Add trailing newline
+                f.write("\n")  # Add trailing newline
         except IOError as e:
             raise VersionManagerError(f"Error writing version file: {e}")
 
     def get_current_version(self) -> SemanticVersion:
         """Get current version from version.json"""
         data = self.load_version_data()
-        return SemanticVersion(data['version'])
+        return SemanticVersion(data["version"])
 
     def bump_version(self, version_type: str) -> SemanticVersion:
         """Bump version and update version.json"""
         data = self.load_version_data()
-        current_version = SemanticVersion(data['version'])
+        current_version = SemanticVersion(data["version"])
         new_version = current_version.bump(version_type)
 
         # Update version data
-        data['version'] = str(new_version)
-        data['release_date'] = datetime.now(timezone.utc).isoformat()
+        data["version"] = str(new_version)
+        data["release_date"] = datetime.now(timezone.utc).isoformat()
 
         # Save updated data
         self.save_version_data(data)
@@ -136,10 +138,10 @@ class VersionManager:
             raise VersionManagerError(f"Invalid version format: {version}")
 
         data = self.load_version_data()
-        old_version = data['version']
+        old_version = data["version"]
 
-        data['version'] = version
-        data['release_date'] = datetime.now(timezone.utc).isoformat()
+        data["version"] = version
+        data["release_date"] = datetime.now(timezone.utc).isoformat()
 
         self.save_version_data(data)
         print(f"Version set: {old_version} -> {version}")
@@ -148,7 +150,7 @@ class VersionManager:
 def main():
     """Main CLI interface"""
     parser = argparse.ArgumentParser(
-        description='WSL-Tmux-Nvim-Setup Version Manager',
+        description="WSL-Tmux-Nvim-Setup Version Manager",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -159,33 +161,35 @@ Examples:
   %(prog)s next minor                 # Show next minor version
   %(prog)s set 1.2.3                  # Set specific version
   %(prog)s validate v1.2.3-alpha      # Validate version format
-        """)
+        """,
+    )
 
-    parser.add_argument('--project-root', '-p',
-                        help='Project root directory (default: current)')
+    parser.add_argument("--project-root", "-p", help="Project root directory (default: current)")
 
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Current version command
-    subparsers.add_parser('current', help='Show current version')
+    subparsers.add_parser("current", help="Show current version")
 
     # Bump version command
-    bump_parser = subparsers.add_parser('bump', help='Bump version')
-    bump_parser.add_argument('type', choices=['major', 'minor', 'patch'],
-                             help='Version component to bump')
+    bump_parser = subparsers.add_parser("bump", help="Bump version")
+    bump_parser.add_argument(
+        "type", choices=["major", "minor", "patch"], help="Version component to bump"
+    )
 
     # Next version command (preview)
-    next_parser = subparsers.add_parser('next', help='Show next version (preview)')
-    next_parser.add_argument('type', choices=['major', 'minor', 'patch'],
-                             help='Version component to preview')
+    next_parser = subparsers.add_parser("next", help="Show next version (preview)")
+    next_parser.add_argument(
+        "type", choices=["major", "minor", "patch"], help="Version component to preview"
+    )
 
     # Set version command
-    set_parser = subparsers.add_parser('set', help='Set specific version')
-    set_parser.add_argument('version', help='Version to set (e.g., 1.2.3)')
+    set_parser = subparsers.add_parser("set", help="Set specific version")
+    set_parser.add_argument("version", help="Version to set (e.g., 1.2.3)")
 
     # Validate version command
-    validate_parser = subparsers.add_parser('validate', help='Validate version format')
-    validate_parser.add_argument('version', help='Version to validate')
+    validate_parser = subparsers.add_parser("validate", help="Validate version format")
+    validate_parser.add_argument("version", help="Version to validate")
 
     args = parser.parse_args()
 
@@ -195,26 +199,26 @@ Examples:
 
     try:
         # Initialize version manager
-        if args.command != 'validate':
+        if args.command != "validate":
             vm = VersionManager(args.project_root)
 
         # Execute commands
-        if args.command == 'current':
+        if args.command == "current":
             version = vm.get_current_version()
             print(f"Current version: {version}")
 
-        elif args.command == 'bump':
+        elif args.command == "bump":
             new_version = vm.bump_version(args.type)
             print(f"Git tag: {new_version.with_v_prefix()}")
 
-        elif args.command == 'next':
+        elif args.command == "next":
             next_version = vm.get_next_version(args.type)
             print(f"Next {args.type} version: {next_version}")
 
-        elif args.command == 'set':
+        elif args.command == "set":
             vm.set_version(args.version)
 
-        elif args.command == 'validate':
+        elif args.command == "validate":
             # Validate version format directly
             try:
                 SemanticVersion(args.version)
@@ -237,5 +241,5 @@ Examples:
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
