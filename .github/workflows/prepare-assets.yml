@@ -131,31 +131,32 @@ jobs:
         run: |
           chmod +x scripts/prepare-release.sh
 
-        echo "🔧 Preparing assets for version ${{ inputs.version }} in format ${{ matrix.format }}..."
+          echo "🔧 Preparing assets for version ${{ inputs.version }}" \\
+               "in format ${{ matrix.format }}..."
 
-        # Set format argument based on matrix value
-        case "${{ matrix.format }}" in
-          "tar.gz")
-            FORMAT_ARG="tar.gz"
-            ;;
-          "zip")
-            FORMAT_ARG="zip"
-            ;;
-          *)
-            echo "❌ Unsupported format: ${{ matrix.format }}"
-            exit 1
-            ;;
-        esac
+          # Set format argument based on matrix value
+          case "${{ matrix.format }}" in
+            "tar.gz")
+              FORMAT_ARG="tar.gz"
+              ;;
+            "zip")
+              FORMAT_ARG="zip"
+              ;;
+            *)
+              echo "❌ Unsupported format: ${{ matrix.format }}"
+              exit 1
+              ;;
+          esac
 
-        # Run asset preparation
-        ./scripts/prepare-release.sh \
-          --version "${{ inputs.version }}" \
-          --format "$FORMAT_ARG" \
-          ${{ inputs.include_docs && '--include-docs' || '--no-docs' }} \
-          --verbose \
-          --output-dir build-env/output
+          # Run asset preparation
+          ./scripts/prepare-release.sh \
+            --version "${{ inputs.version }}" \
+            --format "$FORMAT_ARG" \
+            ${{ inputs.include_docs && '--include-docs' || '--no-docs' }} \
+            --verbose \
+            --output-dir build-env/output
 
-        echo "✅ Asset preparation completed for ${{ matrix.format }}"
+          echo "✅ Asset preparation completed for ${{ matrix.format }}"
 
       - name: Generate checksums
         id: checksums
