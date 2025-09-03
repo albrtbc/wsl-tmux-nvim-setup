@@ -121,8 +121,6 @@ find_asset_files() {
     local assets_dir="$1"
     local recursive="$2"
     
-    log_debug "Searching for asset files in: $assets_dir"
-    
     local find_args=("$assets_dir")
     
     if [[ "$recursive" != "true" ]]; then
