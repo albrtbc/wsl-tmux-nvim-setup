@@ -1,0 +1,25 @@
+# OS-generated files
+.DS_Store
+.DS_Store?
+._* 
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*~
+*.swp
+*.swo
+.viminfo
+
+# IDE files
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and databases
+*.log
+
+# IA
+CLAUDE.md

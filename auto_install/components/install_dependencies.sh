@@ -33,4 +33,5 @@ git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-
 
 # Move bash config files
 cp /tmp/wsl-tmux-nvim-setup/.gitconfig ~/.gitconfig
+cp /tmp/wsl-tmux-nvim-setup/.gitignore_global ~/.gitignore_global
 cp /tmp/wsl-tmux-nvim-setup/.bashrc ~/.bashrc
