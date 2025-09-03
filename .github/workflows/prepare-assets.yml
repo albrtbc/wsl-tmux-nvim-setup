@@ -110,7 +110,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-        python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install system dependencies
         run: |
@@ -259,9 +259,9 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-        pattern: assets-*-${{ inputs.version }}
-        path: ./all-assets
-        merge-multiple: true
+          pattern: assets-*-${{ inputs.version }}
+          path: ./all-assets
+          merge-multiple: true
 
       - name: Comprehensive asset verification
         run: |
@@ -402,8 +402,8 @@ jobs:
       - name: Download test assets
         uses: actions/download-artifact@v4
         with:
-        pattern: assets-${{ matrix.format }}-${{ inputs.version }}
-        path: ./test-assets
+          pattern: assets-${{ matrix.format }}-${{ inputs.version }}
+          path: ./test-assets
 
       - name: Test asset extraction
         run: |
