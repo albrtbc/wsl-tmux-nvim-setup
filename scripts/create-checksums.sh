@@ -7,9 +7,12 @@
 set -euo pipefail  # Strict error mode
 
 # Script metadata
-readonly SCRIPT_NAME="$(basename "$0")"
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+readonly PROJECT_ROOT
 
 # Default configuration
 ASSETS_DIR="${PROJECT_ROOT}/release-assets"
@@ -190,9 +193,7 @@ generate_checksum() {
     
     # Generate checksum and format output
     local checksum_output
-    checksum_output=$("$hash_cmd" "$file" 2>/dev/null)
-    
-    if [[ $? -eq 0 ]]; then
+    if checksum_output=$("$hash_cmd" "$file" 2>/dev/null); then
         # Extract just the hash part (before the filename)
         local hash
         hash=$(echo "$checksum_output" | cut -d' ' -f1)
