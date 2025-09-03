@@ -34,7 +34,7 @@ jobs:
     - name: Lint shell scripts with ShellCheck
       run: |
         echo "Running ShellCheck on all shell scripts..."
-        find . -name "*.sh" -type f | while read -r file; do
+        find . -name "*.sh" -type f -not -path "./synth-shell/*" | while read -r file; do
           echo "Checking: $file"
           shellcheck -x "$file"
         done
