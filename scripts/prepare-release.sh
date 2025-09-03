@@ -20,16 +20,12 @@ declare PROJECT_ROOT
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 readonly PROJECT_ROOT
 
-# Configuration
-readonly RELEASE_DIR="${PROJECT_ROOT}/release-assets"
-readonly TEMP_DIR="${RELEASE_DIR}/tmp"
-readonly LOG_FILE="${RELEASE_DIR}/prepare-release.log"
-
 # Default values
 VERSION=""
 OUTPUT_FORMAT="both"  # tar.gz, zip, or both
 INCLUDE_DOCS="true"
 VERBOSE="false"
+RELEASE_DIR="${PROJECT_ROOT}/release-assets"  # Default output directory
 
 # Color codes for output
 readonly RED='\033[0;31m'
@@ -40,20 +36,32 @@ readonly NC='\033[0m' # No Color
 
 # Logging functions
 log_info() {
-    echo -e "${GREEN}[INFO]${NC} $*" | tee -a "$LOG_FILE"
+    echo -e "${GREEN}[INFO]${NC} $*"
+    if [[ -n "${LOG_FILE:-}" ]]; then
+        echo "[INFO] $*" >> "$LOG_FILE" 2>/dev/null || true
+    fi
 }
 
 log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $*" | tee -a "$LOG_FILE"
+    echo -e "${YELLOW}[WARN]${NC} $*"
+    if [[ -n "${LOG_FILE:-}" ]]; then
+        echo "[WARN] $*" >> "$LOG_FILE" 2>/dev/null || true
+    fi
 }
 
 log_error() {
-    echo -e "${RED}[ERROR]${NC} $*" | tee -a "$LOG_FILE" >&2
+    echo -e "${RED}[ERROR]${NC} $*" >&2
+    if [[ -n "${LOG_FILE:-}" ]]; then
+        echo "[ERROR] $*" >> "$LOG_FILE" 2>/dev/null || true
+    fi
 }
 
 log_debug() {
     if [[ "$VERBOSE" == "true" ]]; then
-        echo -e "${BLUE}[DEBUG]${NC} $*" | tee -a "$LOG_FILE"
+        echo -e "${BLUE}[DEBUG]${NC} $*"
+        if [[ -n "${LOG_FILE:-}" ]]; then
+            echo "[DEBUG] $*" >> "$LOG_FILE" 2>/dev/null || true
+        fi
     fi
 }
 
@@ -121,8 +129,8 @@ except (KeyError, FileNotFoundError, json.JSONDecodeError) as e:
 validate_version() {
     local version="$1"
     
-    # Semantic version regex
-    if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\-\.]+)?$ ]]; then
+    # Semantic version regex - use grep instead of bash regex for better compatibility
+    if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
         error_exit "Invalid semantic version format: $version"
     fi
     
@@ -552,6 +560,10 @@ parse_arguments() {
 # Main execution
 main() {
     parse_arguments "$@"
+    
+    # Initialize directory and file paths after parsing arguments
+    readonly TEMP_DIR="${RELEASE_DIR}/tmp"
+    readonly LOG_FILE="${RELEASE_DIR}/prepare-release.log"
     
     # Setup environment
     mkdir -p "$RELEASE_DIR" "$TEMP_DIR"

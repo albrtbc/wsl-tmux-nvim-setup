@@ -150,9 +150,9 @@ jobs:
           ./scripts/prepare-release.sh \
             --version "${{ inputs.version }}" \
             --format "$FORMAT_ARG" \
-            ${{ inputs.include_docs && '--include-docs' || '--no-docs' }} \
+            ${{ inputs.include_docs && '' || '--no-docs' }} \
             --verbose \
-            --output-dir build-env/output
+            --output build-env/output
 
           echo "✅ Asset preparation completed for ${{ matrix.format }}"
 
