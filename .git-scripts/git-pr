@@ -42,8 +42,10 @@ if command -v gh &> /dev/null; then
         # Use provided title
         gh pr create --base "$main_branch" --head "$current_branch" --title "$1" --body "$2"
     else
-        # Interactive mode
-        gh pr create --base "$main_branch" --head "$current_branch"
+        # Use last commit message
+        commit_title=$(git log -1 --pretty=format:%s)
+        commit_body=$(git log -1 --pretty=format:%b)
+        gh pr create --base "$main_branch" --head "$current_branch" --title "$commit_title" --body "$commit_body"
     fi
     
 elif command -v hub &> /dev/null; then
@@ -53,8 +55,9 @@ elif command -v hub &> /dev/null; then
         # Use provided title
         hub pull-request -b "$main_branch" -h "$current_branch" -m "$1"
     else
-        # Interactive mode
-        hub pull-request -b "$main_branch" -h "$current_branch"
+        # Use last commit message
+        commit_message=$(git log -1 --pretty=format:"%s%n%n%b")
+        hub pull-request -b "$main_branch" -h "$current_branch" -m "$commit_message"
     fi
     
 else
