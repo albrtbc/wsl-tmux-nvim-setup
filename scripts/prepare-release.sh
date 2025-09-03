@@ -117,8 +117,8 @@ except (KeyError, FileNotFoundError, json.JSONDecodeError) as e:
 validate_version() {
     local version="$1"
     
-    # Semantic version regex
-    if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\-\.]+)?$ ]]; then
+    # Semantic version regex - use grep instead of bash regex for better compatibility
+    if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
         error_exit "Invalid semantic version format: $version"
     fi
     
