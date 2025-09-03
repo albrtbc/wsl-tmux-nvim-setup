@@ -188,12 +188,16 @@ class InteractiveWizard:
 
         return UIMode.RICH  # Default to rich UI
 
-    def run_wizard(self, ui_mode: UIMode = UIMode.AUTO) -> Optional[InstallationSettings]:
+    def run_wizard(
+        self, ui_mode: UIMode = UIMode.AUTO
+    ) -> Optional[InstallationSettings]:
         """Run the interactive installation wizard"""
         if ui_mode == UIMode.AUTO:
             ui_mode = self.detect_ui_mode()
 
-        self.console.print("\n[bold blue]🧙‍♂️ WSL-Tmux-Nvim-Setup Installation Wizard[/bold blue]\n")
+        self.console.print(
+            "\n[bold blue]🧙‍♂️ WSL-Tmux-Nvim-Setup Installation Wizard[/bold blue]\n"
+        )
 
         try:
             if ui_mode == UIMode.CURSES:
@@ -228,7 +232,9 @@ class InteractiveWizard:
 
         # Step 4: Review and confirm
         settings = InstallationSettings(
-            components=selected_components, installation_path=install_path, **config_options
+            components=selected_components,
+            installation_path=install_path,
+            **config_options,
         )
 
         if self._rich_review_settings(settings):
@@ -294,11 +300,18 @@ class InteractiveWizard:
 
             # Title
             title = "WSL-Tmux-Nvim-Setup Component Selection"
-            stdscr.addstr(0, (max_x - len(title)) // 2, title, curses.color_pair(1) | curses.A_BOLD)
+            stdscr.addstr(
+                0,
+                (max_x - len(title)) // 2,
+                title,
+                curses.color_pair(1) | curses.A_BOLD,
+            )
 
             # Instructions
             stdscr.addstr(
-                2, 2, "Use ↑/↓ to navigate, SPACE to select, A to toggle all, ENTER to continue"
+                2,
+                2,
+                "Use ↑/↓ to navigate, SPACE to select, A to toggle all, ENTER to continue",
             )
 
             # Component list
@@ -320,7 +333,9 @@ class InteractiveWizard:
                     text += f" - {component.description[:max_x - len(text) - 3]}"
 
                 # Color coding
-                color_pair = curses.color_pair(2) if selected[i] else curses.color_pair(0)
+                color_pair = (
+                    curses.color_pair(2) if selected[i] else curses.color_pair(0)
+                )
                 if component.name.lower() == "dependencies":
                     color_pair = curses.color_pair(3)  # Yellow for required
 
@@ -331,17 +346,19 @@ class InteractiveWizard:
 
             # Summary
             selected_count = sum(selected)
-            total_size = sum(comp.size_mb for i, comp in enumerate(components) if selected[i])
-            summary = (
-                f"Selected: {selected_count}/{len(components)} components (~{total_size:.0f}MB)"
+            total_size = sum(
+                comp.size_mb for i, comp in enumerate(components) if selected[i]
             )
+            summary = f"Selected: {selected_count}/{len(components)} components (~{total_size:.0f}MB)"
             try:
                 stdscr.addstr(max_y - 3, 2, summary, curses.color_pair(2))
             except curses.error:
                 pass
 
             # Help
-            help_text = "Press 'A' to select/deselect all, 'Enter' to continue, 'Q' to quit"
+            help_text = (
+                "Press 'A' to select/deselect all, 'Enter' to continue, 'Q' to quit"
+            )
             try:
                 stdscr.addstr(max_y - 2, 2, help_text[: max_x - 4])
             except curses.error:
@@ -385,8 +402,12 @@ class InteractiveWizard:
 
         # Create welcome panel
         welcome_text = Text()
-        welcome_text.append("Welcome to the WSL Development Environment Setup!\n\n", style="bold")
-        welcome_text.append("This wizard will guide you through installing and configuring:\n")
+        welcome_text.append(
+            "Welcome to the WSL Development Environment Setup!\n\n", style="bold"
+        )
+        welcome_text.append(
+            "This wizard will guide you through installing and configuring:\n"
+        )
         welcome_text.append("• Terminal multiplexer (Tmux)\n")
         welcome_text.append("• Modern text editor (Neovim)\n")
         welcome_text.append("• File manager (Yazi)\n")
@@ -404,7 +425,9 @@ class InteractiveWizard:
         self.console.print(panel)
         self.console.print()
 
-        if not Confirm.ask("Would you like to continue with the installation?", default=True):
+        if not Confirm.ask(
+            "Would you like to continue with the installation?", default=True
+        ):
             raise KeyboardInterrupt()
 
     def _detect_system_info(self) -> Dict[str, str]:
@@ -500,12 +523,16 @@ class InteractiveWizard:
 
         # Show selection summary
         if selected_components:
-            total_size = sum(self.components[name].size_mb or 0 for name in selected_components)
+            total_size = sum(
+                self.components[name].size_mb or 0 for name in selected_components
+            )
             self.console.print(
                 f"\n[bold green]Selected {len(selected_components)} components (~{total_size:.0f}MB)[/bold green]"
             )
 
-            selected_names = [self.components[name].name for name in selected_components]
+            selected_names = [
+                self.components[name].name for name in selected_components
+            ]
             columns = Columns(selected_names, equal=True, expand=True)
             self.console.print(Panel(columns, title="Selected Components"))
 
@@ -518,7 +545,9 @@ class InteractiveWizard:
         default_path = str(Path.home() / ".local" / "share" / "wsl-tmux-nvim-setup")
 
         self.console.print(f"Default installation path: [cyan]{default_path}[/cyan]")
-        self.console.print("This path will contain all installed components and configurations.\n")
+        self.console.print(
+            "This path will contain all installed components and configurations.\n"
+        )
 
         path = Prompt.ask("Installation path", default=default_path, show_default=True)
 
@@ -527,7 +556,9 @@ class InteractiveWizard:
 
         # Check if path exists and has contents
         if expanded_path.exists() and any(expanded_path.iterdir()):
-            if not Confirm.ask(f"Directory {expanded_path} exists and is not empty. Continue?"):
+            if not Confirm.ask(
+                f"Directory {expanded_path} exists and is not empty. Continue?"
+            ):
                 return None
 
         # Check if parent directory is writable
@@ -550,14 +581,19 @@ class InteractiveWizard:
         )
 
         # Auto-update settings
-        config["auto_update"] = Confirm.ask("Enable automatic update checking?", default=False)
+        config["auto_update"] = Confirm.ask(
+            "Enable automatic update checking?", default=False
+        )
 
         # GitHub token (optional)
         self.console.print(
             "\n[dim]GitHub token is optional but recommended for higher API rate limits[/dim]"
         )
         token = Prompt.ask(
-            "GitHub personal access token (optional)", default="", show_default=False, password=True
+            "GitHub personal access token (optional)",
+            default="",
+            show_default=False,
+            password=True,
         )
         config["github_token"] = token if token else None
 
@@ -582,20 +618,30 @@ class InteractiveWizard:
 
         # Components
         component_names = [self.components[name].name for name in settings.components]
-        total_size = sum(self.components[name].size_mb or 0 for name in settings.components)
+        total_size = sum(
+            self.components[name].size_mb or 0 for name in settings.components
+        )
 
-        table.add_row("Components:", f"{len(settings.components)} selected (~{total_size:.0f}MB)")
+        table.add_row(
+            "Components:", f"{len(settings.components)} selected (~{total_size:.0f}MB)"
+        )
         table.add_row(
             "",
             ", ".join(component_names[:3])
-            + (f" and {len(component_names)-3} more" if len(component_names) > 3 else ""),
+            + (
+                f" and {len(component_names)-3} more"
+                if len(component_names) > 3
+                else ""
+            ),
         )
 
         # Settings
         table.add_row("Installation Path:", settings.installation_path)
         table.add_row("Backup Enabled:", "Yes" if settings.backup_enabled else "No")
         table.add_row("Auto Updates:", "Yes" if settings.auto_update else "No")
-        table.add_row("Parallel Downloads:", "Yes" if settings.parallel_downloads else "No")
+        table.add_row(
+            "Parallel Downloads:", "Yes" if settings.parallel_downloads else "No"
+        )
         table.add_row("Verify Checksums:", "Yes" if settings.verify_checksums else "No")
 
         if settings.github_token:
@@ -607,7 +653,9 @@ class InteractiveWizard:
         return Confirm.ask("\nProceed with installation?", default=True)
 
 
-def create_wizard(config_manager, console: Optional[Console] = None) -> InteractiveWizard:
+def create_wizard(
+    config_manager, console: Optional[Console] = None
+) -> InteractiveWizard:
     """Factory function to create installation wizard"""
     return InteractiveWizard(config_manager, console)
 

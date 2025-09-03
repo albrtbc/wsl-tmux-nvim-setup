@@ -18,7 +18,10 @@ import yaml
 try:
     from pydantic import BaseModel, Field, validator
 except ImportError:
-    print("Error: pydantic not found. Install with: pip install pydantic>=1.10.0", file=sys.stderr)
+    print(
+        "Error: pydantic not found. Install with: pip install pydantic>=1.10.0",
+        file=sys.stderr,
+    )
     sys.exit(1)
 
 
@@ -31,13 +34,17 @@ class UserConfig(BaseModel):
     backup_retention: int = Field(5, description="Number of backups to keep")
 
     # Installation settings
-    installation_path: str = Field("~/.config/wsl-setup", description="Installation directory")
+    installation_path: str = Field(
+        "~/.config/wsl-setup", description="Installation directory"
+    )
     preferred_components: List[str] = Field(
         default_factory=list, description="Preferred components to install"
     )
 
     # API and network settings
-    github_token: Optional[str] = Field(None, description="GitHub token for higher API limits")
+    github_token: Optional[str] = Field(
+        None, description="GitHub token for higher API limits"
+    )
     network_timeout: int = Field(30, description="Network timeout in seconds")
     max_retries: int = Field(3, description="Maximum retry attempts")
 
@@ -311,9 +318,15 @@ if __name__ == "__main__":
     # CLI for configuration management
     import argparse
 
-    parser = argparse.ArgumentParser(description="WSL-Tmux-Nvim-Setup Configuration Manager")
-    parser.add_argument("--show", action="store_true", help="Show current configuration")
-    parser.add_argument("--reset", action="store_true", help="Reset configuration to defaults")
+    parser = argparse.ArgumentParser(
+        description="WSL-Tmux-Nvim-Setup Configuration Manager"
+    )
+    parser.add_argument(
+        "--show", action="store_true", help="Show current configuration"
+    )
+    parser.add_argument(
+        "--reset", action="store_true", help="Reset configuration to defaults"
+    )
     parser.add_argument("--export", type=str, help="Export configuration to file")
     parser.add_argument(
         "--import", type=str, dest="import_file", help="Import configuration from file"

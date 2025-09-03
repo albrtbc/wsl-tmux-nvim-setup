@@ -16,7 +16,12 @@ try:
     import requests
     from requests.adapters import HTTPAdapter
     from rich.console import Console
-    from rich.progress import DownloadColumn, Progress, TimeRemainingColumn, TransferSpeedColumn
+    from rich.progress import (
+        DownloadColumn,
+        Progress,
+        TimeRemainingColumn,
+        TransferSpeedColumn,
+    )
     from urllib3.util.retry import Retry
 except ImportError as e:
     print(f"Error: Required package not found: {e}", file=sys.stderr)
@@ -163,7 +168,9 @@ class DownloadManager:
                     output_path.unlink()
 
             # Make download request
-            response = self.session.get(url, headers=headers, stream=True, timeout=self.timeout)
+            response = self.session.get(
+                url, headers=headers, stream=True, timeout=self.timeout
+            )
             response.raise_for_status()
 
             # Update total size if we got content-length from GET request
@@ -222,7 +229,12 @@ class DownloadManager:
 
                             if progress_callback:
                                 progress_callback(
-                                    downloaded, total_size + resume_byte_pos if total_size else None
+                                    downloaded,
+                                    (
+                                        total_size + resume_byte_pos
+                                        if total_size
+                                        else None
+                                    ),
                                 )
 
             finally:
@@ -283,7 +295,9 @@ class DownloadManager:
                 return name, None, e
 
         # Use ThreadPoolExecutor for concurrent downloads
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_concurrent) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=max_concurrent
+        ) as executor:
             # Submit all download tasks
             future_to_name = {
                 executor.submit(download_worker, name, config): name

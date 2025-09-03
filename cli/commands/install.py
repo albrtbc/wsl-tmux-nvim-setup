@@ -63,7 +63,9 @@ class InstallManager:
                 raise click.ClickException(f"GitHub API error: {e}")
         return self.github_client
 
-    def list_available_versions(self, include_prerelease: bool = False) -> List[Dict[str, Any]]:
+    def list_available_versions(
+        self, include_prerelease: bool = False
+    ) -> List[Dict[str, Any]]:
         """List available versions for installation"""
         client = self.get_github_client()
 
@@ -77,7 +79,9 @@ class InstallManager:
         except GitHubAPIError as e:
             raise click.ClickException(f"Failed to fetch releases: {e}")
 
-    def get_latest_version(self, include_prerelease: bool = False) -> Optional[Dict[str, Any]]:
+    def get_latest_version(
+        self, include_prerelease: bool = False
+    ) -> Optional[Dict[str, Any]]:
         """Get latest available version"""
         client = self.get_github_client()
 
@@ -95,7 +99,9 @@ class InstallManager:
         except GitHubAPIError:
             return None
 
-    def create_backup(self, description: str = "Pre-installation backup") -> Optional[Path]:
+    def create_backup(
+        self, description: str = "Pre-installation backup"
+    ) -> Optional[Path]:
         """Create backup before installation"""
         if not self.config.backup_retention or self.config.backup_retention <= 0:
             return None
@@ -165,7 +171,9 @@ class InstallManager:
                 checksums_asset = asset
 
         if not main_asset:
-            raise click.ClickException("No installation archive found in release assets")
+            raise click.ClickException(
+                "No installation archive found in release assets"
+            )
 
         # Add assets to download
         assets_to_download["main_archive"] = {
@@ -184,13 +192,16 @@ class InstallManager:
             if self.config.parallel_downloads and len(assets_to_download) > 1:
                 # Download multiple assets in parallel
                 downloaded_files = self.download_manager.download_multiple(
-                    assets_to_download, max_concurrent=self.config.max_concurrent_downloads
+                    assets_to_download,
+                    max_concurrent=self.config.max_concurrent_downloads,
                 )
             else:
                 # Download assets sequentially
                 downloaded_files = {}
                 for name, download_config in assets_to_download.items():
-                    downloaded_files[name] = self.download_manager.download_file(**download_config)
+                    downloaded_files[name] = self.download_manager.download_file(
+                        **download_config
+                    )
 
             return downloaded_files
 
@@ -204,7 +215,9 @@ class InstallManager:
 
         checksums_file = downloaded_files.get("checksums")
         if not checksums_file:
-            self.console.print("[yellow]No checksums file available for verification[/yellow]")
+            self.console.print(
+                "[yellow]No checksums file available for verification[/yellow]"
+            )
             return True
 
         main_archive = downloaded_files.get("main_archive")
@@ -227,21 +240,27 @@ class InstallManager:
             if archive_name in checksums:
                 expected_hash = checksums[archive_name]
 
-                if self.download_manager.verify_file_hash(main_archive, expected_hash, "sha256"):
+                if self.download_manager.verify_file_hash(
+                    main_archive, expected_hash, "sha256"
+                ):
                     self.console.print("[green]✓ File verification successful[/green]")
                     return True
                 else:
                     self.console.print("[red]✗ File verification failed[/red]")
                     return False
             else:
-                self.console.print("[yellow]No checksum found for downloaded file[/yellow]")
+                self.console.print(
+                    "[yellow]No checksum found for downloaded file[/yellow]"
+                )
                 return True
 
         except Exception as e:
             self.console.print(f"[yellow]Verification error: {e}[/yellow]")
             return True  # Don't fail installation for verification errors
 
-    def extract_and_install(self, archive_path: Path, version_info: Dict[str, Any]) -> bool:
+    def extract_and_install(
+        self, archive_path: Path, version_info: Dict[str, Any]
+    ) -> bool:
         """Extract archive and run installation"""
         installation_path = self.config_manager.get_expanded_installation_path()
 
@@ -285,7 +304,9 @@ class InstallManager:
                             break
 
                 if not install_script:
-                    raise click.ClickException("No installation script found in archive")
+                    raise click.ClickException(
+                        "No installation script found in archive"
+                    )
 
                 # Make script executable
                 install_script.chmod(0o755)
@@ -310,7 +331,9 @@ class InstallManager:
 
                 if result.returncode != 0:
                     if result.stderr:
-                        self.console.print(f"[red]Installation error: {result.stderr}[/red]")
+                        self.console.print(
+                            f"[red]Installation error: {result.stderr}[/red]"
+                        )
                     raise click.ClickException(
                         f"Installation script failed (exit code: {result.returncode})"
                     )
@@ -333,7 +356,15 @@ class InstallManager:
         # Determine installed components
         if components is None:
             # Try to detect from version info or use defaults
-            components = ["tmux", "neovim", "yazi", "lazygit", "synth-shell", "nerdfonts", "kitty"]
+            components = [
+                "tmux",
+                "neovim",
+                "yazi",
+                "lazygit",
+                "synth-shell",
+                "nerdfonts",
+                "kitty",
+            ]
 
         # Update status
         self.config_manager.update_status(
@@ -383,20 +414,26 @@ class InstallManager:
             if not version_info:
                 raise click.ClickException("No releases available")
 
-            self.console.print(f"[blue]Installing latest: {version_info['name']}...[/blue]")
+            self.console.print(
+                f"[blue]Installing latest: {version_info['name']}...[/blue]"
+            )
 
         # Check if already installed
         current_version = self.config_manager.status.version
         target_version = version_info["tag_name"].lstrip("v")
 
         if not force and current_version == target_version:
-            self.console.print(f"[yellow]Version {target_version} is already installed[/yellow]")
+            self.console.print(
+                f"[yellow]Version {target_version} is already installed[/yellow]"
+            )
             self.console.print("Use --force to reinstall")
             return False
 
         # Show version information
         self.console.print(f"\n[bold]Version:[/bold] {version_info['tag_name']}")
-        self.console.print(f"[bold]Published:[/bold] {version_info['published_at'][:10]}")
+        self.console.print(
+            f"[bold]Published:[/bold] {version_info['published_at'][:10]}"
+        )
         if version_info["assets"]:
             asset_size = sum(asset["size"] for asset in version_info["assets"])
             size_mb = asset_size / 1024 / 1024
@@ -416,7 +453,9 @@ class InstallManager:
                 self.console.print("\n[blue]Creating backup...[/blue]")
                 backup_path = self.create_backup("Pre-installation backup")
                 if backup_path:
-                    self.console.print(f"[green]✓ Backup created: {backup_path.name}[/green]")
+                    self.console.print(
+                        f"[green]✓ Backup created: {backup_path.name}[/green]"
+                    )
 
             # Create temporary download directory
             with tempfile.TemporaryDirectory(prefix="wsm_download_") as temp_dir:
@@ -424,7 +463,9 @@ class InstallManager:
 
                 # Download release assets
                 self.console.print("\n[blue]Downloading release assets...[/blue]")
-                downloaded_files = self.download_release_assets(version_info, download_dir)
+                downloaded_files = self.download_release_assets(
+                    version_info, download_dir
+                )
 
                 # Verify downloads
                 if not self.verify_downloads(downloaded_files):
@@ -438,8 +479,12 @@ class InstallManager:
                     # Update installation status
                     self.update_installation_status(version_info, components)
 
-                    self.console.print("\n[green]✓ Installation completed successfully![/green]")
-                    self.console.print(f"[green]Version {target_version} is now installed[/green]")
+                    self.console.print(
+                        "\n[green]✓ Installation completed successfully![/green]"
+                    )
+                    self.console.print(
+                        f"[green]Version {target_version} is now installed[/green]"
+                    )
 
                     # Show post-installation notes
                     self.show_post_install_notes(version_info)
@@ -476,14 +521,20 @@ class InstallManager:
                 body += "..."
             self.console.print(f"[dim]{body}[/dim]")
 
-        self.console.print(f"\n[dim]For more information: {version_info['html_url']}[/dim]")
+        self.console.print(
+            f"\n[dim]For more information: {version_info['html_url']}[/dim]"
+        )
 
 
 @click.command()
 @click.argument("version", required=False)
 @click.option("--prerelease", is_flag=True, help="Allow prerelease versions")
-@click.option("--force", is_flag=True, help="Force installation even if same version is installed")
-@click.option("--skip-backup", is_flag=True, help="Skip creating backup before installation")
+@click.option(
+    "--force", is_flag=True, help="Force installation even if same version is installed"
+)
+@click.option(
+    "--skip-backup", is_flag=True, help="Skip creating backup before installation"
+)
 @click.option("--components", help="Comma-separated list of components to install")
 @click.option("--list-versions", is_flag=True, help="List available versions and exit")
 @click.option("--interactive", is_flag=True, help="Run interactive installation wizard")
@@ -547,7 +598,10 @@ def install(
 
         # Handle interactive installation wizard
         if interactive or (not version and not components and not list_versions):
-            from interactive.textual_installer import create_textual_installer, textual_available
+            from interactive.textual_installer import (
+                create_textual_installer,
+                textual_available,
+            )
             from interactive.wizard import InteractiveWizard, UIMode
 
             # Run interactive wizard
@@ -569,7 +623,9 @@ def install(
                                 installation_path=config["installation_path"]
                             )
                     else:
-                        console.print("[yellow]Interactive installation cancelled[/yellow]")
+                        console.print(
+                            "[yellow]Interactive installation cancelled[/yellow]"
+                        )
                         return
                 else:
                     # Use rich/curses wizard
@@ -594,18 +650,24 @@ def install(
                             verify_checksums=settings.verify_checksums,
                         )
                     else:
-                        console.print("[yellow]Interactive installation cancelled[/yellow]")
+                        console.print(
+                            "[yellow]Interactive installation cancelled[/yellow]"
+                        )
                         return
 
             except Exception as e:
                 console.print(f"[red]Interactive wizard error: {e}[/red]")
-                console.print("[yellow]Falling back to standard installation...[/yellow]")
+                console.print(
+                    "[yellow]Falling back to standard installation...[/yellow]"
+                )
 
         # Handle list versions option
         if list_versions:
             console.print("[bold]Available Versions:[/bold]\n")
 
-            releases = install_manager.list_available_versions(include_prerelease=prerelease)
+            releases = install_manager.list_available_versions(
+                include_prerelease=prerelease
+            )
 
             if not releases:
                 console.print("[yellow]No releases found[/yellow]")

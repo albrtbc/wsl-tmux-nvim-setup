@@ -52,7 +52,12 @@ class TestCompleteInstallationWorkflow:
                 # Simulate successful installation
                 mock_instance.get_latest_version.return_value = {
                     "tag_name": "v1.1.0",
-                    "assets": [{"name": "test.tar.gz", "browser_download_url": "http://test.com"}],
+                    "assets": [
+                        {
+                            "name": "test.tar.gz",
+                            "browser_download_url": "http://test.com",
+                        }
+                    ],
                 }
 
                 result = subprocess.run(
@@ -108,7 +113,13 @@ class TestCompleteInstallationWorkflow:
         if not cli_script.exists():
             pytest.skip("CLI script not found for E2E testing")
 
-        commands_to_test = [["status"], ["--version"], ["version-info"], ["doctor"], ["--help"]]
+        commands_to_test = [
+            ["status"],
+            ["--version"],
+            ["version-info"],
+            ["doctor"],
+            ["--help"],
+        ]
 
         for cmd in commands_to_test:
             try:
@@ -475,7 +486,9 @@ class TestPerformanceWorkflows:
                 elapsed_time = time.time() - start_time
 
                 # Fast commands should complete quickly (target <2 seconds)
-                assert elapsed_time < 2.0, f"Command {cmd} took {elapsed_time:.2f}s (>2s target)"
+                assert (
+                    elapsed_time < 2.0
+                ), f"Command {cmd} took {elapsed_time:.2f}s (>2s target)"
                 assert result.returncode in [0, 1, 2]
 
             except subprocess.TimeoutExpired:

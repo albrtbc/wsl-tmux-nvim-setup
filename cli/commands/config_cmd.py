@@ -202,8 +202,12 @@ class ConfigCommand:
                     raise ValueError("backup_retention must be non-negative")
                 elif key in ["network_timeout", "max_retries"] and converted_value <= 0:
                     raise ValueError(f"{key} must be positive")
-                elif key == "max_concurrent_downloads" and not (1 <= converted_value <= 10):
-                    raise ValueError("max_concurrent_downloads must be between 1 and 10")
+                elif key == "max_concurrent_downloads" and not (
+                    1 <= converted_value <= 10
+                ):
+                    raise ValueError(
+                        "max_concurrent_downloads must be between 1 and 10"
+                    )
 
             elif field_type == str:
                 converted_value = value
@@ -269,7 +273,9 @@ class ConfigCommand:
 
     def interactive_config(self) -> None:
         """Interactive configuration setup"""
-        self.console.print("[bold blue]🔧 Interactive Configuration Setup[/bold blue]\n")
+        self.console.print(
+            "[bold blue]🔧 Interactive Configuration Setup[/bold blue]\n"
+        )
 
         current_config = self.config_manager.config.dict()
         changes = {}
@@ -305,13 +311,17 @@ class ConfigCommand:
                 self.console.print(f"Current value: [yellow]{current_value}[/yellow]")
 
                 if isinstance(field_info.get("values"), list):
-                    self.console.print(f"Valid values: {', '.join(field_info['values'])}")
+                    self.console.print(
+                        f"Valid values: {', '.join(field_info['values'])}"
+                    )
                 elif isinstance(field_info.get("values"), str):
                     self.console.print(f"Expected: {field_info['values']}")
 
                 # Get new value
                 if field_info["type"] == bool:
-                    new_value = Confirm.ask("Enable this setting?", default=current_value)
+                    new_value = Confirm.ask(
+                        "Enable this setting?", default=current_value
+                    )
                     if new_value != current_value:
                         changes[setting] = new_value
                 else:
@@ -326,7 +336,9 @@ class ConfigCommand:
                             if field_info["type"] == int:
                                 changes[setting] = int(new_value)
                             elif field_info["type"] == list:
-                                changes[setting] = [item.strip() for item in new_value.split(",")]
+                                changes[setting] = [
+                                    item.strip() for item in new_value.split(",")
+                                ]
                             else:
                                 changes[setting] = new_value
                         except ValueError as e:
@@ -337,16 +349,22 @@ class ConfigCommand:
             self.console.print("\n[bold]Summary of changes:[/bold]")
             for key, value in changes.items():
                 display_value = (
-                    value if not self.config_fields[key].get("sensitive") else "***hidden***"
+                    value
+                    if not self.config_fields[key].get("sensitive")
+                    else "***hidden***"
                 )
                 self.console.print(f"  {key}: [yellow]{display_value}[/yellow]")
 
             if Confirm.ask("\nApply these changes?", default=True):
                 try:
                     self.config_manager.update_config(**changes)
-                    self.console.print("[green]✓ Configuration updated successfully[/green]")
+                    self.console.print(
+                        "[green]✓ Configuration updated successfully[/green]"
+                    )
                 except Exception as e:
-                    self.console.print(f"[red]Failed to update configuration: {e}[/red]")
+                    self.console.print(
+                        f"[red]Failed to update configuration: {e}[/red]"
+                    )
             else:
                 self.console.print("Configuration changes cancelled")
         else:
@@ -374,7 +392,9 @@ class ConfigCommand:
                 output_file = output_file.with_suffix(".json")
 
             self.config_manager.export_config(output_file)
-            self.console.print(f"[green]✓ Configuration exported to {output_file}[/green]")
+            self.console.print(
+                f"[green]✓ Configuration exported to {output_file}[/green]"
+            )
 
         except Exception as e:
             self.console.print(f"[red]Failed to export configuration: {e}[/red]")
@@ -385,7 +405,9 @@ class ConfigCommand:
             raise click.ClickException(f"File not found: {input_file}")
 
         try:
-            self.console.print(f"[blue]Importing configuration from {input_file}...[/blue]")
+            self.console.print(
+                f"[blue]Importing configuration from {input_file}...[/blue]"
+            )
             self.config_manager.import_config(input_file)
             self.console.print("[green]✓ Configuration imported successfully[/green]")
 
@@ -397,7 +419,10 @@ class ConfigCommand:
         self.console.print("[bold blue]⚙️ Configuration Help[/bold blue]\n")
 
         for category, settings in [
-            ("Update Settings", ["auto_update", "update_frequency", "backup_retention"]),
+            (
+                "Update Settings",
+                ["auto_update", "update_frequency", "backup_retention"],
+            ),
             ("Installation Settings", ["installation_path", "preferred_components"]),
             ("Network Settings", ["github_token", "network_timeout", "max_retries"]),
             ("UI Preferences", ["show_progress", "verbose", "color_output"]),
@@ -421,7 +446,9 @@ class ConfigCommand:
                 elif isinstance(field_info.get("values"), str):
                     values_info = f" ({field_info['values']})"
 
-                self.console.print(f"  [cyan]{setting}[/cyan]: {description}{values_info}")
+                self.console.print(
+                    f"  [cyan]{setting}[/cyan]: {description}{values_info}"
+                )
 
             self.console.print()
 
@@ -503,7 +530,11 @@ def reset(ctx_obj):
 @config.command()
 @click.argument("output_file", type=click.Path())
 @click.option(
-    "--format", "-", type=click.Choice(["yaml", "json"]), default="yaml", help="Export format"
+    "--format",
+    "-",
+    type=click.Choice(["yaml", "json"]),
+    default="yaml",
+    help="Export format",
 )
 @click.pass_obj
 def export(ctx_obj, output_file, format):

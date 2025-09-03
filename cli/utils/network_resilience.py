@@ -21,7 +21,12 @@ try:
     from requests.adapters import HTTPAdapter
     from requests.packages.urllib3.util.retry import Retry
     from rich.console import Console
-    from rich.progress import DownloadColumn, Progress, TimeRemainingColumn, TransferSpeedColumn
+    from rich.progress import (
+        DownloadColumn,
+        Progress,
+        TimeRemainingColumn,
+        TransferSpeedColumn,
+    )
 except ImportError as e:
     print(f"Error: Required packages not found: {e}", file=sys.stderr)
     sys.exit(1)
@@ -174,7 +179,9 @@ class NetworkResilientDownloader:
                         mirror = Mirror(**mirror_data)
                         self.mirrors[mirror.name] = mirror
             except Exception as e:
-                self.console.print(f"[yellow]Warning: Failed to load mirrors config: {e}[/yellow]")
+                self.console.print(
+                    f"[yellow]Warning: Failed to load mirrors config: {e}[/yellow]"
+                )
 
     def _load_cache_index(self):
         """Load cache index from disk"""
@@ -187,20 +194,33 @@ class NetworkResilientDownloader:
 
                 for url, entry_data in cache_data.get("entries", {}).items():
                     # Convert datetime strings back to datetime objects
-                    for date_field in ["last_modified", "cached_at", "expires_at", "last_accessed"]:
+                    for date_field in [
+                        "last_modified",
+                        "cached_at",
+                        "expires_at",
+                        "last_accessed",
+                    ]:
                         if entry_data.get(date_field):
-                            entry_data[date_field] = datetime.fromisoformat(entry_data[date_field])
+                            entry_data[date_field] = datetime.fromisoformat(
+                                entry_data[date_field]
+                            )
 
                     entry_data["file_path"] = Path(entry_data["file_path"])
                     self.cache_entries[url] = CacheEntry(**entry_data)
 
         except Exception as e:
-            self.console.print(f"[yellow]Warning: Failed to load cache index: {e}[/yellow]")
+            self.console.print(
+                f"[yellow]Warning: Failed to load cache index: {e}[/yellow]"
+            )
 
     def _save_cache_index(self):
         """Save cache index to disk"""
         try:
-            cache_data = {"version": "1.0", "created": datetime.now().isoformat(), "entries": {}}
+            cache_data = {
+                "version": "1.0",
+                "created": datetime.now().isoformat(),
+                "entries": {},
+            }
 
             for url, entry in self.cache_entries.items():
                 # Convert datetime objects to strings for JSON serialization
@@ -226,7 +246,9 @@ class NetworkResilientDownloader:
                 json.dump(cache_data, f, indent=2)
 
         except Exception as e:
-            self.console.print(f"[yellow]Warning: Failed to save cache index: {e}[/yellow]")
+            self.console.print(
+                f"[yellow]Warning: Failed to save cache index: {e}[/yellow]"
+            )
 
     def add_mirror(self, name: str, base_url: str, priority: int = 1):
         """Add a new mirror"""
@@ -238,7 +260,9 @@ class NetworkResilientDownloader:
         """Check mirror health and update status"""
         try:
             start_time = time.time()
-            response = self.session.head(mirror.base_url, timeout=10, allow_redirects=True)
+            response = self.session.head(
+                mirror.base_url, timeout=10, allow_redirects=True
+            )
             response_time = time.time() - start_time
 
             mirror.response_time = response_time
@@ -263,7 +287,9 @@ class NetworkResilientDownloader:
             mirror.status = MirrorStatus.UNREACHABLE
 
         mirror.success_rate = (
-            mirror.successful_requests / mirror.total_requests if mirror.total_requests > 0 else 0.0
+            mirror.successful_requests / mirror.total_requests
+            if mirror.total_requests > 0
+            else 0.0
         )
         return False
 
@@ -272,7 +298,8 @@ class NetworkResilientDownloader:
         available_mirrors = [
             mirror
             for mirror in self.mirrors.values()
-            if mirror.status in [MirrorStatus.HEALTHY, MirrorStatus.SLOW, MirrorStatus.UNKNOWN]
+            if mirror.status
+            in [MirrorStatus.HEALTHY, MirrorStatus.SLOW, MirrorStatus.UNKNOWN]
         ]
 
         # Sort by priority (higher is better) and success rate
@@ -348,7 +375,8 @@ class NetworkResilientDownloader:
 
         # Sort entries by priority (least recently used, lowest access count)
         sorted_entries = sorted(
-            self.cache_entries.items(), key=lambda x: (x[1].access_count, x[1].last_accessed)
+            self.cache_entries.items(),
+            key=lambda x: (x[1].access_count, x[1].last_accessed),
         )
 
         # Remove entries until under size limit
@@ -490,7 +518,9 @@ class NetworkResilientDownloader:
                     416,
                 ]:  # Partial content or range not satisfiable
                     resume_pos = 0  # Start fresh
-                    response = self.session.get(task.url, timeout=task.timeout, stream=True)
+                    response = self.session.get(
+                        task.url, timeout=task.timeout, stream=True
+                    )
             except:
                 resume_pos = 0
                 response = self.session.get(task.url, timeout=task.timeout, stream=True)
@@ -539,7 +569,9 @@ class NetworkResilientDownloader:
 
             # Verify hash if provided
             if task.expected_hash:
-                if not self._verify_hash(task.destination, task.expected_hash, task.hash_algorithm):
+                if not self._verify_hash(
+                    task.destination, task.expected_hash, task.hash_algorithm
+                ):
                     task.destination.unlink()
                     self.stats["downloads_failed"] += 1
                     return False
@@ -598,7 +630,9 @@ class NetworkResilientDownloader:
                 try:
                     from email.utils import parsedate_to_datetime
 
-                    entry.last_modified = parsedate_to_datetime(headers["last-modified"])
+                    entry.last_modified = parsedate_to_datetime(
+                        headers["last-modified"]
+                    )
                 except:
                     pass
 
@@ -623,7 +657,9 @@ class NetworkResilientDownloader:
         except Exception as e:
             self.console.print(f"[yellow]Failed to cache file: {e}[/yellow]")
 
-    def download_multiple(self, tasks: List[DownloadTask], max_concurrent: int = 3) -> List[bool]:
+    def download_multiple(
+        self, tasks: List[DownloadTask], max_concurrent: int = 3
+    ) -> List[bool]:
         """Download multiple files concurrently"""
 
         if max_concurrent == 1:
@@ -634,7 +670,9 @@ class NetworkResilientDownloader:
         import concurrent.futures
 
         results = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_concurrent) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=max_concurrent
+        ) as executor:
             futures = [executor.submit(self.download_file, task) for task in tasks]
 
             for future in concurrent.futures.as_completed(futures):
@@ -674,7 +712,9 @@ class NetworkResilientDownloader:
         table.add_row("Downloads Failed", str(stats["downloads_failed"]))
         table.add_row("Cache Hits", str(stats["cache_hits"]))
         table.add_row("Cache Misses", str(stats["cache_misses"]))
-        table.add_row("Bytes Downloaded", f"{stats['bytes_downloaded'] / 1024 / 1024:.1f} MB")
+        table.add_row(
+            "Bytes Downloaded", f"{stats['bytes_downloaded'] / 1024 / 1024:.1f} MB"
+        )
         table.add_row("Cache Size", f"{stats['cache_size'] / 1024 / 1024:.1f} MB")
         table.add_row("Cache Entries", str(stats["cache_entries"]))
         table.add_row("Network Errors", str(stats["network_errors"]))
@@ -689,7 +729,9 @@ class NetworkResilientDownloader:
 
 
 def create_network_downloader(
-    cache_dir: Optional[Path] = None, offline_mode: bool = False, console: Optional[Console] = None
+    cache_dir: Optional[Path] = None,
+    offline_mode: bool = False,
+    console: Optional[Console] = None,
 ) -> NetworkResilientDownloader:
     """Factory function to create network resilient downloader"""
     return NetworkResilientDownloader(
@@ -704,7 +746,9 @@ if __name__ == "__main__":
 
     # Test download
     task = DownloadTask(
-        url="https://httpbin.org/json", destination=Path("test_download.json"), max_retries=3
+        url="https://httpbin.org/json",
+        destination=Path("test_download.json"),
+        max_retries=3,
     )
 
     success = downloader.download_file(task)

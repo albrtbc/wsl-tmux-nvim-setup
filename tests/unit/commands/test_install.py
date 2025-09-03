@@ -78,7 +78,9 @@ class TestInstallManager:
     def test_get_github_client_api_error(self, install_manager):
         """Test GitHub client initialization handles API errors."""
         if hasattr(install_manager, "get_github_client"):
-            with patch("cli.commands.install.GitHubClient", side_effect=Exception("API Error")):
+            with patch(
+                "cli.commands.install.GitHubClient", side_effect=Exception("API Error")
+            ):
                 with pytest.raises(click.ClickException, match="GitHub API error"):
                     install_manager.get_github_client()
 
@@ -88,7 +90,9 @@ class TestInstallManager:
             mock_client = Mock()
             mock_client.list_releases.return_value = [sample_release_data]
 
-            with patch.object(install_manager, "get_github_client", return_value=mock_client):
+            with patch.object(
+                install_manager, "get_github_client", return_value=mock_client
+            ):
                 versions = install_manager.list_available_versions()
 
                 assert len(versions) == 1
@@ -103,7 +107,9 @@ class TestInstallManager:
             mock_client = Mock()
             mock_client.list_releases.return_value = []
 
-            with patch.object(install_manager, "get_github_client", return_value=mock_client):
+            with patch.object(
+                install_manager, "get_github_client", return_value=mock_client
+            ):
                 install_manager.list_available_versions(include_prerelease=True)
 
                 mock_client.list_releases.assert_called_once_with(
@@ -116,8 +122,12 @@ class TestInstallManager:
             mock_client = Mock()
             mock_client.list_releases.side_effect = Exception("API Error")
 
-            with patch.object(install_manager, "get_github_client", return_value=mock_client):
-                with pytest.raises(click.ClickException, match="Failed to fetch releases"):
+            with patch.object(
+                install_manager, "get_github_client", return_value=mock_client
+            ):
+                with pytest.raises(
+                    click.ClickException, match="Failed to fetch releases"
+                ):
                     install_manager.list_available_versions()
 
     def test_get_latest_version(self, install_manager, sample_release_data):
@@ -126,11 +136,15 @@ class TestInstallManager:
             mock_client = Mock()
             mock_client.get_latest_release.return_value = sample_release_data
 
-            with patch.object(install_manager, "get_github_client", return_value=mock_client):
+            with patch.object(
+                install_manager, "get_github_client", return_value=mock_client
+            ):
                 version = install_manager.get_latest_version()
 
                 assert version == sample_release_data
-                mock_client.get_latest_release.assert_called_once_with(include_prerelease=False)
+                mock_client.get_latest_release.assert_called_once_with(
+                    include_prerelease=False
+                )
 
     def test_get_latest_version_with_prerelease(self, install_manager):
         """Test getting latest version including prereleases."""
@@ -138,10 +152,14 @@ class TestInstallManager:
             mock_client = Mock()
             mock_client.get_latest_release.return_value = {}
 
-            with patch.object(install_manager, "get_github_client", return_value=mock_client):
+            with patch.object(
+                install_manager, "get_github_client", return_value=mock_client
+            ):
                 install_manager.get_latest_version(include_prerelease=True)
 
-                mock_client.get_latest_release.assert_called_once_with(include_prerelease=True)
+                mock_client.get_latest_release.assert_called_once_with(
+                    include_prerelease=True
+                )
 
     def test_get_version_info(self, install_manager, sample_release_data):
         """Test getting specific version information."""
@@ -149,7 +167,9 @@ class TestInstallManager:
             mock_client = Mock()
             mock_client.get_release_by_tag.return_value = sample_release_data
 
-            with patch.object(install_manager, "get_github_client", return_value=mock_client):
+            with patch.object(
+                install_manager, "get_github_client", return_value=mock_client
+            ):
                 version_info = install_manager.get_version_info("v1.1.0")
 
                 assert version_info == sample_release_data
@@ -161,7 +181,9 @@ class TestInstallManager:
             mock_client = Mock()
             mock_client.get_release_by_tag.side_effect = Exception("Not found")
 
-            with patch.object(install_manager, "get_github_client", return_value=mock_client):
+            with patch.object(
+                install_manager, "get_github_client", return_value=mock_client
+            ):
                 version_info = install_manager.get_version_info("v99.99.99")
 
                 assert version_info is None
@@ -215,7 +237,9 @@ class TestInstallCommand:
             manager = mock_manager_class.return_value
             assert manager.get_latest_version() is not None
 
-    def test_install_specific_version(self, cli_runner, mock_config_manager, sample_release_data):
+    def test_install_specific_version(
+        self, cli_runner, mock_config_manager, sample_release_data
+    ):
         """Test installing specific version."""
         if install == Mock:
             pytest.skip("Install command not available for testing")
@@ -309,7 +333,9 @@ class TestInstallCommand:
 class TestInstallIntegration:
     """Integration tests for install functionality."""
 
-    def test_complete_install_workflow(self, temp_dir, mock_config_manager, sample_release_data):
+    def test_complete_install_workflow(
+        self, temp_dir, mock_config_manager, sample_release_data
+    ):
         """Test complete installation workflow."""
         if InstallManager == Mock:
             pytest.skip("InstallManager not available for testing")

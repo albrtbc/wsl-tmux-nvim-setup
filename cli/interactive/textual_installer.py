@@ -62,7 +62,9 @@ if textual_available:
                     options = []
                     for name, comp in self.components.items():
                         size_info = (
-                            f" (~{comp.get('size_mb', 5):.0f}MB)" if comp.get("size_mb") else ""
+                            f" (~{comp.get('size_mb', 5):.0f}MB)"
+                            if comp.get("size_mb")
+                            else ""
                         )
                         display_text = f"{comp['name']}{size_info}"
                         comp.get("description", "No description available")
@@ -72,7 +74,9 @@ if textual_available:
                             display_text += " [REQUIRED]"
                             self.selected.add(name)
 
-                        options.append((display_text, name, comp.get("required", False)))
+                        options.append(
+                            (display_text, name, comp.get("required", False))
+                        )
 
                     selection_list = SelectionList(*options)
                     selection_list.select_all()  # Start with all selected
@@ -129,7 +133,9 @@ if textual_available:
                     with Vertical():
                         # Installation path
                         yield Label("Installation Path:")
-                        default_path = str(Path.home() / ".local" / "share" / "wsl-tmux-nvim-setup")
+                        default_path = str(
+                            Path.home() / ".local" / "share" / "wsl-tmux-nvim-setup"
+                        )
                         yield Input(
                             value=default_path,
                             placeholder="Installation directory",
@@ -138,17 +144,27 @@ if textual_available:
 
                         # Backup options
                         yield Label("Backup Settings:")
-                        yield Checkbox("Enable automatic backups", value=True, id="backup_enabled")
-                        yield Checkbox("Auto-update checking", value=False, id="auto_update")
+                        yield Checkbox(
+                            "Enable automatic backups", value=True, id="backup_enabled"
+                        )
+                        yield Checkbox(
+                            "Auto-update checking", value=False, id="auto_update"
+                        )
 
                         # Network options
                         yield Label("Network Settings:")
-                        yield Checkbox("Parallel downloads", value=True, id="parallel_downloads")
-                        yield Checkbox("Verify checksums", value=True, id="verify_checksums")
+                        yield Checkbox(
+                            "Parallel downloads", value=True, id="parallel_downloads"
+                        )
+                        yield Checkbox(
+                            "Verify checksums", value=True, id="verify_checksums"
+                        )
 
                         # GitHub token (optional)
                         yield Label("GitHub Token (optional, for higher API limits):")
-                        yield Input(placeholder="ghp_...", password=True, id="github_token")
+                        yield Input(
+                            placeholder="ghp_...", password=True, id="github_token"
+                        )
 
                         # Action buttons
                         with Horizontal():
@@ -164,9 +180,14 @@ if textual_available:
                     "installation_path": self.query_one("#install_path", Input).value,
                     "backup_enabled": self.query_one("#backup_enabled", Checkbox).value,
                     "auto_update": self.query_one("#auto_update", Checkbox).value,
-                    "parallel_downloads": self.query_one("#parallel_downloads", Checkbox).value,
-                    "verify_checksums": self.query_one("#verify_checksums", Checkbox).value,
-                    "github_token": self.query_one("#github_token", Input).value or None,
+                    "parallel_downloads": self.query_one(
+                        "#parallel_downloads", Checkbox
+                    ).value,
+                    "verify_checksums": self.query_one(
+                        "#verify_checksums", Checkbox
+                    ).value,
+                    "github_token": self.query_one("#github_token", Input).value
+                    or None,
                 }
                 self.dismiss(self.config)
             elif event.button.id == "back":
@@ -189,7 +210,9 @@ if textual_available:
                 yield Header()
 
                 with Vertical():
-                    yield Label("Installing WSL Development Environment", classes="title")
+                    yield Label(
+                        "Installing WSL Development Environment", classes="title"
+                    )
 
                     # Overall progress
                     yield Label("Overall Progress:", id="overall_label")
@@ -248,7 +271,9 @@ if textual_available:
 
                     self.current_step += 1
                     overall_progress.update(progress=self.current_step)
-                    await log_list.append(ListItem(Label(f"✓ {component} installed successfully")))
+                    await log_list.append(
+                        ListItem(Label(f"✓ {component} installed successfully"))
+                    )
 
                 # Final step: Configuration
                 step_label.update("Finalizing configuration...")
@@ -258,7 +283,9 @@ if textual_available:
                     step_progress.update(progress=i)
                     await asyncio.sleep(0.1)
 
-                await log_list.append(ListItem(Label("✓ Installation completed successfully!")))
+                await log_list.append(
+                    ListItem(Label("✓ Installation completed successfully!"))
+                )
                 step_label.update("Installation Complete")
 
                 # Update buttons
@@ -328,7 +355,9 @@ if textual_available:
                         )
 
                         with Horizontal():
-                            yield Button("Start Installation", id="start", variant="primary")
+                            yield Button(
+                                "Start Installation", id="start", variant="primary"
+                            )
                             yield Button("Exit", id="exit")
 
                 yield Footer()
@@ -368,7 +397,9 @@ if textual_available:
             success = await self.push_screen_wait(progress_screen)
 
             if success:
-                self.notify("Installation completed successfully!", severity="information")
+                self.notify(
+                    "Installation completed successfully!", severity="information"
+                )
             else:
                 self.notify("Installation cancelled or failed", severity="warning")
 
@@ -396,7 +427,10 @@ if textual_available:
                 self.app.run()
 
                 # Return installation results
-                if hasattr(self.app, "selected_components") and self.app.selected_components:
+                if (
+                    hasattr(self.app, "selected_components")
+                    and self.app.selected_components
+                ):
                     return {
                         "components": list(self.app.selected_components),
                         "config": self.app.config,
@@ -412,7 +446,9 @@ else:
     # Fallback when textual is not available
     class TextualInstaller:
         def __init__(self, components: Dict[str, Any]):
-            raise RuntimeError("Textual UI not available. Install with: pip install textual")
+            raise RuntimeError(
+                "Textual UI not available. Install with: pip install textual"
+            )
 
         def run(self) -> Optional[Dict[str, Any]]:
             return None

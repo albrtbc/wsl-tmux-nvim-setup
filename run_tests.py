@@ -25,7 +25,11 @@ class TestRunner:
         self.total_duration = 0
 
     def run_test_category(
-        self, category: str, markers: List[str], timeout: int = 300, capture_output: bool = True
+        self,
+        category: str,
+        markers: List[str],
+        timeout: int = 300,
+        capture_output: bool = True,
     ) -> Dict:
         """Run tests for a specific category."""
         print(f"\n{'='*60}")
@@ -65,7 +69,11 @@ class TestRunner:
         try:
             if capture_output:
                 result = subprocess.run(
-                    cmd, capture_output=True, text=True, timeout=timeout, cwd=self.project_root
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout,
+                    cwd=self.project_root,
                 )
             else:
                 result = subprocess.run(cmd, timeout=timeout, cwd=self.project_root)
@@ -150,11 +158,17 @@ class TestRunner:
             if " passed" in line or " failed" in line or " skipped" in line:
                 try:
                     if " passed" in line:
-                        stats["tests_passed"] = int(line.split(" passed")[0].split()[-1])
+                        stats["tests_passed"] = int(
+                            line.split(" passed")[0].split()[-1]
+                        )
                     if " failed" in line:
-                        stats["tests_failed"] = int(line.split(" failed")[0].split()[-1])
+                        stats["tests_failed"] = int(
+                            line.split(" failed")[0].split()[-1]
+                        )
                     if " skipped" in line:
-                        stats["tests_skipped"] = int(line.split(" skipped")[0].split()[-1])
+                        stats["tests_skipped"] = int(
+                            line.split(" skipped")[0].split()[-1]
+                        )
                     if " error" in line:
                         stats["tests_error"] = int(line.split(" error")[0].split()[-1])
                 except (ValueError, IndexError):
@@ -176,7 +190,9 @@ class TestRunner:
             },
             {
                 "name": "integration",
-                "markers": ["integration", "not slow"] if not include_slow else ["integration"],
+                "markers": (
+                    ["integration", "not slow"] if not include_slow else ["integration"]
+                ),
                 "timeout": 120 if quick else 300,
                 "required": True,
             },
@@ -248,7 +264,9 @@ class TestRunner:
             return
 
         if result.get("error"):
-            print(f"💥 {category.upper()}: ERROR - {result.get('errors', 'Unknown error')}")
+            print(
+                f"💥 {category.upper()}: ERROR - {result.get('errors', 'Unknown error')}"
+            )
             return
 
         status = "✅ PASSED" if result["passed"] else "❌ FAILED"
@@ -345,10 +363,18 @@ class TestRunner:
                 "skipped_categories": sum(
                     1 for r in self.test_results.values() if r.get("skipped", False)
                 ),
-                "total_tests": sum(r.get("tests_collected", 0) for r in self.test_results.values()),
-                "passed_tests": sum(r.get("tests_passed", 0) for r in self.test_results.values()),
-                "failed_tests": sum(r.get("tests_failed", 0) for r in self.test_results.values()),
-                "skipped_tests": sum(r.get("tests_skipped", 0) for r in self.test_results.values()),
+                "total_tests": sum(
+                    r.get("tests_collected", 0) for r in self.test_results.values()
+                ),
+                "passed_tests": sum(
+                    r.get("tests_passed", 0) for r in self.test_results.values()
+                ),
+                "failed_tests": sum(
+                    r.get("tests_failed", 0) for r in self.test_results.values()
+                ),
+                "skipped_tests": sum(
+                    r.get("tests_skipped", 0) for r in self.test_results.values()
+                ),
             },
         }
 
@@ -371,7 +397,9 @@ class TestRunner:
         # Check pytest installation
         try:
             subprocess.run(
-                [sys.executable, "-m", "pytest", "--version"], capture_output=True, check=True
+                [sys.executable, "-m", "pytest", "--version"],
+                capture_output=True,
+                check=True,
             )
             print("✅ pytest available")
         except (subprocess.CalledProcessError, FileNotFoundError):
@@ -426,10 +454,14 @@ Examples:
 
     parser.add_argument("--no-slow", action="store_true", help="Exclude slow tests")
 
-    parser.add_argument("--report", "-r", type=Path, help="Save detailed JSON report to file")
+    parser.add_argument(
+        "--report", "-r", type=Path, help="Save detailed JSON report to file"
+    )
 
     parser.add_argument(
-        "--check-requirements", action="store_true", help="Check test requirements and exit"
+        "--check-requirements",
+        action="store_true",
+        help="Check test requirements and exit",
     )
 
     args = parser.parse_args()

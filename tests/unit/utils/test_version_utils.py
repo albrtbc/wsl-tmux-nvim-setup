@@ -78,7 +78,8 @@ class TestVersionComparator:
             pytest.skip("VersionComparator not available for testing")
 
         with patch(
-            "cli.utils.version_utils.SemanticVersion", side_effect=Exception("Invalid version")
+            "cli.utils.version_utils.SemanticVersion",
+            side_effect=Exception("Invalid version"),
         ):
             with pytest.raises(Exception):
                 VersionComparator.parse_version("invalid.version")
@@ -166,7 +167,9 @@ class TestComponentVersionManager:
             pytest.skip("ComponentVersionManager not available for testing")
 
         if hasattr(version_manager, "version_manager"):
-            version_manager.version_manager.get_latest_release.return_value = sample_release_data
+            version_manager.version_manager.get_latest_release.return_value = (
+                sample_release_data
+            )
 
             result = version_manager.version_manager.get_latest_release()
             assert result == sample_release_data
@@ -197,7 +200,9 @@ class TestComponentVersionManager:
         }
 
         if hasattr(version_manager, "check_system_compatibility"):
-            version_manager.check_system_compatibility.return_value = expected_compatibility
+            version_manager.check_system_compatibility.return_value = (
+                expected_compatibility
+            )
 
             result = version_manager.check_system_compatibility()
             assert result == expected_compatibility

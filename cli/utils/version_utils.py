@@ -216,16 +216,21 @@ class VersionComparator:
         if not versions:
             return None
 
-        filtered_versions = VersionComparator.filter_prereleases(versions, include_prereleases)
+        filtered_versions = VersionComparator.filter_prereleases(
+            versions, include_prereleases
+        )
         if not filtered_versions:
             return None
 
-        sorted_versions = VersionComparator.sort_versions(filtered_versions, reverse=True)
+        sorted_versions = VersionComparator.sort_versions(
+            filtered_versions, reverse=True
+        )
         return sorted_versions[0]
 
     @staticmethod
     def check_breaking_change(
-        old_version: Union[str, SemanticVersion], new_version: Union[str, SemanticVersion]
+        old_version: Union[str, SemanticVersion],
+        new_version: Union[str, SemanticVersion],
     ) -> bool:
         """
         Check if upgrade involves a breaking change (major version bump)
@@ -246,7 +251,8 @@ class VersionComparator:
 
     @staticmethod
     def get_update_type(
-        old_version: Union[str, SemanticVersion], new_version: Union[str, SemanticVersion]
+        old_version: Union[str, SemanticVersion],
+        new_version: Union[str, SemanticVersion],
     ) -> str:
         """
         Determine the type of version update
@@ -358,7 +364,9 @@ class ComponentVersionManager:
 
             try:
                 current_sem = SemanticVersion(current_version)
-                update_available = VersionComparator.is_newer_version(current_sem, latest)
+                update_available = VersionComparator.is_newer_version(
+                    current_sem, latest
+                )
                 update_type = (
                     VersionComparator.get_update_type(current_sem, latest)
                     if update_available
@@ -369,7 +377,10 @@ class ComponentVersionManager:
                     "current": current_version,
                     "latest": str(latest),
                     "available": [
-                        str(v) for v in VersionComparator.sort_versions(available, reverse=True)
+                        str(v)
+                        for v in VersionComparator.sort_versions(
+                            available, reverse=True
+                        )
                     ],
                     "update_available": update_available,
                     "update_type": update_type,
@@ -487,7 +498,9 @@ if __name__ == "__main__":
 
     @cli.command()
     @click.argument("versions", nargs=-1, required=True)
-    @click.option("--include-prereleases", is_flag=True, help="Include prerelease versions")
+    @click.option(
+        "--include-prereleases", is_flag=True, help="Include prerelease versions"
+    )
     def sort(versions, include_prereleases):
         """Sort versions"""
         try:
@@ -505,11 +518,15 @@ if __name__ == "__main__":
 
     @cli.command()
     @click.argument("versions", nargs=-1, required=True)
-    @click.option("--include-prereleases", is_flag=True, help="Include prerelease versions")
+    @click.option(
+        "--include-prereleases", is_flag=True, help="Include prerelease versions"
+    )
     def latest(versions, include_prereleases):
         """Get latest version from list"""
         try:
-            latest_version = VersionComparator.get_latest_version(versions, include_prereleases)
+            latest_version = VersionComparator.get_latest_version(
+                versions, include_prereleases
+            )
 
             if latest_version:
                 click.echo(str(latest_version))
@@ -525,7 +542,9 @@ if __name__ == "__main__":
     def components(version_file):
         """Show component versions"""
         try:
-            manager = ComponentVersionManager(Path(version_file) if version_file else None)
+            manager = ComponentVersionManager(
+                Path(version_file) if version_file else None
+            )
             components = manager.get_component_versions()
 
             click.echo(json.dumps(components, indent=2))

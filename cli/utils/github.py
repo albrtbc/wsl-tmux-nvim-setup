@@ -37,7 +37,9 @@ class GitHubClient:
     """
 
     def __init__(
-        self, token: Optional[str] = None, repository: str = "albertodall/wsl-tmux-nvim-setup"
+        self,
+        token: Optional[str] = None,
+        repository: str = "albertodall/wsl-tmux-nvim-setup",
     ):
         self.console = Console()
 
@@ -55,7 +57,10 @@ class GitHubClient:
         self.client = GitHubReleaseClient(token, repository)
 
     def list_releases(
-        self, include_prerelease: bool = False, include_draft: bool = False, limit: int = 30
+        self,
+        include_prerelease: bool = False,
+        include_draft: bool = False,
+        limit: int = 30,
     ) -> List[Dict[str, Any]]:
         """
         List available releases
@@ -111,7 +116,9 @@ class GitHubClient:
         except requests.exceptions.RequestException as e:
             raise GitHubAPIError(f"Failed to list releases: {e}")
 
-    def get_latest_release(self, include_prerelease: bool = False) -> Optional[Dict[str, Any]]:
+    def get_latest_release(
+        self, include_prerelease: bool = False
+    ) -> Optional[Dict[str, Any]]:
         """
         Get the latest release
 
@@ -195,7 +202,10 @@ class GitHubClient:
             return None
 
     def download_release_asset(
-        self, download_url: str, output_path: Path, progress_callback: Optional[callable] = None
+        self,
+        download_url: str,
+        output_path: Path,
+        progress_callback: Optional[callable] = None,
     ) -> Path:
         """
         Download a release asset
@@ -214,7 +224,9 @@ class GitHubClient:
             # Use the download manager for consistent downloading
             download_manager = DownloadManager(show_progress=True)
             return download_manager.download_file(
-                url=download_url, output_path=output_path, progress_callback=progress_callback
+                url=download_url,
+                output_path=output_path,
+                progress_callback=progress_callback,
             )
 
         except DownloadError as e:
@@ -262,7 +274,10 @@ class GitHubClient:
         matching_releases = []
 
         for release in releases:
-            if query_lower in release["tag_name"].lower() or query_lower in release["name"].lower():
+            if (
+                query_lower in release["tag_name"].lower()
+                or query_lower in release["name"].lower()
+            ):
                 matching_releases.append(release)
 
                 if len(matching_releases) >= limit:
@@ -338,7 +353,9 @@ class GitHubClient:
             "published_at": release["published_at"],
         }
 
-    def format_release_info(self, release: Dict[str, Any], detailed: bool = False) -> str:
+    def format_release_info(
+        self, release: Dict[str, Any], detailed: bool = False
+    ) -> str:
         """Format release information for display"""
         from rich.markup import escape
 
@@ -386,7 +403,9 @@ if __name__ == "__main__":
     @click.group()
     @click.option("--token", envvar="GITHUB_TOKEN", help="GitHub token")
     @click.option(
-        "--repository", default="albertodall/wsl-tmux-nvim-setup", help="Repository (owner/name)"
+        "--repository",
+        default="albertodall/wsl-tmux-nvim-setup",
+        help="Repository (owner/name)",
     )
     @click.pass_context
     def cli(ctx, token, repository):
@@ -406,7 +425,9 @@ if __name__ == "__main__":
         """List available releases"""
         try:
             client = ctx.obj["client"]
-            releases = client.list_releases(include_prerelease=include_prerelease, limit=limit)
+            releases = client.list_releases(
+                include_prerelease=include_prerelease, limit=limit
+            )
 
             console = Console()
             for release in releases:

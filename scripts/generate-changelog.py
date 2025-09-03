@@ -168,7 +168,9 @@ class GitCommitParser:
         # Default to "Changed" for unclassified commits
         return ChangeType.CHANGED, commit["subject"]
 
-    def parse_commits_to_entries(self, commits: List[Dict]) -> Dict[ChangeType, List[ChangeEntry]]:
+    def parse_commits_to_entries(
+        self, commits: List[Dict]
+    ) -> Dict[ChangeType, List[ChangeEntry]]:
         """Convert git commits to changelog entries"""
         entries = {change_type: [] for change_type in ChangeType}
 
@@ -186,7 +188,8 @@ class GitCommitParser:
             ]
 
             if any(
-                re.search(pattern, commit["subject"], re.IGNORECASE) for pattern in ignore_patterns
+                re.search(pattern, commit["subject"], re.IGNORECASE)
+                for pattern in ignore_patterns
             ):
                 continue
 
@@ -274,7 +277,9 @@ class ChangelogGenerator:
 
         return "\n".join(entry_lines)
 
-    def update_unreleased_section(self, changes: Dict[ChangeType, List[ChangeEntry]]) -> str:
+    def update_unreleased_section(
+        self, changes: Dict[ChangeType, List[ChangeEntry]]
+    ) -> str:
         """Update the unreleased section of changelog"""
         existing_content = self.read_existing_changelog()
 
@@ -287,7 +292,10 @@ class ChangelogGenerator:
         if re.search(unreleased_pattern, existing_content, re.DOTALL):
             # Replace existing unreleased section
             updated_content = re.sub(
-                unreleased_pattern, unreleased_entry + "\n\n", existing_content, flags=re.DOTALL
+                unreleased_pattern,
+                unreleased_entry + "\n\n",
+                existing_content,
+                flags=re.DOTALL,
             )
         else:
             # Add unreleased section at the top (after the header)
@@ -306,7 +314,9 @@ class ChangelogGenerator:
 
         return updated_content
 
-    def add_release_entry(self, version: str, changes: Dict[ChangeType, List[ChangeEntry]]) -> str:
+    def add_release_entry(
+        self, version: str, changes: Dict[ChangeType, List[ChangeEntry]]
+    ) -> str:
         """Add a new release entry to changelog"""
         existing_content = self.read_existing_changelog()
 
@@ -378,7 +388,9 @@ class ChangelogGenerator:
         with open(self.changelog_path, "w") as f:
             f.write(content)
 
-    def generate_from_commits(self, since: str = None, mode: str = "unreleased") -> None:
+    def generate_from_commits(
+        self, since: str = None, mode: str = "unreleased"
+    ) -> None:
         """Generate changelog from git commits"""
         # Get commits since last release or specified point
         if since is None:
@@ -435,10 +447,14 @@ Examples:
     )
 
     parser.add_argument(
-        "--project-root", "-p", help="Project root directory (default: current directory)"
+        "--project-root",
+        "-p",
+        help="Project root directory (default: current directory)",
     )
     parser.add_argument(
-        "--since", "-s", help="Generate changes since this git reference (tag, commit, etc.)"
+        "--since",
+        "-s",
+        help="Generate changes since this git reference (tag, commit, etc.)",
     )
     parser.add_argument(
         "--mode",
@@ -447,7 +463,9 @@ Examples:
         default="unreleased",
         help="Generation mode (default: unreleased)",
     )
-    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose output")
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose output"
+    )
 
     args = parser.parse_args()
 

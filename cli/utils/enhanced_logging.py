@@ -86,7 +86,10 @@ class EnhancedLogger:
     """Enhanced logging system with error handling and recovery"""
 
     def __init__(
-        self, name: str = "wsm", log_dir: Optional[Path] = None, console: Optional[Console] = None
+        self,
+        name: str = "wsm",
+        log_dir: Optional[Path] = None,
+        console: Optional[Console] = None,
     ):
         self.name = name
         self.console = console or Console()
@@ -122,12 +125,15 @@ class EnhancedLogger:
         self.logger.handlers.clear()
 
         # File handler for detailed logs
-        log_file = self.log_dir / f"{self.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        log_file = (
+            self.log_dir / f"{self.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        )
         file_handler = logging.FileHandler(log_file, encoding="utf-8")
         file_handler.setLevel(logging.DEBUG)
 
         file_formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
         file_handler.setFormatter(file_formatter)
         self.logger.addHandler(file_handler)
@@ -148,16 +154,24 @@ class EnhancedLogger:
         self.register_error_handler(ErrorCategory.NETWORK, self._handle_network_error)
 
         # Filesystem error handlers
-        self.register_error_handler(ErrorCategory.FILESYSTEM, self._handle_filesystem_error)
+        self.register_error_handler(
+            ErrorCategory.FILESYSTEM, self._handle_filesystem_error
+        )
 
         # Permission error handlers
-        self.register_error_handler(ErrorCategory.PERMISSIONS, self._handle_permission_error)
+        self.register_error_handler(
+            ErrorCategory.PERMISSIONS, self._handle_permission_error
+        )
 
         # Configuration error handlers
-        self.register_error_handler(ErrorCategory.CONFIGURATION, self._handle_config_error)
+        self.register_error_handler(
+            ErrorCategory.CONFIGURATION, self._handle_config_error
+        )
 
         # Dependency error handlers
-        self.register_error_handler(ErrorCategory.DEPENDENCY, self._handle_dependency_error)
+        self.register_error_handler(
+            ErrorCategory.DEPENDENCY, self._handle_dependency_error
+        )
 
     def register_error_handler(self, category: ErrorCategory, handler: Callable):
         """Register an error handler for a specific category"""
@@ -219,11 +233,15 @@ class EnhancedLogger:
         """Log warning message"""
         self.log(LogLevel.WARNING, message, **kwargs)
 
-    def error(self, message: str, error_context: Optional[ErrorContext] = None, **kwargs):
+    def error(
+        self, message: str, error_context: Optional[ErrorContext] = None, **kwargs
+    ):
         """Log error message"""
         self.log(LogLevel.ERROR, message, error_context=error_context, **kwargs)
 
-    def critical(self, message: str, error_context: Optional[ErrorContext] = None, **kwargs):
+    def critical(
+        self, message: str, error_context: Optional[ErrorContext] = None, **kwargs
+    ):
         """Log critical message"""
         self.log(LogLevel.CRITICAL, message, error_context=error_context, **kwargs)
 
@@ -282,7 +300,9 @@ class EnhancedLogger:
 
         options = []
         for i, action in enumerate(error_context.recovery_actions, 1):
-            action_name = getattr(action, "__name__", f"action_{i}").replace("_", " ").title()
+            action_name = (
+                getattr(action, "__name__", f"action_{i}").replace("_", " ").title()
+            )
             options.append(action_name)
             self.console.print(f"{i}. {action_name}")
 
@@ -420,7 +440,9 @@ class EnhancedLogger:
 
             # Count by component
             component = entry.component or "unknown"
-            summary["by_component"][component] = summary["by_component"].get(component, 0) + 1
+            summary["by_component"][component] = (
+                summary["by_component"].get(component, 0) + 1
+            )
 
             # Collect errors and warnings
             if entry.level == LogLevel.ERROR:
@@ -489,7 +511,9 @@ def get_logger(name: str = "wsm") -> EnhancedLogger:
     return _global_logger
 
 
-def create_error_context(category: ErrorCategory, message: str, **kwargs) -> ErrorContext:
+def create_error_context(
+    category: ErrorCategory, message: str, **kwargs
+) -> ErrorContext:
     """Factory function to create error context"""
     return ErrorContext(category=category, message=message, **kwargs)
 

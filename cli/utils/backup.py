@@ -33,7 +33,9 @@ class BackupError(Exception):
 class BackupManager:
     """Manages backup and restore operations"""
 
-    def __init__(self, backup_dir: Path, retention_count: int = 5, show_progress: bool = True):
+    def __init__(
+        self, backup_dir: Path, retention_count: int = 5, show_progress: bool = True
+    ):
         self.backup_dir = Path(backup_dir)
         self.retention_count = retention_count
         self.show_progress = show_progress
@@ -87,7 +89,9 @@ class BackupManager:
                 )
 
                 # Record backup metadata
-                self._record_backup_metadata(backup_name, archive_path, source_paths, description)
+                self._record_backup_metadata(
+                    backup_name, archive_path, source_paths, description
+                )
 
                 # Clean up old backups if needed
                 self._cleanup_old_backups(backup_name)
@@ -133,7 +137,9 @@ class BackupManager:
         if not backup_info:
             available = self.list_backups()
             available_names = [b["name"] for b in available]
-            raise BackupError(f"Backup '{backup_name}' not found. Available: {available_names}")
+            raise BackupError(
+                f"Backup '{backup_name}' not found. Available: {available_names}"
+            )
 
         backup_path = Path(backup_info["path"])
         if not backup_path.exists():
@@ -141,7 +147,9 @@ class BackupManager:
 
         # Determine restore location
         if restore_to is None:
-            restore_to = Path.home() / "restored_backups" / f"{backup_name}_{int(time.time())}"
+            restore_to = (
+                Path.home() / "restored_backups" / f"{backup_name}_{int(time.time())}"
+            )
         else:
             restore_to = Path(restore_to)
 
@@ -152,10 +160,14 @@ class BackupManager:
 
         try:
             # Extract backup
-            extracted_path = self.extract_manager.extract_archive(backup_path, restore_to)
+            extracted_path = self.extract_manager.extract_archive(
+                backup_path, restore_to
+            )
 
             if self.show_progress:
-                self.console.print(f"[green]✓ Backup restored to: {extracted_path}[/green]")
+                self.console.print(
+                    f"[green]✓ Backup restored to: {extracted_path}[/green]"
+                )
 
             return extracted_path
 
@@ -185,7 +197,10 @@ class BackupManager:
         return backups
 
     def delete_backup(
-        self, backup_name: str, backup_timestamp: Optional[str] = None, confirm: bool = True
+        self,
+        backup_name: str,
+        backup_timestamp: Optional[str] = None,
+        confirm: bool = True,
     ) -> bool:
         """
         Delete a backup
@@ -257,7 +272,9 @@ class BackupManager:
             self._save_backup_metadata(metadata)
 
             if self.show_progress:
-                self.console.print(f"[green]✓ Deleted {deleted_count} backup(s)[/green]")
+                self.console.print(
+                    f"[green]✓ Deleted {deleted_count} backup(s)[/green]"
+                )
 
             return True
 
@@ -341,7 +358,9 @@ class BackupManager:
                     )
             except Exception as e:
                 if self.show_progress:
-                    self.console.print(f"[red]Failed to delete {orphaned_file.name}: {e}[/red]")
+                    self.console.print(
+                        f"[red]Failed to delete {orphaned_file.name}: {e}[/red]"
+                    )
 
         return deleted_count
 
@@ -383,7 +402,10 @@ class BackupManager:
                 dest_path = staging_dir / rel_path
 
                 # Check if path should be excluded
-                if any(fnmatch.fnmatch(str(source_path), pattern) for pattern in exclude_patterns):
+                if any(
+                    fnmatch.fnmatch(str(source_path), pattern)
+                    for pattern in exclude_patterns
+                ):
                     continue
 
                 # Copy file or directory
@@ -391,7 +413,9 @@ class BackupManager:
                     dest_path.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(source_path, dest_path)
                 elif source_path.is_dir():
-                    self._copy_tree_with_excludes(source_path, dest_path, exclude_patterns)
+                    self._copy_tree_with_excludes(
+                        source_path, dest_path, exclude_patterns
+                    )
 
                 if progress:
                     progress.update(task, completed=i + 1)
@@ -425,13 +449,18 @@ class BackupManager:
             for file in files:
                 file_path = root_path / file
                 if not any(
-                    fnmatch.fnmatch(str(file_path), pattern) for pattern in exclude_patterns
+                    fnmatch.fnmatch(str(file_path), pattern)
+                    for pattern in exclude_patterns
                 ):
                     dest_file = dest_root / file
                     shutil.copy2(file_path, dest_file)
 
     def _record_backup_metadata(
-        self, backup_name: str, backup_path: Path, source_paths: List[Path], description: str
+        self,
+        backup_name: str,
+        backup_path: Path,
+        source_paths: List[Path],
+        description: str,
     ) -> None:
         """Record backup metadata"""
         metadata = self._load_backup_metadata()
@@ -513,7 +542,9 @@ class BackupManager:
                 if backup_path.exists():
                     backup_path.unlink()
                     if self.show_progress:
-                        self.console.print(f"[dim]Cleaned up old backup: {backup_path.name}[/dim]")
+                        self.console.print(
+                            f"[dim]Cleaned up old backup: {backup_path.name}[/dim]"
+                        )
 
             # Update metadata
             metadata[backup_name]["backups"] = backups[: self.retention_count]
@@ -550,7 +581,9 @@ class BackupManager:
 
         for backup in backups:
             size_str = self._format_size(backup["size"])
-            table.add_row(backup["name"], backup["date"], size_str, backup["description"])
+            table.add_row(
+                backup["name"], backup["date"], size_str, backup["description"]
+            )
 
         self.console.print(table)
 

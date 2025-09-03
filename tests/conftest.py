@@ -148,7 +148,9 @@ def mock_console():
 @pytest.fixture
 def mock_network():
     """Mock network operations for testing."""
-    with patch("requests.get") as mock_get, patch("requests.Session") as mock_session_class:
+    with patch("requests.get") as mock_get, patch(
+        "requests.Session"
+    ) as mock_session_class:
 
         # Default successful response
         mock_response = Mock()
@@ -304,7 +306,9 @@ class TestHelper:
     """Helper utilities for testing."""
 
     @staticmethod
-    def create_mock_release(version: str = "1.1.0", prerelease: bool = False) -> Dict[str, Any]:
+    def create_mock_release(
+        version: str = "1.1.0", prerelease: bool = False
+    ) -> Dict[str, Any]:
         """Create a mock GitHub release object."""
         return {
             "tag_name": f"v{version}",

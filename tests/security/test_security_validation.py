@@ -118,7 +118,13 @@ class TestInputValidation:
 
     def test_version_string_validation(self):
         """Test version string input validation."""
-        valid_versions = ["1.0.0", "v1.0.0", "1.0.0-alpha", "1.0.0-beta.1", "1.0.0+build.1"]
+        valid_versions = [
+            "1.0.0",
+            "v1.0.0",
+            "1.0.0-alpha",
+            "1.0.0-beta.1",
+            "1.0.0+build.1",
+        ]
 
         invalid_versions = [
             "",
@@ -133,11 +139,15 @@ class TestInputValidation:
 
         import re
 
-        version_pattern = re.compile(r"^v?(\d+)\.(\d+)\.(\d+)(?:-[\w\.-]+)?(?:\+[\w\.-]+)?$")
+        version_pattern = re.compile(
+            r"^v?(\d+)\.(\d+)\.(\d+)(?:-[\w\.-]+)?(?:\+[\w\.-]+)?$"
+        )
 
         # Test valid versions
         for version in valid_versions:
-            assert version_pattern.match(version), f"Valid version {version} failed validation"
+            assert version_pattern.match(
+                version
+            ), f"Valid version {version} failed validation"
 
         # Test invalid versions
         for version in invalid_versions:
@@ -192,7 +202,9 @@ class TestInputValidation:
 
         # Test dangerous paths
         for path in dangerous_paths:
-            assert not is_safe_path(path, temp_dir), f"Dangerous path {path} passed validation"
+            assert not is_safe_path(
+                path, temp_dir
+            ), f"Dangerous path {path} passed validation"
 
     def test_url_validation(self):
         """Test URL validation for downloads."""
@@ -273,7 +285,9 @@ class TestInputValidation:
 
         # Test invalid tokens
         for token in invalid_tokens:
-            assert not validate_github_token(token), "Invalid token format passed validation"
+            assert not validate_github_token(
+                token
+            ), "Invalid token format passed validation"
 
 
 @pytest.mark.security
@@ -338,7 +352,11 @@ class TestPathTraversalPrevention:
 
         safe_config_paths = ["config.json", "user.yaml", "advanced/settings.json"]
 
-        dangerous_config_paths = ["../secrets.txt", "/etc/passwd", "config/../../../etc/passwd"]
+        dangerous_config_paths = [
+            "../secrets.txt",
+            "/etc/passwd",
+            "config/../../../etc/passwd",
+        ]
 
         def is_safe_config_path(path: str, config_base: Path) -> bool:
             """Validate configuration file paths."""
@@ -378,7 +396,9 @@ class TestSecureFileOperations:
         file_permissions = file_stat.st_mode & 0o777
 
         # Should not be world-readable or group-readable
-        assert file_permissions & 0o044 == 0, "File should not be readable by group or others"
+        assert (
+            file_permissions & 0o044 == 0
+        ), "File should not be readable by group or others"
         assert file_permissions & 0o200 != 0, "File should be writable by owner"
 
     def test_temporary_file_security(self, temp_dir):
@@ -386,7 +406,9 @@ class TestSecureFileOperations:
         import tempfile
 
         # Create secure temporary file
-        with tempfile.NamedTemporaryFile(mode="w+t", delete=False, dir=temp_dir) as temp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w+t", delete=False, dir=temp_dir
+        ) as temp_file:
             temp_file.write("Temporary sensitive content")
             temp_file_path = Path(temp_file.name)
 
@@ -460,14 +482,19 @@ class TestTokenAndSecretHandling:
         # Simulate token storage
         import json
 
-        token_data = {"github_token": "ghp_fake_token_for_testing", "api_token": "api_fake_token"}
+        token_data = {
+            "github_token": "ghp_fake_token_for_testing",
+            "api_token": "api_fake_token",
+        }
 
         token_file.write_text(json.dumps(token_data))
         token_file.chmod(0o600)  # Secure permissions
 
         # Verify token file security
         file_permissions = token_file.stat().st_mode & 0o777
-        assert file_permissions == 0o600, "Token file should have restrictive permissions"
+        assert (
+            file_permissions == 0o600
+        ), "Token file should have restrictive permissions"
 
         # Verify content doesn't leak in error messages (mock test)
         content = token_file.read_text()
@@ -506,7 +533,9 @@ class TestTokenAndSecretHandling:
 
             masked_text = text
             for pattern in sensitive_patterns:
-                masked_text = re.sub(pattern, "[MASKED]", masked_text, flags=re.IGNORECASE)
+                masked_text = re.sub(
+                    pattern, "[MASKED]", masked_text, flags=re.IGNORECASE
+                )
             return masked_text
 
         masked_output = mask_secrets(test_output)
@@ -575,7 +604,9 @@ class TestNetworkSecurity:
 
         for timeout_value, timeout_type in timeout_configs:
             # Verify timeout values are reasonable
-            assert 5 <= timeout_value <= 3600, f"{timeout_type} should be between 5s and 1 hour"
+            assert (
+                5 <= timeout_value <= 3600
+            ), f"{timeout_type} should be between 5s and 1 hour"
 
     def test_user_agent_security(self):
         """Test user agent string doesn't leak sensitive information."""
@@ -598,7 +629,9 @@ class TestNetworkSecurity:
 
             # Should not contain personal info
             personal_info_indicators = ["@", "user", "host", "admin"]
-            return not any(indicator in ua.lower() for indicator in personal_info_indicators)
+            return not any(
+                indicator in ua.lower() for indicator in personal_info_indicators
+            )
 
         # Test safe user agents
         for ua in safe_user_agents:
@@ -606,4 +639,6 @@ class TestNetworkSecurity:
 
         # Test unsafe user agents
         for ua in unsafe_user_agents:
-            assert not is_safe_user_agent(ua), f"Unsafe user agent {ua} passed validation"
+            assert not is_safe_user_agent(
+                ua
+            ), f"Unsafe user agent {ua} passed validation"
