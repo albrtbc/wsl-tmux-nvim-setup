@@ -172,9 +172,6 @@ function git {
 # Start bc weith pi defined
 alias bc='bc -v; bc -lq <(echo "pi=5*a(1)")'
 
-# When leaves ranger keeps in current directory
-alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
-
 # Pretty Git log
 function git_tably () {
     unset branch_all graph_all hash_all message_all time_all max_chars
