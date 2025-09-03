@@ -1,0 +1,361 @@
+---
+name: Release Automation
+
+"on":
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options: [patch, minor, major]
+      prerelease:
+        description: 'Create prerelease'
+        type: boolean
+        default: false
+      custom_version:
+        description: 'Custom version (overrides version_type)'
+        required: false
+        type: string
+  push:
+    tags:
+      - 'v*'
+  schedule:
+    # Weekly automated release check (Sundays at 02:00 UTC)
+    - cron: '0 2 * * 0'
+
+env:
+  PYTHONUNBUFFERED: 1
+  PYTHON_VERSION: "3.9"
+
+permissions:
+  contents: write
+  packages: write
+  actions: read
+
+jobs:
+  prepare-release:
+    name: Prepare Release Information
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+      release_notes: ${{ steps.changelog.outputs.release_notes }}
+      should_release: ${{ steps.check.outputs.should_release }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog generation
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml requests python-dateutil semver
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Determine version and release type
+        id: version
+        run: |
+          chmod +x scripts/version-manager.py
+
+          if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            # Tag-triggered release
+            VERSION="${{ github.ref_name }}"
+            IS_PRERELEASE="false"
+            echo "Tag-triggered release: $VERSION"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual release
+            if [ -n "${{ github.event.inputs.custom_version }}" ]; then
+              VERSION="${{ github.event.inputs.custom_version }}"
+            else
+              VERSION=$(python3 scripts/version-manager.py bump "${{ github.event.inputs.version_type }}" --dry-run)
+            fi
+            IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
+            echo "Manual release: $VERSION (prerelease: $IS_PRERELEASE)"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            # Scheduled release check
+            VERSION=$(python3 scripts/version-manager.py bump patch --dry-run)
+            IS_PRERELEASE="false"
+            echo "Scheduled release check: $VERSION"
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+
+      - name: Check if release is needed
+        id: check
+        run: |
+          # For scheduled runs, only release if there are new commits
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            LAST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || echo "")
+            if [ -z "$LAST_RELEASE" ]; then
+              echo "should_release=true" >> $GITHUB_OUTPUT
+            else
+              COMMITS_SINCE=$(git rev-list --count "$LAST_RELEASE..HEAD" || echo "1")
+              if [ "$COMMITS_SINCE" -gt "0" ]; then
+                echo "should_release=true" >> $GITHUB_OUTPUT
+                echo "Found $COMMITS_SINCE new commits since $LAST_RELEASE"
+              else
+                echo "should_release=false" >> $GITHUB_OUTPUT
+                echo "No new commits since $LAST_RELEASE"
+              fi
+            fi
+          else
+            echo "should_release=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate changelog
+        id: changelog
+        if: steps.check.outputs.should_release == 'true'
+        run: |
+          chmod +x scripts/generate-changelog.py
+
+          # Generate release notes for this version
+          python3 scripts/generate-changelog.py \
+            --version "${{ steps.version.outputs.version }}" \
+            --format github \
+            --output release-notes.md
+
+          # Read the generated release notes
+          RELEASE_NOTES=$(cat release-notes.md)
+
+          # Set multiline output
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update version files
+        if: steps.check.outputs.should_release == 'true' && github.event_name != 'push'
+        run: |
+          # Update version.json if it exists
+          if [ -f version.json ]; then
+            python3 scripts/version-manager.py bump "${{ github.event.inputs.version_type || 'patch' }}" --write
+          fi
+
+          # Update CHANGELOG.md
+          if [ -f CHANGELOG.md ]; then
+            python3 scripts/generate-changelog.py --update-changelog
+          fi
+
+      - name: Commit version changes
+        if: steps.check.outputs.should_release == 'true' && github.event_name != 'push'
+        run: |
+          git add -A
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git tag "${{ steps.version.outputs.version }}"
+          git push origin main --tags
+
+  build-assets:
+    name: Build Release Assets
+    runs-on: ubuntu-latest
+    needs: prepare-release
+    if: needs.prepare-release.outputs.should_release == 'true'
+    strategy:
+      matrix:
+        include:
+          - archive_format: "tar.gz"
+            compression: "gzip"
+            content_type: "application/gzip"
+          - archive_format: "zip"
+            compression: "zip"
+            content_type: "application/zip"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || 'main' }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          sudo apt-get update
+          sudo apt-get install -y zip tar gzip
+
+      - name: Prepare release assets
+        run: |
+          chmod +x scripts/prepare-release.sh
+
+          ./scripts/prepare-release.sh \
+            --version "${{ needs.prepare-release.outputs.version }}" \
+            --format "${{ matrix.archive_format }}" \
+            --include-docs \
+            --verbose
+
+      - name: Generate checksums
+        run: |
+          chmod +x scripts/create-checksums.sh
+
+          ./scripts/create-checksums.sh \
+            --directory release-assets \
+            --algorithm sha256 \
+            --output release-assets/checksums-${{ matrix.archive_format }}.txt
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-${{ matrix.archive_format }}
+          path: |
+            release-assets/*.tar.gz
+            release-assets/*.zip
+            release-assets/checksums-*.txt
+          retention-days: 30
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [prepare-release, build-assets]
+    if: needs.prepare-release.outputs.should_release == 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-assets-*
+          path: ./artifacts
+          merge-multiple: true
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p final-assets
+
+          # Move all artifacts to final directory
+          find ./artifacts -name "*.tar.gz" -o -name "*.zip" -o -name "checksums-*.txt" | \
+            xargs -I {} cp {} final-assets/
+
+          # List final assets
+          echo "Final release assets:"
+          ls -la final-assets/
+
+      - name: Create GitHub Release
+        id: create_release
+        run: |
+          chmod +x scripts/upload-release.py
+
+          python3 scripts/upload-release.py \
+            --version "${{ needs.prepare-release.outputs.version }}" \
+            --assets-dir final-assets \
+            --release-notes "${{ needs.prepare-release.outputs.release_notes }}" \
+            --prerelease "${{ needs.prepare-release.outputs.is_prerelease }}" \
+            --token "${{ secrets.GITHUB_TOKEN }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify release completion
+        run: |
+          echo "🚀 Release ${{ needs.prepare-release.outputs.version }} created successfully!"
+          echo "📦 Assets uploaded:"
+          ls -1 final-assets/
+
+          if [ "${{ needs.prepare-release.outputs.is_prerelease }}" = "true" ]; then
+            echo "⚠️  This is a prerelease version"
+          fi
+
+  post-release:
+    name: Post-Release Tasks
+    runs-on: ubuntu-latest
+    needs: [prepare-release, create-release]
+    if: needs.prepare-release.outputs.should_release == 'true' && success()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update documentation
+        run: |
+          # Update installation instructions with new version
+          if [ -f README.md ]; then
+            sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+/version-${{ needs.prepare-release.outputs.version }}/g" README.md || true
+          fi
+
+          # Update auto-update guide
+          if [ -f Auto-Update-Guide.md ]; then
+            sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v${{ needs.prepare-release.outputs.version }}/g" Auto-Update-Guide.md || true
+          fi
+
+      - name: Create follow-up issue
+        if: needs.prepare-release.outputs.is_prerelease == 'false'
+        run: |
+          gh issue create \
+            --title "Post-release tasks for v${{ needs.prepare-release.outputs.version }}" \
+            --body "## Post-release checklist for v${{ needs.prepare-release.outputs.version }}
+
+          - [ ] Test installation on fresh WSL environment
+          - [ ] Update documentation if needed
+          - [ ] Monitor for user feedback and issues
+          - [ ] Plan next release features
+
+          Release created: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" \
+          --label "release,maintenance"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [prepare-release, build-assets, create-release]
+    if: failure() && needs.prepare-release.outputs.should_release == 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rollback version changes
+        run: |
+          echo "🚨 Release process failed, initiating rollback..."
+
+          # Remove the tag if it was created
+          git tag -d "${{ needs.prepare-release.outputs.version }}" || true
+          git push origin --delete "${{ needs.prepare-release.outputs.version }}" || true
+
+          echo "✅ Rollback completed"
+
+      - name: Create failure issue
+        run: |
+          gh issue create \
+            --title "Release v${{ needs.prepare-release.outputs.version }} failed" \
+            --body "## Release Failure Report
+
+          **Version:** v${{ needs.prepare-release.outputs.version }}
+          **Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+          **Trigger:** ${{ github.event_name }}
+
+          The automated release process failed. Please check the workflow logs and resolve any issues.
+
+          **Next steps:**
+          1. Review workflow logs for error details
+          2. Fix underlying issues
+          3. Re-trigger release when ready
+
+          cc @${{ github.actor }}" \
+          --label "bug,release,priority-high"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

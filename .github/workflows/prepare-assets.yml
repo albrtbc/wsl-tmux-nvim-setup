@@ -1,0 +1,469 @@
+---
+name: Asset Preparation Pipeline
+
+"on":
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version to prepare assets for'
+        required: true
+        type: string
+      archive_formats:
+        description: 'Comma-separated list of archive formats'
+        required: false
+        default: 'tar.gz,zip'
+        type: string
+      include_docs:
+        description: 'Include documentation in assets'
+        required: false
+        default: true
+        type: boolean
+    outputs:
+      asset_paths:
+        description: 'Paths to generated assets'
+        value: ${{ jobs.prepare-assets.outputs.asset_paths }}
+      checksums:
+        description: 'Asset checksums'
+        value: ${{ jobs.prepare-assets.outputs.checksums }}
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to prepare assets for'
+        required: true
+        type: string
+      archive_formats:
+        description: 'Archive formats to generate'
+        required: false
+        default: 'both'
+        type: choice
+        options: ['tar.gz', 'zip', 'both']
+      include_docs:
+        description: 'Include documentation'
+        type: boolean
+        default: true
+      test_mode:
+        description: 'Run in test mode (no uploads)'
+        type: boolean
+        default: false
+
+env:
+  PYTHONUNBUFFERED: 1
+  PYTHON_VERSION: "3.9"
+
+jobs:
+  validate-inputs:
+    name: Validate Preparation Inputs
+    runs-on: ubuntu-latest
+    outputs:
+      formats: ${{ steps.parse.outputs.formats }}
+      version_valid: ${{ steps.validate.outputs.version_valid }}
+
+    steps:
+      - name: Parse archive formats
+        id: parse
+        run: |
+          INPUT_FORMATS="${{ inputs.archive_formats }}"
+
+          if [ "$INPUT_FORMATS" = "both" ]; then
+            FORMATS="tar.gz,zip"
+          else
+            FORMATS="$INPUT_FORMATS"
+          fi
+
+          echo "formats=$FORMATS" >> $GITHUB_OUTPUT
+          echo "Parsed formats: $FORMATS"
+
+      - name: Validate version format
+        id: validate
+        run: |
+          VERSION="${{ inputs.version }}"
+
+          # Check if version follows semantic versioning
+          if echo "$VERSION" | grep -qE \\
+            '^v?[0-9]+\\.[0-9]+\\.[0-9]+([+-][a-zA-Z0-9.-]+)?$'; then
+            echo "version_valid=true" >> $GITHUB_OUTPUT
+            echo "✅ Version format is valid: $VERSION"
+          else
+            echo "version_valid=false" >> $GITHUB_OUTPUT
+            echo "❌ Invalid version format: $VERSION"
+            exit 1
+          fi
+
+  prepare-assets:
+    name: Prepare Release Assets
+    runs-on: ubuntu-latest
+    needs: validate-inputs
+    if: needs.validate-inputs.outputs.version_valid == 'true'
+    outputs:
+      asset_paths: ${{ steps.collect.outputs.asset_paths }}
+      checksums: ${{ steps.checksums.outputs.checksums }}
+
+    strategy:
+      matrix:
+        format: ["tar.gz", "zip"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip tar gzip tree
+          python -m pip install --upgrade pip
+
+      - name: Create build environment
+        run: |
+          mkdir -p build-env/{input,output,temp,logs}
+          chmod -R 755 build-env
+
+          echo "📁 Build environment created:"
+          tree build-env
+
+      - name: Prepare release assets
+        id: prepare
+        run: |
+          chmod +x scripts/prepare-release.sh
+
+          echo "🔧 Preparing assets for version ${{ inputs.version }}" \\
+               "in format ${{ matrix.format }}..."
+
+          # Set format argument based on matrix value
+          case "${{ matrix.format }}" in
+            "tar.gz")
+              FORMAT_ARG="tar.gz"
+              ;;
+            "zip")
+              FORMAT_ARG="zip"
+              ;;
+            *)
+              echo "❌ Unsupported format: ${{ matrix.format }}"
+              exit 1
+              ;;
+          esac
+
+          # Run asset preparation
+          ./scripts/prepare-release.sh \
+            --version "${{ inputs.version }}" \
+            --format "$FORMAT_ARG" \
+            ${{ inputs.include_docs && '--include-docs' || '--no-docs' }} \
+            --verbose \
+            --output-dir build-env/output
+
+          echo "✅ Asset preparation completed for ${{ matrix.format }}"
+
+      - name: Generate checksums
+        id: checksums
+        run: |
+          chmod +x scripts/create-checksums.sh
+
+          echo "🔐 Generating checksums for ${{ matrix.format }} assets..."
+
+          ./scripts/create-checksums.sh \
+            --directory build-env/output \
+            --algorithm sha256 \
+            --algorithm sha512 \
+            --output build-env/output/checksums-${{ matrix.format }}.txt \
+            --verbose
+
+          echo "✅ Checksums generated"
+
+          # Output checksums for reference
+          if [ -f build-env/output/checksums-${{ matrix.format }}.txt ]; then
+            echo "📋 Generated checksums:"
+            cat build-env/output/checksums-${{ matrix.format }}.txt
+          fi
+
+      - name: Validate asset integrity
+        run: |
+          echo "🔍 Validating asset integrity..."
+
+          cd build-env/output
+
+          # Verify checksums
+          if [ -f checksums-${{ matrix.format }}.txt ]; then
+            sha256sum -c checksums-${{ matrix.format }}.txt
+            echo "✅ Checksum verification passed"
+          fi
+
+          # Verify archive contents
+          case "${{ matrix.format }}" in
+            "tar.gz")
+              if ls *.tar.gz >/dev/null 2>&1; then
+                for archive in *.tar.gz; do
+                  echo "📦 Contents of $archive:"
+                  tar -tzf "$archive" | head -20
+                  echo "   ... (showing first 20 entries)"
+                done
+              fi
+              ;;
+            "zip")
+              if ls *.zip >/dev/null 2>&1; then
+                for archive in *.zip; do
+                  echo "📦 Contents of $archive:"
+                  unzip -l "$archive" | head -25
+                  echo "   ... (showing first 20 entries)"
+                done
+              fi
+              ;;
+          esac
+
+      - name: Collect asset information
+        id: collect
+        run: |
+          cd build-env/output
+
+          # List all generated files
+          echo "📂 Generated assets:"
+          ls -la
+
+          # Collect asset paths
+          ASSET_PATHS=""
+          for file in *.tar.gz *.zip checksums-*.txt; do
+            if [ -f "$file" ]; then
+              ASSET_PATHS="$ASSET_PATHS$PWD/$file,"
+            fi
+          done
+
+          # Remove trailing comma
+          ASSET_PATHS="${ASSET_PATHS%,}"
+
+          echo "asset_paths=$ASSET_PATHS" >> $GITHUB_OUTPUT
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: assets-${{ matrix.format }}-${{ inputs.version }}
+          path: |
+            build-env/output/*.tar.gz
+            build-env/output/*.zip
+            build-env/output/checksums-*.txt
+          retention-days: 30
+          if-no-files-found: error
+
+  verify-assets:
+    name: Verify Asset Quality
+    runs-on: ubuntu-latest
+    needs: [validate-inputs, prepare-assets]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+        pattern: assets-*-${{ inputs.version }}
+        path: ./all-assets
+        merge-multiple: true
+
+      - name: Comprehensive asset verification
+        run: |
+          echo "🔍 Performing comprehensive asset verification..."
+          cd all-assets
+
+          # List all downloaded assets
+          echo "📂 All assets:"
+          ls -la
+
+          # Verify each archive type
+          for format in tar.gz zip; do
+            if ls *.$format >/dev/null 2>&1; then
+              echo "🔍 Verifying $format archives..."
+
+              for archive in *.$format; do
+                echo "  📦 Checking $archive..."
+
+                case "$format" in
+                "tar.gz")
+                  # Test archive integrity
+                  if tar -tf "$archive" >/dev/null 2>&1; then
+                    echo "    ✅ Archive integrity OK"
+                  else
+                    echo "    ❌ Archive integrity FAILED"
+                    exit 1
+                  fi
+
+                  # Check for expected files
+                  if tar -tf "$archive" | \
+                       grep -q "version.json\|install\.sh"; then
+                    echo "    ✅ Contains expected files"
+                  else
+                    echo "    ⚠️  May be missing expected files"
+                  fi
+                  ;;
+
+                "zip")
+                  # Test archive integrity
+                  if unzip -t "$archive" >/dev/null 2>&1; then
+                    echo "    ✅ Archive integrity OK"
+                  else
+                    echo "    ❌ Archive integrity FAILED"
+                    exit 1
+                  fi
+
+                  # Check for expected files
+                  if unzip -l "$archive" | \
+                       grep -q "version.json\|install\.sh"; then
+                    echo "    ✅ Contains expected files"
+                  else
+                    echo "    ⚠️  May be missing expected files"
+                  fi
+                  ;;
+                esac
+              done
+            fi
+          done
+
+          # Verify checksums
+          echo "🔐 Verifying checksums..."
+          for checksum_file in checksums-*.txt; do
+            if [ -f "$checksum_file" ]; then
+              echo "  📋 Checking $checksum_file..."
+              if sha256sum -c "$checksum_file" >/dev/null 2>&1; then
+                echo "    ✅ Checksum verification passed"
+              else
+                echo "    ❌ Checksum verification FAILED"
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Generate verification report
+        run: |
+          cd all-assets
+
+          echo "# Asset Preparation Report" > verification-report.md
+          echo "" >> verification-report.md
+          echo "**Version:** ${{ inputs.version }}" >> verification-report.md
+          echo "**Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> \
+            verification-report.md
+          echo "**Formats:** ${{ needs.validate-inputs.outputs.formats }}" >> \
+            verification-report.md
+          echo "" >> verification-report.md
+
+          echo "## Generated Assets" >> verification-report.md
+          echo "" >> verification-report.md
+          echo "\`\`\`" >> verification-report.md
+          ls -la >> verification-report.md
+          echo "\`\`\`" >> verification-report.md
+          echo "" >> verification-report.md
+
+          echo "## Checksums" >> verification-report.md
+          echo "" >> verification-report.md
+          for checksum_file in checksums-*.txt; do
+            if [ -f "$checksum_file" ]; then
+              echo "### $checksum_file" >> verification-report.md
+              echo "\`\`\`" >> verification-report.md
+              cat "$checksum_file" >> verification-report.md
+              echo "\`\`\`" >> verification-report.md
+              echo "" >> verification-report.md
+            fi
+          done
+
+          # Calculate total size
+          TOTAL_SIZE=$(du -sh . | cut -f1)
+          echo "**Total asset size:** $TOTAL_SIZE" >> verification-report.md
+
+      - name: Upload verification report
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-report-${{ inputs.version }}
+          path: all-assets/verification-report.md
+          retention-days: 90
+
+  test-installation:
+    name: Test Asset Installation
+    runs-on: ubuntu-latest
+    needs: [verify-assets]
+    if: inputs.test_mode != true
+
+    strategy:
+      matrix:
+        format: ['tar.gz', 'zip']
+        ubuntu_version: ['20.04', '22.04']
+
+    container:
+      image: ubuntu:${{ matrix.ubuntu_version }}
+      options: --user root
+
+    steps:
+      - name: Install test dependencies
+        run: |
+          apt-get update
+          apt-get install -y curl wget unzip tar gzip python3
+
+      - name: Download test assets
+        uses: actions/download-artifact@v4
+        with:
+        pattern: assets-${{ matrix.format }}-${{ inputs.version }}
+        path: ./test-assets
+
+      - name: Test asset extraction
+        run: |
+          cd test-assets
+
+          echo "🧪 Testing ${{ matrix.format }} extraction on Ubuntu \
+            ${{ matrix.ubuntu_version }}..."
+
+          # Find the archive file
+          ARCHIVE=$(ls -1 *.${{ matrix.format }} | head -1)
+
+          if [ -z "$ARCHIVE" ]; then
+            echo "❌ No ${{ matrix.format }} archive found"
+            exit 1
+          fi
+
+          echo "📦 Testing archive: $ARCHIVE"
+
+          # Extract the archive
+          case "${{ matrix.format }}" in
+            "tar.gz")
+              tar -xzf "$ARCHIVE"
+              ;;
+            "zip")
+              unzip "$ARCHIVE"
+              ;;
+          esac
+
+          echo "✅ Extraction successful"
+
+          # List extracted contents
+          echo "📂 Extracted contents:"
+          ls -la
+
+          # Test basic file presence
+          EXTRACT_DIR=$(ls -d wsl-tmux-nvim-setup-* | head -1)
+          if [ -d "$EXTRACT_DIR" ]; then
+            cd "$EXTRACT_DIR"
+            echo "📋 Contents of $EXTRACT_DIR:"
+            ls -la
+
+            # Check for critical files
+            for file in install.sh version.json; do
+              if [ -f "$file" ]; then
+                echo "  ✅ $file present"
+              else
+                  echo "  ❌ $file missing"
+              fi
+            done
+          fi
+
+  cleanup:
+    name: Cleanup Build Environment
+    runs-on: ubuntu-latest
+    needs: [prepare-assets, verify-assets, test-installation]
+    if: always() && inputs.test_mode == true
+
+    steps:
+      - name: Clean up test artifacts
+        run: |
+          echo "🧹 Cleaning up test artifacts..."
+          echo "Test mode was enabled, artifacts will be cleaned up \
+            automatically"

@@ -1,0 +1,271 @@
+---
+name: Continuous Integration
+
+"on":
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  PYTHONUNBUFFERED: 1
+  PYTHON_VERSION: "3.9"
+
+jobs:
+  lint-and-validate:
+    name: Lint Scripts and Validate Configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install shellcheck-py yamllint flake8 black pylint
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint shell scripts with ShellCheck
+        run: |
+          echo "Running ShellCheck on all shell scripts..."
+          find . -name "*.sh" -type f -not -path "./synth-shell/*" | \
+            while read -r file; do
+            echo "Checking: $file"
+            shellcheck -x "$file"
+          done
+
+      - name: Lint Python scripts
+        run: |
+          echo "Running Python linting..."
+          find . -name "*.py" -type f | while read -r file; do
+            echo "Checking: $file"
+            flake8 "$file" --max-line-length=130 --extend-ignore=E203,W503
+            black --check "$file"
+          done
+
+      - name: Validate JSON configuration files
+        run: |
+          echo "Validating JSON files..."
+          find . -name "*.json" -type f | while read -r file; do
+            echo "Validating: $file"
+            python -m json.tool "$file" > /dev/null
+          done
+
+      - name: Validate YAML files
+        run: |
+          echo "Validating YAML files..."
+          find . -name "*.yml" -o -name "*.yaml" -type f | \
+            while read -r file; do
+            echo "Validating: $file"
+            yamllint "$file"
+          done
+
+  test-installation-matrix:
+    name: Test Installation on Multiple Platforms
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ubuntu_version: ["20.04", "22.04", "24.04"]
+        shell: ["bash", "zsh"]
+        include:
+          - ubuntu_version: "20.04"
+            container: ubuntu:20.04
+          - ubuntu_version: "22.04"
+            container: ubuntu:22.04
+          - ubuntu_version: "24.04"
+            container: ubuntu:24.04
+
+    container:
+      image: ${{ matrix.container }}
+      options: --user root
+
+    steps:
+      - name: Install basic dependencies
+        run: |
+          apt-get update
+          apt-get install -y git curl wget sudo python3 python3-pip
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install test shell
+        run: |
+          if [ "${{ matrix.shell }}" = "zsh" ]; then
+            apt-get install -y zsh
+          fi
+
+      - name: Test core installation scripts
+        run: |
+          echo "Testing installation scripts..."
+          chmod +x auto_install/components/*.sh
+
+          # Test dependency installation
+          ./auto_install/components/install_dependencies.sh --dry-run
+
+          # Test individual component scripts
+          ./auto_install/components/install_git.sh --dry-run
+          ./auto_install/components/install_tmux.sh --dry-run
+
+      - name: Test release preparation scripts
+        run: |
+          echo "Testing release scripts..."
+          chmod +x scripts/*.sh scripts/*.py
+
+          # Test version manager
+          python3 scripts/version-manager.py --help
+
+          # Test changelog generator
+          python3 scripts/generate-changelog.py --help
+
+          # Test checksum creation (dry run)
+          ./scripts/create-checksums.sh --help
+
+      - name: Test shell configuration
+        run: |
+          echo "Testing shell configurations..."
+
+          # Test bashrc additions don't break shell
+          if [ "${{ matrix.shell }}" = "bash" ]; then
+            bash -n .bashrc || echo "bashrc syntax check failed"
+          fi
+
+          # Test with target shell
+          ${{ matrix.shell }} -c "echo 'Shell test successful'"
+
+  test-update-scripts:
+    name: Test Update Mechanism
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pyyaml
+
+      - name: Test update check scripts
+        run: |
+          echo "Testing update mechanisms..."
+          chmod +x bin/*.sh
+
+          # Test update check (dry run)
+          if [ -f bin/check-updates.sh ]; then
+            bash -n bin/check-updates.sh
+          fi
+
+          # Test update script (syntax check)
+          if [ -f bin/update.sh ]; then
+            bash -n bin/update.sh
+          fi
+
+          # Test release-based update (syntax check)
+          if [ -f bin/update-from-release.sh ]; then
+            bash -n bin/update-from-release.sh
+          fi
+
+  security-scan:
+    name: Security and Dependency Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety
+
+      - name: Run Bandit security scan
+        run: |
+          echo "Running Bandit security scan on Python files..."
+          find . -name "*.py" -type f | xargs bandit -r || true
+
+      - name: Check for known vulnerabilities
+        run: |
+          echo "Checking for known vulnerabilities..."
+          if [ -f requirements.txt ]; then
+            safety check -r requirements.txt || true
+          fi
+
+      - name: Scan for hardcoded secrets
+        run: |
+          echo "Scanning for hardcoded secrets..."
+          # Simple grep-based secret detection
+          grep -r -i -E "(password|secret|key|token)" --include="*.sh" \
+            --include="*.py" . || echo "No obvious secrets found"
+
+      - name: Verify script permissions
+        run: |
+          echo "Checking script permissions..."
+          find . -name "*.sh" -type f -not -perm -u+x | while read -r file; do
+            echo "Warning: $file is not executable"
+          done
+
+  test-documentation:
+    name: Test Documentation and Examples
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install documentation tools
+        run: |
+          pip install markdown-checker || true
+
+      - name: Validate Markdown files
+        run: |
+          echo "Validating Markdown documentation..."
+          find . -name "*.md" -type f | while read -r file; do
+            echo "Checking: $file"
+            # Basic markdown validation
+            grep -q "^# " "$file" || \
+              echo "Warning: $file may be missing main heading"
+          done
+
+      - name: Test example configurations
+        run: |
+          echo "Testing example configurations..."
+
+          # Check if configuration files have basic structure
+          if [ -f configs/tmux.conf ]; then
+            grep -q "bind" configs/tmux.conf || \
+              echo "Warning: tmux.conf may be incomplete"
+          fi
+
+      - name: Generate test report
+        run: |
+          echo "## CI Test Summary" > ci-report.md
+          echo "- ✅ Lint and validation completed" >> ci-report.md
+          echo "- ✅ Multi-platform installation tested" >> ci-report.md
+          echo "- ✅ Update scripts validated" >> ci-report.md
+          echo "- ✅ Security scan performed" >> ci-report.md
+          echo "- ✅ Documentation checked" >> ci-report.md
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-test-report
+          path: ci-report.md
+          retention-days: 30

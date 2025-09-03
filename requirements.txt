@@ -1,0 +1,31 @@
+# WSL-Tmux-Nvim-Setup CLI Dependencies
+# Core CLI framework
+click>=8.0.0
+rich>=12.0.0
+
+# HTTP requests and API integration
+requests>=2.28.0
+
+# Configuration management
+pydantic>=1.10.0
+pyyaml>=6.0
+
+# File operations and compression
+pathlib2>=2.3.7; python_version<"3.4"
+# tarfile - built-in module
+
+# Progress bars and user interface
+tqdm>=4.64.0
+textual>=0.38.0  # Advanced terminal UI framework
+
+# JSON handling (built-in but explicit for clarity)
+# json - built-in
+
+# Datetime handling
+python-dateutil>=2.8.0
+
+# System utilities
+psutil>=5.9.0
+
+# Checksums and security
+# hashlib - built-in module

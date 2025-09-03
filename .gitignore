@@ -1,2 +1,27 @@
 .idea/
 .claude/
+
+# Build artifacts and releases
+dist/
+build/
+*.tar.gz
+*.zip
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+
+# Release system
+checksums.txt
+release-assets/
+*.log
+
+# CLI application builds
+cli/dist/
+cli/build/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+.coverage

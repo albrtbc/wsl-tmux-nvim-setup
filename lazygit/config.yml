@@ -1,3 +1,4 @@
+---
 git:
   paging:
     colorArg: always
@@ -5,7 +6,9 @@ git:
 customCommands:
   - key: 'a'
     context: 'files'
-    command: "git {{if .SelectedFile.HasUnstagedChanges}} add {{else}} reset {{end}} {{.SelectedFile.Name | quote}}"
+    command: >-
+      git {{if .SelectedFile.HasUnstagedChanges}} add {{else}} reset {{end}}
+      {{.SelectedFile.Name | quote}}
     description: 'Toggle file staged'
   - key: 's'
     context: 'localBranches'
@@ -14,7 +17,10 @@ customCommands:
     loadingText: 'Switching branch'
   - key: 'p'
     context: 'localBranches'
-    command: "git fetch origin {{.SelectedLocalBranch.Name}}:{{.SelectedLocalBranch.Name}} --update-head-ok"
+    command: >-
+      git fetch origin
+      {{.SelectedLocalBranch.Name}}:{{.SelectedLocalBranch.Name}}
+      --update-head-ok
     description: 'Pull selected branch'
     loadingText: 'Pulling branch'
   - key: '<c-p>'
@@ -55,7 +61,7 @@ customCommands:
     loadingText: 'Creating branch'
 keybinding:
   universal:
-    prevBlock-alt: 'K' # scroll left within list view
-    nextBlock-alt: 'J' # scroll right within list view
-    scrollUpMain-alt1: '<c-k>' # main panel scroll up
+    prevBlock-alt: 'K'  # scroll left within list view
+    nextBlock-alt: 'J'  # scroll right within list view
+    scrollUpMain-alt1: '<c-k>'  # main panel scroll up
     scrollDownMain-alt1: '<c-j>'
