@@ -18,7 +18,8 @@ customCommands:
   - key: 'p'
     context: 'localBranches'
     command: >-
-      git fetch origin {{.SelectedLocalBranch.Name}}:{{.SelectedLocalBranch.Name}}
+      git fetch origin
+      {{.SelectedLocalBranch.Name}}:{{.SelectedLocalBranch.Name}}
       --update-head-ok
     description: 'Pull selected branch'
     loadingText: 'Pulling branch'
