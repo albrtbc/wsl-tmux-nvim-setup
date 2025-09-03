@@ -168,9 +168,7 @@ class GitCommitParser:
         # Default to "Changed" for unclassified commits
         return ChangeType.CHANGED, commit["subject"]
 
-    def parse_commits_to_entries(
-        self, commits: List[Dict]
-    ) -> Dict[ChangeType, List[ChangeEntry]]:
+    def parse_commits_to_entries(self, commits: List[Dict]) -> Dict[ChangeType, List[ChangeEntry]]:
         """Convert git commits to changelog entries"""
         entries = {change_type: [] for change_type in ChangeType}
 
@@ -188,8 +186,7 @@ class GitCommitParser:
             ]
 
             if any(
-                re.search(pattern, commit["subject"], re.IGNORECASE)
-                for pattern in ignore_patterns
+                re.search(pattern, commit["subject"], re.IGNORECASE) for pattern in ignore_patterns
             ):
                 continue
 
@@ -277,9 +274,7 @@ class ChangelogGenerator:
 
         return "\n".join(entry_lines)
 
-    def update_unreleased_section(
-        self, changes: Dict[ChangeType, List[ChangeEntry]]
-    ) -> str:
+    def update_unreleased_section(self, changes: Dict[ChangeType, List[ChangeEntry]]) -> str:
         """Update the unreleased section of changelog"""
         existing_content = self.read_existing_changelog()
 
@@ -314,9 +309,7 @@ class ChangelogGenerator:
 
         return updated_content
 
-    def add_release_entry(
-        self, version: str, changes: Dict[ChangeType, List[ChangeEntry]]
-    ) -> str:
+    def add_release_entry(self, version: str, changes: Dict[ChangeType, List[ChangeEntry]]) -> str:
         """Add a new release entry to changelog"""
         existing_content = self.read_existing_changelog()
 
@@ -388,9 +381,7 @@ class ChangelogGenerator:
         with open(self.changelog_path, "w") as f:
             f.write(content)
 
-    def generate_from_commits(
-        self, since: str = None, mode: str = "unreleased"
-    ) -> None:
+    def generate_from_commits(self, since: str = None, mode: str = "unreleased") -> None:
         """Generate changelog from git commits"""
         # Get commits since last release or specified point
         if since is None:
@@ -463,9 +454,7 @@ Examples:
         default="unreleased",
         help="Generation mode (default: unreleased)",
     )
-    parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Enable verbose output"
-    )
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose output")
 
     args = parser.parse_args()
 
