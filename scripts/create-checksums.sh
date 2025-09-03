@@ -217,6 +217,7 @@ create_checksums_file() {
     mkdir -p "$output_dir"
     
     # Create header for checksums file
+    log_debug "Creating output file: $output_file"
     cat > "$output_file" << EOF
 # WSL-Tmux-Nvim-Setup Release Checksums
 # Generated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -231,6 +232,7 @@ create_checksums_file() {
 # Format: <hash>  <filename>
 
 EOF
+    log_debug "Header written successfully"
     
     # Find all asset files
     local files
