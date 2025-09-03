@@ -6,15 +6,16 @@ Handles GitHub API integration for creating releases and uploading assets.
 Supports authentication, retry logic, and comprehensive error handling.
 """
 
+import argparse
+import hashlib
+import json
 import os
 import sys
-import json
-import argparse
 import time
-import hashlib
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
-from dataclasses import dataclass
+
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -78,8 +79,6 @@ class GitHubRelease:
 
 class GitHubAPIError(Exception):
     """GitHub API related errors"""
-
-    pass
 
 
 class GitHubReleaseClient:
@@ -172,15 +171,11 @@ class GitHubReleaseClient:
         response = self._make_request("PATCH", url, json=data)
         return response.json()
 
-    def upload_asset(
-        self, release_id: int, asset: ReleaseAsset, progress_callback=None
-    ) -> Dict:
+    def upload_asset(self, release_id: int, asset: ReleaseAsset, progress_callback=None) -> Dict:
         """Upload an asset to a release"""
         # Get upload URL
         base = "https://uploads.github.com"
-        upload_url_template = (
-            f"{base}/repos/{self.repository}/releases/{release_id}/assets"
-        )
+        upload_url_template = f"{base}/repos/{self.repository}/releases/{release_id}/assets"
         upload_url = f"{upload_url_template}?name={asset.name}"
 
         # Prepare headers for upload
@@ -196,14 +191,10 @@ class GitHubReleaseClient:
             if progress_callback:
                 # Upload with progress tracking
                 data = self._upload_with_progress(f, asset.size, progress_callback)
-                response = self._make_request(
-                    "POST", upload_url, data=data, headers=headers
-                )
+                response = self._make_request("POST", upload_url, data=data, headers=headers)
             else:
                 # Simple upload
-                response = self._make_request(
-                    "POST", upload_url, data=f, headers=headers
-                )
+                response = self._make_request("POST", upload_url, data=f, headers=headers)
 
         print(f"✓ Uploaded {asset.name}")
         return response.json()
@@ -509,22 +500,16 @@ Environment Variables:
         "-v",
         help="Release version (default: auto-detect from version.json)",
     )
-    parser.add_argument(
-        "--assets-dir", "-a", help="Assets directory (default: ./release-assets)"
-    )
+    parser.add_argument("--assets-dir", "-a", help="Assets directory (default: ./release-assets)")
     parser.add_argument(
         "--repository",
         "-r",
         help="GitHub repository (owner/repo, default: auto-detect)",
     )
-    parser.add_argument(
-        "--token", "-t", help="GitHub token (default: from environment)"
-    )
+    parser.add_argument("--token", "-t", help="GitHub token (default: from environment)")
     parser.add_argument("--prerelease", action="store_true", help="Mark as prerelease")
     parser.add_argument("--draft", action="store_true", help="Create as draft")
-    parser.add_argument(
-        "--no-verify", action="store_true", help="Skip asset verification"
-    )
+    parser.add_argument("--no-verify", action="store_true", help="Skip asset verification")
     parser.add_argument(
         "--replace-assets",
         action="store_true",

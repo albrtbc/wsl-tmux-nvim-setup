@@ -6,16 +6,16 @@ Generates changelog entries from git commits, following Keep a Changelog format
 and integrating with the release system for automated documentation.
 """
 
-import re
-import sys
-import json
 import argparse
+import json
+import re
 import subprocess
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 
 class ChangeType(Enum):
@@ -455,7 +455,7 @@ Examples:
         generator = ChangelogGenerator(args.project_root)
         generator.generate_from_commits(since=args.since, mode=args.mode)
 
-        print(f"\nChangelog updated successfully!")
+        print("\nChangelog updated successfully!")
         print(f"File: {generator.changelog_path}")
 
     except Exception as e:

@@ -6,21 +6,19 @@ A utility for managing semantic versioning, changelog generation,
 and version bumping operations for the release system.
 """
 
-import json
-import sys
 import argparse
+import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Tuple, Optional
+from typing import Dict, Optional, Tuple
 
 # POSIX-compliant error handling
 
 
 class VersionManagerError(Exception):
     """Custom exception for version manager errors"""
-
-    pass
 
 
 class SemanticVersion:
