@@ -71,29 +71,29 @@ jobs:
         run: |
           chmod +x scripts/version-manager.py
 
-        if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.ref }}" == refs/tags/* ]]; then
-          # Tag-triggered release
-          VERSION="${{ github.ref_name }}"
-          IS_PRERELEASE="false"
-          echo "Tag-triggered release: $VERSION"
-        elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          # Manual release
-          if [ -n "${{ github.event.inputs.custom_version }}" ]; then
-            VERSION="${{ github.event.inputs.custom_version }}"
-          else
-            VERSION=$(python3 scripts/version-manager.py bump "${{ github.event.inputs.version_type }}" --dry-run)
+          if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            # Tag-triggered release
+            VERSION="${{ github.ref_name }}"
+            IS_PRERELEASE="false"
+            echo "Tag-triggered release: $VERSION"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual release
+            if [ -n "${{ github.event.inputs.custom_version }}" ]; then
+              VERSION="${{ github.event.inputs.custom_version }}"
+            else
+              VERSION=$(python3 scripts/version-manager.py bump "${{ github.event.inputs.version_type }}" --dry-run)
+            fi
+            IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
+            echo "Manual release: $VERSION (prerelease: $IS_PRERELEASE)"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            # Scheduled release check
+            VERSION=$(python3 scripts/version-manager.py bump patch --dry-run)
+            IS_PRERELEASE="false"
+            echo "Scheduled release check: $VERSION"
           fi
-          IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
-          echo "Manual release: $VERSION (prerelease: $IS_PRERELEASE)"
-        elif [ "${{ github.event_name }}" = "schedule" ]; then
-          # Scheduled release check
-          VERSION=$(python3 scripts/version-manager.py bump patch --dry-run)
-          IS_PRERELEASE="false"
-          echo "Scheduled release check: $VERSION"
-        fi
 
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
 
       - name: Check if release is needed
         id: check
@@ -125,19 +125,19 @@ jobs:
         run: |
           chmod +x scripts/generate-changelog.py
 
-        # Generate release notes for this version
-        python3 scripts/generate-changelog.py \
-          --version "${{ steps.version.outputs.version }}" \
-          --format github \
-          --output release-notes.md
+          # Generate release notes for this version
+          python3 scripts/generate-changelog.py \
+            --version "${{ steps.version.outputs.version }}" \
+            --format github \
+            --output release-notes.md
 
-        # Read the generated release notes
-        RELEASE_NOTES=$(cat release-notes.md)
+          # Read the generated release notes
+          RELEASE_NOTES=$(cat release-notes.md)
 
-        # Set multiline output
-        echo "release_notes<<EOF" >> $GITHUB_OUTPUT
-        echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+          # Set multiline output
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Update version files
         if: steps.check.outputs.should_release == 'true' && github.event_name != 'push'
@@ -147,10 +147,10 @@ jobs:
             python3 scripts/version-manager.py bump "${{ github.event.inputs.version_type || 'patch' }}" --write
           fi
 
-        # Update CHANGELOG.md
-        if [ -f CHANGELOG.md ]; then
-          python3 scripts/generate-changelog.py --update-changelog
-        fi
+          # Update CHANGELOG.md
+          if [ -f CHANGELOG.md ]; then
+            python3 scripts/generate-changelog.py --update-changelog
+          fi
 
       - name: Commit version changes
         if: steps.check.outputs.should_release == 'true' && github.event_name != 'push'
@@ -196,29 +196,29 @@ jobs:
         run: |
           chmod +x scripts/prepare-release.sh
 
-        ./scripts/prepare-release.sh \
-          --version "${{ needs.prepare-release.outputs.version }}" \
-          --format "${{ matrix.archive_format }}" \
-          --include-docs \
-          --verbose
+          ./scripts/prepare-release.sh \
+            --version "${{ needs.prepare-release.outputs.version }}" \
+            --format "${{ matrix.archive_format }}" \
+            --include-docs \
+            --verbose
 
       - name: Generate checksums
         run: |
           chmod +x scripts/create-checksums.sh
 
-        ./scripts/create-checksums.sh \
-          --directory release-assets \
-          --algorithm sha256 \
-          --output release-assets/checksums-${{ matrix.archive_format }}.txt
+          ./scripts/create-checksums.sh \
+            --directory release-assets \
+            --algorithm sha256 \
+            --output release-assets/checksums-${{ matrix.archive_format }}.txt
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-assets-${{ matrix.archive_format }}
           path: |
-          release-assets/*.tar.gz
-          release-assets/*.zip
-          release-assets/checksums-*.txt
+            release-assets/*.tar.gz
+            release-assets/*.zip
+            release-assets/checksums-*.txt
           retention-days: 30
 
   create-release:
@@ -247,13 +247,13 @@ jobs:
         run: |
           mkdir -p final-assets
 
-        # Move all artifacts to final directory
-        find ./artifacts -name "*.tar.gz" -o -name "*.zip" -o -name "checksums-*.txt" | \
-          xargs -I {} cp {} final-assets/
+          # Move all artifacts to final directory
+          find ./artifacts -name "*.tar.gz" -o -name "*.zip" -o -name "checksums-*.txt" | \
+            xargs -I {} cp {} final-assets/
 
-        # List final assets
-        echo "Final release assets:"
-        ls -la final-assets/
+          # List final assets
+          echo "Final release assets:"
+          ls -la final-assets/
 
       - name: Create GitHub Release
         id: create_release
