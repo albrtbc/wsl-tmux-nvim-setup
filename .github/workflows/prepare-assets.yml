@@ -184,57 +184,57 @@ jobs:
         run: |
           echo "🔍 Validating asset integrity..."
 
-        cd build-env/output
+          cd build-env/output
 
-        # Verify checksums
-        if [ -f checksums-${{ matrix.format }}.txt ]; then
-          sha256sum -c checksums-${{ matrix.format }}.txt
-          echo "✅ Checksum verification passed"
-        fi
+          # Verify checksums
+          if [ -f checksums-${{ matrix.format }}.txt ]; then
+            sha256sum -c checksums-${{ matrix.format }}.txt
+            echo "✅ Checksum verification passed"
+          fi
 
-        # Verify archive contents
-        case "${{ matrix.format }}" in
-          "tar.gz")
-            if ls *.tar.gz >/dev/null 2>&1; then
-              for archive in *.tar.gz; do
-                echo "📦 Contents of $archive:"
-                tar -tzf "$archive" | head -20
-                echo "   ... (showing first 20 entries)"
-              done
-            fi
-            ;;
-          "zip")
-            if ls *.zip >/dev/null 2>&1; then
-              for archive in *.zip; do
-                echo "📦 Contents of $archive:"
-                unzip -l "$archive" | head -25
-                echo "   ... (showing first 20 entries)"
-              done
-            fi
-            ;;
-        esac
+          # Verify archive contents
+          case "${{ matrix.format }}" in
+            "tar.gz")
+              if ls *.tar.gz >/dev/null 2>&1; then
+                for archive in *.tar.gz; do
+                  echo "📦 Contents of $archive:"
+                  tar -tzf "$archive" | head -20
+                  echo "   ... (showing first 20 entries)"
+                done
+              fi
+              ;;
+            "zip")
+              if ls *.zip >/dev/null 2>&1; then
+                for archive in *.zip; do
+                  echo "📦 Contents of $archive:"
+                  unzip -l "$archive" | head -25
+                  echo "   ... (showing first 20 entries)"
+                done
+              fi
+              ;;
+          esac
 
       - name: Collect asset information
         id: collect
         run: |
           cd build-env/output
 
-        # List all generated files
-        echo "📂 Generated assets:"
-        ls -la
+          # List all generated files
+          echo "📂 Generated assets:"
+          ls -la
 
-        # Collect asset paths
-        ASSET_PATHS=""
-        for file in *.tar.gz *.zip checksums-*.txt; do
-          if [ -f "$file" ]; then
-            ASSET_PATHS="$ASSET_PATHS$PWD/$file,"
-          fi
-        done
+          # Collect asset paths
+          ASSET_PATHS=""
+          for file in *.tar.gz *.zip checksums-*.txt; do
+            if [ -f "$file" ]; then
+              ASSET_PATHS="$ASSET_PATHS$PWD/$file,"
+            fi
+          done
 
-        # Remove trailing comma
-        ASSET_PATHS="${ASSET_PATHS%,}"
+          # Remove trailing comma
+          ASSET_PATHS="${ASSET_PATHS%,}"
 
-        echo "asset_paths=$ASSET_PATHS" >> $GITHUB_OUTPUT
+          echo "asset_paths=$ASSET_PATHS" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
