@@ -6,6 +6,19 @@ export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="/opt/nvim-linux64/bin:$PATH"
 alias vim="nvim"
 alias lg="lazygit"
+alias py="python3"
+alias python="python3"
+
+# Yazi wrapper to cd on exit
+function ya() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
+
 
 # If not running interactively, don't do anything
 case $- in
