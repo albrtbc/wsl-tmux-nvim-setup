@@ -25,10 +25,12 @@ cp -r /tmp/wsl-tmux-nvim-setup/auto_install/components/ ~/.config/auto_install/
 cp /tmp/wsl-tmux-nvim-setup/auto_install/components.json ~/.config/auto_install/
 
 # Add to PATH
+# shellcheck disable=SC2016
 echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
 echo 'alias gasbo="python3 ~/bin/auto_install/main.py"' >> ~/.bashrc
 
 # Source .bashrc
+# shellcheck source=/dev/null
 . ~/.bashrc
 
 python3 ~/bin/auto_install/main.py
