@@ -6,6 +6,7 @@ Handles version comparison, parsing, and compatibility checking.
 Integrates with existing version-manager.py functionality.
 """
 
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union

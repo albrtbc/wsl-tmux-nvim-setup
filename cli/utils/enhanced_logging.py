@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 try:
+    import click
     from rich.console import Console
     from rich.logging import RichHandler
     from rich.panel import Panel

@@ -10,6 +10,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -466,10 +467,6 @@ class AutoInstallBridge:
 
         # Install components
         if show_progress:
-            total_time = sum(
-                self.component_scripts[name].estimated_time for name in valid_components
-            )
-
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
