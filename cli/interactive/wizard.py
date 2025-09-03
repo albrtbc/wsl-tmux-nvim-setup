@@ -178,7 +178,7 @@ class InteractiveWizard:
             curses.setupterm()
             if curses.tigetnum("colors") < 8:
                 return UIMode.RICH  # Limited color support
-        except:
+        except Exception:
             return UIMode.RICH
 
         # Check environment variables
@@ -431,7 +431,7 @@ class InteractiveWizard:
                         info["Environment"] = "WSL1"
                 else:
                     info["Environment"] = "Native Linux"
-        except:
+        except Exception:
             info["Environment"] = "Unknown"
 
         # Shell detection
@@ -448,7 +448,7 @@ class InteractiveWizard:
 
             total, used, free = shutil.disk_usage(Path.home())
             info["Available Space"] = f"{free // (1024**3):.1f} GB"
-        except:
+        except Exception:
             info["Available Space"] = "Unknown"
 
         return info

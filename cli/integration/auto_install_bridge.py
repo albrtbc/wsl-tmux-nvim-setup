@@ -202,7 +202,7 @@ class AutoInstallBridge:
                 c.lower() for c in status.installed_components
             ]:
                 return True
-        except:
+        except Exception:
             pass
 
         # Check for component-specific indicators
@@ -225,7 +225,7 @@ class AutoInstallBridge:
         if check_func:
             try:
                 return check_func()
-            except:
+            except Exception:
                 return False
 
         return False
@@ -235,7 +235,7 @@ class AutoInstallBridge:
         try:
             result = subprocess.run(["which", command], capture_output=True, timeout=5)
             return result.returncode == 0
-        except:
+        except Exception:
             return False
 
     def run_curses_selector(self) -> Optional[List[str]]:
@@ -298,7 +298,7 @@ class AutoInstallBridge:
                     header,
                     curses.color_pair(1) | curses.A_BOLD,
                 )
-            except:
+            except Exception:
                 pass
 
             # Instructions
@@ -310,7 +310,7 @@ class AutoInstallBridge:
             for i, instruction in enumerate(instructions):
                 try:
                     stdscr.addstr(2 + i, 2, instruction)
-                except:
+                except Exception:
                     pass
 
             # Component list
@@ -351,7 +351,7 @@ class AutoInstallBridge:
 
                 try:
                     stdscr.addstr(y, 2, line, mode | curses.color_pair(color_pair))
-                except:
+                except Exception:
                     pass
 
             # Summary
@@ -369,7 +369,7 @@ class AutoInstallBridge:
             for i, line in enumerate(summary_lines):
                 try:
                     stdscr.addstr(max_y - 4 + i, 2, line, curses.color_pair(4))
-                except:
+                except Exception:
                     pass
 
             # Current component details (if space allows)
@@ -378,7 +378,7 @@ class AutoInstallBridge:
                 details = f"Description: {comp.description[:max_x-15]}"
                 try:
                     stdscr.addstr(max_y - 2, 2, details[: max_x - 4])
-                except:
+                except Exception:
                     pass
 
             stdscr.refresh()
@@ -386,7 +386,7 @@ class AutoInstallBridge:
             # Handle input
             try:
                 key = stdscr.getch()
-            except:
+            except Exception:
                 key = ord("q")
 
             if key == curses.KEY_UP and current > 0:
@@ -413,7 +413,7 @@ class AutoInstallBridge:
                     try:
                         stdscr.addstr(max_y - 1, 2, info_text[: max_x - 4], curses.A_BOLD)
                         stdscr.getch()  # Wait for key press
-                    except:
+                    except Exception:
                         pass
             elif key in [ord("\n"), ord("\r"), 10]:
                 break
