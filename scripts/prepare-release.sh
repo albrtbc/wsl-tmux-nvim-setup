@@ -470,18 +470,26 @@ create_archive() {
     
     log_info "Creating $format archive"
     
+    # Convert RELEASE_DIR to absolute path if it's relative
+    local abs_release_dir
+    if [[ "$RELEASE_DIR" = /* ]]; then
+        abs_release_dir="$RELEASE_DIR"
+    else
+        abs_release_dir="$(cd "$PROJECT_ROOT" && pwd)/$RELEASE_DIR"
+    fi
+    
     # Ensure the release directory exists
-    mkdir -p "$RELEASE_DIR"
+    mkdir -p "$abs_release_dir"
     
     cd "$TEMP_DIR" || error_exit "Failed to change to temp directory"
     
     case "$format" in
         "tar.gz")
-            archive_path="${RELEASE_DIR}/${archive_name}.tar.gz"
+            archive_path="${abs_release_dir}/${archive_name}.tar.gz"
             tar -czf "$archive_path" "$(basename "$staging_dir")"
             ;;
         "zip")
-            archive_path="${RELEASE_DIR}/${archive_name}.zip"
+            archive_path="${abs_release_dir}/${archive_name}.zip"
             if command -v zip >/dev/null 2>&1; then
                 zip -r "$archive_path" "$(basename "$staging_dir")"
             else
