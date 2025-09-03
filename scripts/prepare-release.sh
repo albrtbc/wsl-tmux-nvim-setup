@@ -20,16 +20,12 @@ declare PROJECT_ROOT
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 readonly PROJECT_ROOT
 
-# Configuration
-readonly RELEASE_DIR="${PROJECT_ROOT}/release-assets"
-readonly TEMP_DIR="${RELEASE_DIR}/tmp"
-readonly LOG_FILE="${RELEASE_DIR}/prepare-release.log"
-
 # Default values
 VERSION=""
 OUTPUT_FORMAT="both"  # tar.gz, zip, or both
 INCLUDE_DOCS="true"
 VERBOSE="false"
+RELEASE_DIR="${PROJECT_ROOT}/release-assets"  # Default output directory
 
 # Color codes for output
 readonly RED='\033[0;31m'
@@ -552,6 +548,10 @@ parse_arguments() {
 # Main execution
 main() {
     parse_arguments "$@"
+    
+    # Initialize directory and file paths after parsing arguments
+    readonly TEMP_DIR="${RELEASE_DIR}/tmp"
+    readonly LOG_FILE="${RELEASE_DIR}/prepare-release.log"
     
     # Setup environment
     mkdir -p "$RELEASE_DIR" "$TEMP_DIR"
