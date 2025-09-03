@@ -23,9 +23,13 @@ CLI_DIR = Path(__file__).parent.parent
 if str(CLI_DIR) not in sys.path:
     sys.path.insert(0, str(CLI_DIR))
 
-from config import ConfigManager
-from utils.github import GitHubAPIError, GitHubClient
-from utils.version_utils import VersionComparator
+try:
+    from config import ConfigManager
+    from utils.github import GitHubAPIError, GitHubClient
+    from utils.version_utils import VersionComparator
+except ImportError as e:
+    print(f"Error: CLI modules not found: {e}", file=sys.stderr)
+    sys.exit(1)
 
 
 class ListManager:

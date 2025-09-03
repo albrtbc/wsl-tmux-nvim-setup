@@ -25,11 +25,15 @@ CLI_DIR = Path(__file__).parent.parent
 if str(CLI_DIR) not in sys.path:
     sys.path.insert(0, str(CLI_DIR))
 
-from config import ConfigManager
-from utils.backup import BackupError, BackupManager
-from utils.download import DownloadError, DownloadManager
-from utils.extract import ExtractionError, ExtractManager
-from utils.github import GitHubAPIError, GitHubClient
+try:
+    from config import ConfigManager
+    from utils.backup import BackupError, BackupManager
+    from utils.download import DownloadError, DownloadManager
+    from utils.extract import ExtractionError, ExtractManager
+    from utils.github import GitHubAPIError, GitHubClient
+except ImportError as e:
+    print(f"Error: CLI modules not found: {e}", file=sys.stderr)
+    sys.exit(1)
 
 
 class InstallManager:

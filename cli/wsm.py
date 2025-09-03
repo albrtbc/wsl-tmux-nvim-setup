@@ -26,8 +26,12 @@ except ImportError as e:
     print("Install dependencies with: pip install -r requirements.txt", file=sys.stderr)
     sys.exit(1)
 
-from commands import config_cmd, install, list_cmd, rollback, status, update
-from config import ConfigManager, get_default_config_manager
+try:
+    from commands import config_cmd, install, list_cmd, rollback, status, update
+    from config import ConfigManager, get_default_config_manager
+except ImportError as e:
+    print(f"Error: CLI modules not found: {e}", file=sys.stderr)
+    sys.exit(1)
 
 
 class WSMContext:
