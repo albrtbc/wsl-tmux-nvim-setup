@@ -123,8 +123,8 @@ jobs:
           mkdir -p build-env/{input,output,temp,logs}
           chmod -R 755 build-env
 
-        echo "📁 Build environment created:"
-        tree build-env
+          echo "📁 Build environment created:"
+          tree build-env
 
       - name: Prepare release assets
         id: prepare
