@@ -487,8 +487,11 @@ main() {
                 echo "..."
             fi
         fi
+        
+        return 0
     fi
 }
 
 # Execute main function with all arguments
 main "$@"
+exit $?
