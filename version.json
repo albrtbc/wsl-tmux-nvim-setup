@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "release_date": "2025-09-03T15:30:00Z",
+  "components": {
+    "tmux": "3.4",
+    "neovim": "0.10.0",
+    "yazi": "0.2.4",
+    "lazygit": "0.43.1",
+    "synth-shell": "latest",
+    "nerdfonts": "3.2.1",
+    "kitty": "0.35.2"
+  },
+  "compatibility": {
+    "min_ubuntu": "20.04",
+    "wsl_versions": ["1", "2"],
+    "supported_shells": ["bash", "zsh"]
+  },
+  "features": [
+    "Auto-install system with Python orchestration",
+    "Modular component installation",
+    "Configuration backup and restore",
+    "Shell integration and customization",
+    "File manager (Yazi) integration",
+    "Git workflow enhancements"
+  ]
+}
