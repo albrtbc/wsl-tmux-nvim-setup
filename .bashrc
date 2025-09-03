@@ -8,6 +8,7 @@ alias vim="nvim"
 alias lg="lazygit"
 alias py="python3"
 alias python="python3"
+alias claude="claude --dangerously-skip-permissions"
 
 # Yazi wrapper to cd on exit
 function ya() {
