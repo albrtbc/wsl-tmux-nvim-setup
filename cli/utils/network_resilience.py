@@ -506,7 +506,7 @@ class NetworkResilientDownloader:
                 ]:  # Partial content or range not satisfiable
                     resume_pos = 0  # Start fresh
                     response = self.session.get(task.url, timeout=task.timeout, stream=True)
-            except:
+            except Exception:
                 resume_pos = 0
                 response = self.session.get(task.url, timeout=task.timeout, stream=True)
 
@@ -614,7 +614,7 @@ class NetworkResilientDownloader:
                     from email.utils import parsedate_to_datetime
 
                     entry.last_modified = parsedate_to_datetime(headers["last-modified"])
-                except:
+                except Exception:
                     pass
 
             # Set expiration based on cache-control
@@ -623,7 +623,7 @@ class NetworkResilientDownloader:
                 try:
                     max_age = int(cache_control.split("max-age=")[1].split(",")[0])
                     entry.expires_at = datetime.now() + timedelta(seconds=max_age)
-                except:
+                except Exception:
                     pass
 
             self.cache_entries[url] = entry
