@@ -493,12 +493,12 @@ Environment Variables:
     parser.add_argument(
         "--project-root",
         "-p",
-        help="Project root directory (default: current directory)",
+        help="Project root directory (default: current)",
     )
     parser.add_argument(
         "--version",
         "-v",
-        help="Release version (default: auto-detect from version.json)",
+        help="Release version (default: auto-detect)",
     )
     parser.add_argument("--assets-dir", "-a", help="Assets directory (default: ./release-assets)")
     parser.add_argument(
