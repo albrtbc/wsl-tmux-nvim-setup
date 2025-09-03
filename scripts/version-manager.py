@@ -15,13 +15,15 @@ from pathlib import Path
 from typing import Dict, Tuple, Optional
 
 # POSIX-compliant error handling
+
+
 class VersionManagerError(Exception):
     """Custom exception for version manager errors"""
     pass
 
+
 class SemanticVersion:
     """Semantic version parser and manipulator"""
-    
     def __init__(self, version_string: str):
         self.original = version_string
         self.major, self.minor, self.patch, self.prerelease = self._parse(version_string)
@@ -64,6 +66,7 @@ class SemanticVersion:
     def with_v_prefix(self) -> str:
         """Return version with 'v' prefix for git tags"""
         return f"v{str(self)}"
+
 
 class VersionManager:
     """Main version management class"""
@@ -140,6 +143,7 @@ class VersionManager:
         self.save_version_data(data)
         print(f"Version set: {old_version} -> {version}")
 
+
 def main():
     """Main CLI interface"""
     parser = argparse.ArgumentParser(
@@ -156,8 +160,8 @@ Examples:
   %(prog)s validate v1.2.3-alpha      # Validate version format
         """)
     
-    parser.add_argument('--project-root', '-p', 
-                        help='Project root directory (default: current directory)')
+    parser.add_argument('--project-root', '-p',
+                        help='Project root directory (default: current)')
     
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
     
@@ -167,12 +171,12 @@ Examples:
     # Bump version command
     bump_parser = subparsers.add_parser('bump', help='Bump version')
     bump_parser.add_argument('type', choices=['major', 'minor', 'patch'],
-                            help='Version component to bump')
+                             help='Version component to bump')
     
     # Next version command (preview)
     next_parser = subparsers.add_parser('next', help='Show next version (preview)')
     next_parser.add_argument('type', choices=['major', 'minor', 'patch'],
-                            help='Version component to preview')
+                             help='Version component to preview')
     
     # Set version command
     set_parser = subparsers.add_parser('set', help='Set specific version')
@@ -210,10 +214,7 @@ Examples:
             vm.set_version(args.version)
             
         elif args.command == 'validate':
-            # Create temporary version manager for validation
-            vm = VersionManager() if Path('version.json').exists() else None
-            is_valid = VersionManager.validate_version_format(None, args.version) if vm else False
-            
+            # Validate version format directly
             try:
                 SemanticVersion(args.version)
                 print(f"Version '{args.version}' is valid")
@@ -233,6 +234,7 @@ Examples:
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
         return 1
+
 
 if __name__ == '__main__':
     sys.exit(main())
