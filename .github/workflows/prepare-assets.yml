@@ -274,13 +274,13 @@ jobs:
 
           # Verify each archive type
           for format in tar.gz zip; do
-          if ls *.$format >/dev/null 2>&1; then
-            echo "🔍 Verifying $format archives..."
+            if ls *.$format >/dev/null 2>&1; then
+              echo "🔍 Verifying $format archives..."
 
-            for archive in *.$format; do
-              echo "  📦 Checking $archive..."
+              for archive in *.$format; do
+                echo "  📦 Checking $archive..."
 
-              case "$format" in
+                case "$format" in
                 "tar.gz")
                   # Test archive integrity
                   if tar -tf "$archive" >/dev/null 2>&1; then
@@ -291,7 +291,8 @@ jobs:
                   fi
 
                   # Check for expected files
-                  if tar -tf "$archive" | grep -q "version.json\|install\.sh"; then
+                  if tar -tf "$archive" | \
+                       grep -q "version.json\|install\.sh"; then
                     echo "    ✅ Contains expected files"
                   else
                     echo "    ⚠️  May be missing expected files"
@@ -308,71 +309,74 @@ jobs:
                   fi
 
                   # Check for expected files
-                  if unzip -l "$archive" | grep -q "version.json\|install\.sh"; then
+                  if unzip -l "$archive" | \
+                       grep -q "version.json\|install\.sh"; then
                     echo "    ✅ Contains expected files"
                   else
                     echo "    ⚠️  May be missing expected files"
                   fi
                   ;;
-              esac
-            done
-          fi
-        done
-
-        # Verify checksums
-        echo "🔐 Verifying checksums..."
-        for checksum_file in checksums-*.txt; do
-          if [ -f "$checksum_file" ]; then
-            echo "  📋 Checking $checksum_file..."
-            if sha256sum -c "$checksum_file" >/dev/null 2>&1; then
-              echo "    ✅ Checksum verification passed"
-            else
-              echo "    ❌ Checksum verification FAILED"
-              exit 1
+                esac
+              done
             fi
-          fi
-        done
+          done
+
+          # Verify checksums
+          echo "🔐 Verifying checksums..."
+          for checksum_file in checksums-*.txt; do
+            if [ -f "$checksum_file" ]; then
+              echo "  📋 Checking $checksum_file..."
+              if sha256sum -c "$checksum_file" >/dev/null 2>&1; then
+                echo "    ✅ Checksum verification passed"
+              else
+                echo "    ❌ Checksum verification FAILED"
+                exit 1
+              fi
+            fi
+          done
 
       - name: Generate verification report
         run: |
           cd all-assets
 
-        echo "# Asset Preparation Report" > verification-report.md
-        echo "" >> verification-report.md
-        echo "**Version:** ${{ inputs.version }}" >> verification-report.md
-        echo "**Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> verification-report.md
-        echo "**Formats:** ${{ needs.validate-inputs.outputs.formats }}" >> verification-report.md
-        echo "" >> verification-report.md
+          echo "# Asset Preparation Report" > verification-report.md
+          echo "" >> verification-report.md
+          echo "**Version:** ${{ inputs.version }}" >> verification-report.md
+          echo "**Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> \
+            verification-report.md
+          echo "**Formats:** ${{ needs.validate-inputs.outputs.formats }}" >> \
+            verification-report.md
+          echo "" >> verification-report.md
 
-        echo "## Generated Assets" >> verification-report.md
-        echo "" >> verification-report.md
-        echo "\`\`\`" >> verification-report.md
-        ls -la >> verification-report.md
-        echo "\`\`\`" >> verification-report.md
-        echo "" >> verification-report.md
+          echo "## Generated Assets" >> verification-report.md
+          echo "" >> verification-report.md
+          echo "\`\`\`" >> verification-report.md
+          ls -la >> verification-report.md
+          echo "\`\`\`" >> verification-report.md
+          echo "" >> verification-report.md
 
-        echo "## Checksums" >> verification-report.md
-        echo "" >> verification-report.md
-        for checksum_file in checksums-*.txt; do
-          if [ -f "$checksum_file" ]; then
-            echo "### $checksum_file" >> verification-report.md
-            echo "\`\`\`" >> verification-report.md
-            cat "$checksum_file" >> verification-report.md
-            echo "\`\`\`" >> verification-report.md
-            echo "" >> verification-report.md
-          fi
-        done
+          echo "## Checksums" >> verification-report.md
+          echo "" >> verification-report.md
+          for checksum_file in checksums-*.txt; do
+            if [ -f "$checksum_file" ]; then
+              echo "### $checksum_file" >> verification-report.md
+              echo "\`\`\`" >> verification-report.md
+              cat "$checksum_file" >> verification-report.md
+              echo "\`\`\`" >> verification-report.md
+              echo "" >> verification-report.md
+            fi
+          done
 
-        # Calculate total size
-        TOTAL_SIZE=$(du -sh . | cut -f1)
-        echo "**Total asset size:** $TOTAL_SIZE" >> verification-report.md
+          # Calculate total size
+          TOTAL_SIZE=$(du -sh . | cut -f1)
+          echo "**Total asset size:** $TOTAL_SIZE" >> verification-report.md
 
       - name: Upload verification report
         uses: actions/upload-artifact@v4
         with:
-        name: verification-report-${{ inputs.version }}
-        path: all-assets/verification-report.md
-        retention-days: 90
+          name: verification-report-${{ inputs.version }}
+          path: all-assets/verification-report.md
+          retention-days: 90
 
   test-installation:
     name: Test Asset Installation
@@ -405,50 +409,51 @@ jobs:
         run: |
           cd test-assets
 
-        echo "🧪 Testing ${{ matrix.format }} extraction on Ubuntu ${{ matrix.ubuntu_version }}..."
+          echo "🧪 Testing ${{ matrix.format }} extraction on Ubuntu \
+            ${{ matrix.ubuntu_version }}..."
 
-        # Find the archive file
-        ARCHIVE=$(ls -1 *.${{ matrix.format }} | head -1)
+          # Find the archive file
+          ARCHIVE=$(ls -1 *.${{ matrix.format }} | head -1)
 
-        if [ -z "$ARCHIVE" ]; then
-          echo "❌ No ${{ matrix.format }} archive found"
-          exit 1
-        fi
+          if [ -z "$ARCHIVE" ]; then
+            echo "❌ No ${{ matrix.format }} archive found"
+            exit 1
+          fi
 
-        echo "📦 Testing archive: $ARCHIVE"
+          echo "📦 Testing archive: $ARCHIVE"
 
-        # Extract the archive
-        case "${{ matrix.format }}" in
-          "tar.gz")
-            tar -xzf "$ARCHIVE"
-            ;;
-          "zip")
-            unzip "$ARCHIVE"
-            ;;
-        esac
+          # Extract the archive
+          case "${{ matrix.format }}" in
+            "tar.gz")
+              tar -xzf "$ARCHIVE"
+              ;;
+            "zip")
+              unzip "$ARCHIVE"
+              ;;
+          esac
 
-        echo "✅ Extraction successful"
+          echo "✅ Extraction successful"
 
-        # List extracted contents
-        echo "📂 Extracted contents:"
-        ls -la
-
-        # Test basic file presence
-        EXTRACT_DIR=$(ls -d wsl-tmux-nvim-setup-* | head -1)
-        if [ -d "$EXTRACT_DIR" ]; then
-          cd "$EXTRACT_DIR"
-          echo "📋 Contents of $EXTRACT_DIR:"
+          # List extracted contents
+          echo "📂 Extracted contents:"
           ls -la
 
-          # Check for critical files
-          for file in install.sh version.json; do
-            if [ -f "$file" ]; then
-              echo "  ✅ $file present"
-            else
-              echo "  ❌ $file missing"
-            fi
-          done
-        fi
+          # Test basic file presence
+          EXTRACT_DIR=$(ls -d wsl-tmux-nvim-setup-* | head -1)
+          if [ -d "$EXTRACT_DIR" ]; then
+            cd "$EXTRACT_DIR"
+            echo "📋 Contents of $EXTRACT_DIR:"
+            ls -la
+
+            # Check for critical files
+            for file in install.sh version.json; do
+              if [ -f "$file" ]; then
+                echo "  ✅ $file present"
+              else
+                  echo "  ❌ $file missing"
+              fi
+            done
+          fi
 
   cleanup:
     name: Cleanup Build Environment
@@ -460,4 +465,5 @@ jobs:
       - name: Clean up test artifacts
         run: |
           echo "🧹 Cleaning up test artifacts..."
-          echo "Test mode was enabled, artifacts will be cleaned up automatically"
+          echo "Test mode was enabled, artifacts will be cleaned up \
+            automatically"
