@@ -164,9 +164,7 @@ Examples:
         """,
     )
 
-    parser.add_argument(
-        "--project-root", "-p", help="Project root directory (default: current)"
-    )
+    parser.add_argument("--project-root", "-p", help="Project root dir (default: current)")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
