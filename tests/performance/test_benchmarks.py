@@ -193,9 +193,10 @@ class TestMemoryUsage:
 
                     print(f"\n{cmd_name} peak memory: {peak_memory_mb:.2f}MB")
 
-                    assert (
-                        peak_memory_mb < target_memory_mb
-                    ), f"Command '{cmd_name}' used {peak_memory_mb:.2f}MB (target: <{target_memory_mb}MB)"
+                    assert peak_memory_mb < target_memory_mb, (
+                        f"Command '{cmd_name}' used {peak_memory_mb:.2f}MB "
+                        f"(target: <{target_memory_mb}MB)"
+                    )
 
             except subprocess.TimeoutExpired:
                 process.kill()
@@ -444,7 +445,7 @@ class TestScalabilityBenchmarks:
 
                 start_time = time.perf_counter()
 
-                result = subprocess.run(
+                subprocess.run(
                     ["python3", str(cli_script), "list"],
                     capture_output=True,
                     text=True,
@@ -493,9 +494,10 @@ class TestPerformanceRegression:
             if command in ["install", "update"]:
                 continue  # Skip slow commands
 
-            assert (
-                response_time < baseline_metrics["cli_response_time"]
-            ), f"Command {command} response time {response_time}s exceeds baseline {baseline_metrics['cli_response_time']}s"
+            assert response_time < baseline_metrics["cli_response_time"], (
+                f"Command {command} response time {response_time}s exceeds baseline "
+                f"{baseline_metrics['cli_response_time']}s"
+            )
 
     def test_performance_consistency(self, isolated_environment):
         """Test performance consistency across multiple runs."""
