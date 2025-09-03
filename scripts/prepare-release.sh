@@ -8,9 +8,17 @@
 set -euo pipefail  # Strict error mode
 
 # Script metadata
-readonly SCRIPT_NAME="$(basename "$0")"
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+declare SCRIPT_NAME
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
+
+declare SCRIPT_DIR
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+
+declare PROJECT_ROOT
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+readonly PROJECT_ROOT
 
 # Configuration
 readonly RELEASE_DIR="${PROJECT_ROOT}/release-assets"
