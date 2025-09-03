@@ -239,13 +239,13 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-        name: assets-${{ matrix.format }}-${{ inputs.version }}
-        path: |
-          build-env/output/*.tar.gz
-          build-env/output/*.zip
-          build-env/output/checksums-*.txt
-        retention-days: 30
-        if-no-files-found: error
+          name: assets-${{ matrix.format }}-${{ inputs.version }}
+          path: |
+            build-env/output/*.tar.gz
+            build-env/output/*.zip
+            build-env/output/checksums-*.txt
+          retention-days: 30
+          if-no-files-found: error
 
   verify-assets:
     name: Verify Asset Quality
