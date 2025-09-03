@@ -150,7 +150,7 @@ class PerformanceCache:
         """Calculate approximate size of object"""
         try:
             return len(pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL))
-        except:
+        except Exception:
             return sys.getsizeof(obj)
 
     def _evict_lru(self):
