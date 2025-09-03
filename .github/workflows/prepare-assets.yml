@@ -166,7 +166,7 @@ jobs:
           ./scripts/create-checksums.sh \
             --directory build-env/output \
             --algorithm sha256 \
-            --output build-env/output/checksums-${{ matrix.format }}.txt \
+            --output checksums-${{ matrix.format }}.txt \
             --verbose
 
           echo "✅ Checksums generated"
