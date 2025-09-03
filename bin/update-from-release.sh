@@ -64,19 +64,19 @@ download_release() {
     echo "Downloading release $LATEST_VERSION..."
     
     mkdir -p "$TEMP_DIR"
-    cd "$TEMP_DIR"
+    cd "$TEMP_DIR" || exit
     
     # Download and extract the release
     if command -v gh >/dev/null 2>&1; then
-        gh repo clone "$REPO" . -- --depth 1 --branch "$LATEST_VERSION"
+        if ! gh repo clone "$REPO" . -- --depth 1 --branch "$LATEST_VERSION"; then
+            echo "Error: Failed to download release"
+            return 1
+        fi
     else
-        curl -L "$DOWNLOAD_URL" -o release.tar.gz
-        tar -xzf release.tar.gz --strip-components=1
-    fi
-    
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to download release"
-        return 1
+        if ! curl -L "$DOWNLOAD_URL" -o release.tar.gz || ! tar -xzf release.tar.gz --strip-components=1; then
+            echo "Error: Failed to download release"
+            return 1
+        fi
     fi
     
     echo "Download completed"
