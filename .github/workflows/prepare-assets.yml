@@ -130,8 +130,7 @@ jobs:
         run: |
           chmod +x scripts/prepare-release.sh
 
-          echo "🔧 Preparing assets for version ${{ inputs.version }}" \\
-               "in format ${{ matrix.format }}..."
+          echo "🔧 Preparing assets for version ${{ inputs.version }} in format ${{ matrix.format }}..."
 
           # Set format argument based on matrix value
           case "${{ matrix.format }}" in
