@@ -99,7 +99,7 @@ jobs:
     
     strategy:
       matrix:
-        format: ${{ fromJSON(format('["{0}"]', join(split(needs.validate-inputs.outputs.formats, ','), '","'))) }}
+        format: ["tar.gz", "zip"]
     
     steps:
     - name: Checkout repository
