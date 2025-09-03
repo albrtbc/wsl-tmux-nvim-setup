@@ -6,7 +6,6 @@ set -e
 
 REPO_URL="https://github.com/albrtbc/wsl-tmux-nvim-setup.git"
 TEMP_DIR="/tmp/wsl-tmux-nvim-update"
-CONFIG_DIR="$HOME/.config/wsl-tmux-nvim-setup"
 BACKUP_DIR="$HOME/.config/wsl-tmux-nvim-setup/backups/$(date +%Y%m%d_%H%M%S)"
 
 # Colors for output
@@ -147,6 +146,7 @@ update_bashrc_functions() {
     if grep -q "function ya()" "$temp_bashrc"; then
         log_info "Updating ya() function..."
         # Replace the ya function
+        # shellcheck disable=SC2016
         sed -i '/^function ya()/,/^}$/c\
 # Updated ya function\
 function ya() {\
