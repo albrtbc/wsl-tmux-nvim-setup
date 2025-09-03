@@ -193,13 +193,14 @@ generate_checksum() {
     
     # Generate checksum and format output
     local checksum_output
-    if checksum_output=$("$hash_cmd" "$file" 2>/dev/null); then
+    if checksum_output=$("$hash_cmd" "$file" 2>&1); then
         # Extract just the hash part (before the filename)
         local hash
         hash=$(echo "$checksum_output" | cut -d' ' -f1)
         echo "$hash  $(basename "$file")"
     else
         log_error "Failed to generate checksum for: $file"
+        log_error "Command output: $checksum_output"
         return 1
     fi
 }
