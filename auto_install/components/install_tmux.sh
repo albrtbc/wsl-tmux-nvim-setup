@@ -44,5 +44,6 @@ cp /tmp/wsl-tmux-nvim-setup/.tmux.conf ~/.tmux.conf
 
 # Install Tmux TPM
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-source ~/.tmux.conf
+# shellcheck source=/dev/null
+. ~/.tmux.conf
 ~/.tmux/plugins/tpm/scripts/install_plugins.sh
