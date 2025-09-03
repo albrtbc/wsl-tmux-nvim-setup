@@ -2,6 +2,7 @@
 Pytest configuration and shared fixtures for WSL-Tmux-Nvim-Setup tests.
 """
 
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, Generator
@@ -13,7 +14,6 @@ from rich.console import Console
 
 # Add CLI to path for testing
 CLI_DIR = Path(__file__).parent.parent / "cli"
-import sys
 
 if str(CLI_DIR) not in sys.path:
     sys.path.insert(0, str(CLI_DIR))
