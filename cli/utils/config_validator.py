@@ -324,7 +324,7 @@ class ConfigValidator:
                             message="Not running in WSL environment - some features may not be available",
                         )
                     )
-        except:
+        except Exception:
             pass
 
         # Check required system commands
@@ -336,7 +336,7 @@ class ConfigValidator:
                 result = subprocess.run(["which", cmd], capture_output=True, timeout=5)
                 if result.returncode != 0:
                     missing_commands.append(cmd)
-            except:
+            except Exception:
                 missing_commands.append(cmd)
 
         if missing_commands:
@@ -426,7 +426,10 @@ class ConfigValidator:
                     ConfigIssue(
                         type=ConfigIssueType.WARNING,
                         field="cache_size_mb",
-                        message=f"Cache size ({cache_size_mb}MB) is large relative to available memory ({memory.available // (1024*1024)}MB)",
+                        message=(
+                            f"Cache size ({cache_size_mb}MB) is large relative to available memory "
+                            f"({memory.available // (1024*1024)}MB)"
+                        ),
                         suggested_value=min(256, memory.available // (1024 * 1024) // 4),
                     )
                 )
@@ -553,7 +556,7 @@ class ConfigValidator:
             headers = {"Authorization": f"token {token}"}
             response = requests.get("https://api.github.com/user", headers=headers, timeout=10)
             return response.status_code == 200
-        except:
+        except Exception:
             return False
 
     def _test_network_connectivity(self) -> bool:
@@ -561,7 +564,7 @@ class ConfigValidator:
         try:
             socket.create_connection(("8.8.8.8", 53), timeout=5)
             return True
-        except:
+        except Exception:
             return False
 
     def generate_fixes(self) -> Dict[str, Any]:
