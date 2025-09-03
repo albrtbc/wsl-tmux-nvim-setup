@@ -470,6 +470,9 @@ create_archive() {
     
     log_info "Creating $format archive"
     
+    # Ensure the release directory exists
+    mkdir -p "$RELEASE_DIR"
+    
     cd "$TEMP_DIR" || error_exit "Failed to change to temp directory"
     
     case "$format" in
