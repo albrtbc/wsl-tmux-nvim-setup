@@ -64,9 +64,8 @@ EOF
 auto_update() {
     if [ "$AUTO_UPDATE" = "true" ]; then
         log_with_timestamp "Auto-update enabled, applying updates..."
-        "$UPDATE_SCRIPT"
         
-        if [ $? -eq 0 ]; then
+        if "$UPDATE_SCRIPT"; then
             # Record successful update
             echo "$REMOTE_COMMIT" > "$LAST_CHECK_FILE"
             rm -f "$HOME/.config/wsl-tmux-nvim-setup/update-available"
