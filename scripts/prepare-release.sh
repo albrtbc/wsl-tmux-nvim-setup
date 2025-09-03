@@ -643,7 +643,15 @@ EOF
     echo "Output directory: $RELEASE_DIR"
     echo "Archives created:"
     
-    find "$RELEASE_DIR" -name "*.tar.gz" -o -name "*.zip" | while read -r archive; do
+    # Convert RELEASE_DIR to absolute path if needed for find command
+    local abs_release_dir
+    if [[ "$RELEASE_DIR" = /* ]]; then
+        abs_release_dir="$RELEASE_DIR"
+    else
+        abs_release_dir="$(cd "$PROJECT_ROOT" && pwd)/$RELEASE_DIR"
+    fi
+    
+    find "$abs_release_dir" -name "*.tar.gz" -o -name "*.zip" 2>/dev/null | while read -r archive; do
         size=$(du -h "$archive" | cut -f1)
         echo "  - $(basename "$archive") (${size})"
     done
