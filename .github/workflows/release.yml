@@ -260,14 +260,14 @@ jobs:
         run: |
           chmod +x scripts/upload-release.py
 
-        python3 scripts/upload-release.py \
-          --version "${{ needs.prepare-release.outputs.version }}" \
-          --assets-dir final-assets \
-          --release-notes "${{ needs.prepare-release.outputs.release_notes }}" \
-          --prerelease "${{ needs.prepare-release.outputs.is_prerelease }}" \
-          --token "${{ secrets.GITHUB_TOKEN }}"
+          python3 scripts/upload-release.py \
+            --version "${{ needs.prepare-release.outputs.version }}" \
+            --assets-dir final-assets \
+            --release-notes "${{ needs.prepare-release.outputs.release_notes }}" \
+            --prerelease "${{ needs.prepare-release.outputs.is_prerelease }}" \
+            --token "${{ secrets.GITHUB_TOKEN }}"
         env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify release completion
         run: |
@@ -275,9 +275,9 @@ jobs:
           echo "📦 Assets uploaded:"
           ls -1 final-assets/
 
-        if [ "${{ needs.prepare-release.outputs.is_prerelease }}" = "true" ]; then
-          echo "⚠️  This is a prerelease version"
-        fi
+          if [ "${{ needs.prepare-release.outputs.is_prerelease }}" = "true" ]; then
+            echo "⚠️  This is a prerelease version"
+          fi
 
   post-release:
     name: Post-Release Tasks
@@ -296,10 +296,10 @@ jobs:
             sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+/version-${{ needs.prepare-release.outputs.version }}/g" README.md || true
           fi
 
-        # Update auto-update guide
-        if [ -f Auto-Update-Guide.md ]; then
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v${{ needs.prepare-release.outputs.version }}/g" Auto-Update-Guide.md || true
-        fi
+          # Update auto-update guide
+          if [ -f Auto-Update-Guide.md ]; then
+            sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v${{ needs.prepare-release.outputs.version }}/g" Auto-Update-Guide.md || true
+          fi
 
       - name: Create follow-up issue
         if: needs.prepare-release.outputs.is_prerelease == 'false'
@@ -308,15 +308,15 @@ jobs:
             --title "Post-release tasks for v${{ needs.prepare-release.outputs.version }}" \
             --body "## Post-release checklist for v${{ needs.prepare-release.outputs.version }}
 
-        - [ ] Test installation on fresh WSL environment
-        - [ ] Update documentation if needed
-        - [ ] Monitor for user feedback and issues
-        - [ ] Plan next release features
+          - [ ] Test installation on fresh WSL environment
+          - [ ] Update documentation if needed
+          - [ ] Monitor for user feedback and issues
+          - [ ] Plan next release features
 
-        Release created: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" \
+          Release created: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" \
           --label "release,maintenance"
         env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   rollback:
     name: Rollback on Failure
@@ -332,11 +332,11 @@ jobs:
         run: |
           echo "🚨 Release process failed, initiating rollback..."
 
-        # Remove the tag if it was created
-        git tag -d "${{ needs.prepare-release.outputs.version }}" || true
-        git push origin --delete "${{ needs.prepare-release.outputs.version }}" || true
+          # Remove the tag if it was created
+          git tag -d "${{ needs.prepare-release.outputs.version }}" || true
+          git push origin --delete "${{ needs.prepare-release.outputs.version }}" || true
 
-        echo "✅ Rollback completed"
+          echo "✅ Rollback completed"
 
       - name: Create failure issue
         run: |
@@ -344,18 +344,18 @@ jobs:
             --title "Release v${{ needs.prepare-release.outputs.version }} failed" \
             --body "## Release Failure Report
 
-        **Version:** v${{ needs.prepare-release.outputs.version }}
-        **Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')
-        **Trigger:** ${{ github.event_name }}
+          **Version:** v${{ needs.prepare-release.outputs.version }}
+          **Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+          **Trigger:** ${{ github.event_name }}
 
-        The automated release process failed. Please check the workflow logs and resolve any issues.
+          The automated release process failed. Please check the workflow logs and resolve any issues.
 
-        **Next steps:**
-        1. Review workflow logs for error details
-        2. Fix underlying issues
-        3. Re-trigger release when ready
+          **Next steps:**
+          1. Review workflow logs for error details
+          2. Fix underlying issues
+          3. Re-trigger release when ready
 
-        cc @${{ github.actor }}" \
+          cc @${{ github.actor }}" \
           --label "bug,release,priority-high"
         env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
