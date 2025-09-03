@@ -177,7 +177,10 @@ class GitHubReleaseClient:
     ) -> Dict:
         """Upload an asset to a release"""
         # Get upload URL
-        upload_url_template = f"https://uploads.github.com/repos/{self.repository}/releases/{release_id}/assets"
+        base = "https://uploads.github.com"
+        upload_url_template = (
+            f"{base}/repos/{self.repository}/releases/{release_id}/assets"
+        )
         upload_url = f"{upload_url_template}?name={asset.name}"
 
         # Prepare headers for upload
@@ -588,7 +591,7 @@ Environment Variables:
             client, release_data["id"], assets, args.replace_assets
         )
 
-        print(f"\nUpload completed!")
+        print("\nUpload completed!")
         print(f"Release URL: {release_data['html_url']}")
         print(f"Assets uploaded: {len(uploaded_assets)}")
 
