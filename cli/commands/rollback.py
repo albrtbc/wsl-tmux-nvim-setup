@@ -25,10 +25,14 @@ CLI_DIR = Path(__file__).parent.parent
 if str(CLI_DIR) not in sys.path:
     sys.path.insert(0, str(CLI_DIR))
 
-from commands.install import InstallManager
-from config import ConfigManager
-from utils.backup import BackupError, BackupManager
-from utils.version_utils import ComponentVersionManager, VersionComparator
+try:
+    from commands.install import InstallManager
+    from config import ConfigManager
+    from utils.backup import BackupError, BackupManager
+    from utils.version_utils import ComponentVersionManager, VersionComparator
+except ImportError as e:
+    print(f"Error: CLI modules not found: {e}", file=sys.stderr)
+    sys.exit(1)
 
 
 class RollbackManager:
