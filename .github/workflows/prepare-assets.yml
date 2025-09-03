@@ -268,12 +268,12 @@ jobs:
           echo "🔍 Performing comprehensive asset verification..."
           cd all-assets
 
-        # List all downloaded assets
-        echo "📂 All assets:"
-        ls -la
+          # List all downloaded assets
+          echo "📂 All assets:"
+          ls -la
 
-        # Verify each archive type
-        for format in tar.gz zip; do
+          # Verify each archive type
+          for format in tar.gz zip; do
           if ls *.$format >/dev/null 2>&1; then
             echo "🔍 Verifying $format archives..."
 
