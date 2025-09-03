@@ -36,14 +36,14 @@ readonly NC='\033[0m' # No Color
 
 # Logging functions
 log_info() {
-    echo -e "${GREEN}[INFO]${NC} $*"
+    echo -e "${GREEN}[INFO]${NC} $*" >&2
     if [[ -n "${LOG_FILE:-}" ]]; then
         echo "[INFO] $*" >> "$LOG_FILE" 2>/dev/null || true
     fi
 }
 
 log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $*"
+    echo -e "${YELLOW}[WARN]${NC} $*" >&2
     if [[ -n "${LOG_FILE:-}" ]]; then
         echo "[WARN] $*" >> "$LOG_FILE" 2>/dev/null || true
     fi
@@ -58,7 +58,7 @@ log_error() {
 
 log_debug() {
     if [[ "$VERBOSE" == "true" ]]; then
-        echo -e "${BLUE}[DEBUG]${NC} $*"
+        echo -e "${BLUE}[DEBUG]${NC} $*" >&2
         if [[ -n "${LOG_FILE:-}" ]]; then
             echo "[DEBUG] $*" >> "$LOG_FILE" 2>/dev/null || true
         fi
