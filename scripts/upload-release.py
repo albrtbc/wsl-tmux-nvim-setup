@@ -13,7 +13,7 @@ import argparse
 import time
 import hashlib
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 import requests
 from requests.adapters import HTTPAdapter
@@ -172,16 +172,19 @@ class GitHubReleaseClient:
         response = self._make_request("PATCH", url, json=data)
         return response.json()
 
-    def upload_asset(self, release_id: int, asset: ReleaseAsset, progress_callback=None) -> Dict:
+    def upload_asset(
+        self, release_id: int, asset: ReleaseAsset, progress_callback=None
+    ) -> Dict:
         """Upload an asset to a release"""
         # Get upload URL
-        upload_url_template = (
-            f"https://uploads.github.com/repos/{self.repository}/releases/{release_id}/assets"
-        )
+        upload_url_template = f"https://uploads.github.com/repos/{self.repository}/releases/{release_id}/assets"
         upload_url = f"{upload_url_template}?name={asset.name}"
 
         # Prepare headers for upload
-        headers = {"Content-Type": asset.content_type, "Content-Length": str(asset.size)}
+        headers = {
+            "Content-Type": asset.content_type,
+            "Content-Length": str(asset.size),
+        }
 
         print(f"Uploading {asset.name} ({self._format_size(asset.size)})...")
 
@@ -190,10 +193,14 @@ class GitHubReleaseClient:
             if progress_callback:
                 # Upload with progress tracking
                 data = self._upload_with_progress(f, asset.size, progress_callback)
-                response = self._make_request("POST", upload_url, data=data, headers=headers)
+                response = self._make_request(
+                    "POST", upload_url, data=data, headers=headers
+                )
             else:
                 # Simple upload
-                response = self._make_request("POST", upload_url, data=f, headers=headers)
+                response = self._make_request(
+                    "POST", upload_url, data=f, headers=headers
+                )
 
         print(f"✓ Uploaded {asset.name}")
         return response.json()
@@ -363,7 +370,10 @@ class ReleaseUploader:
                 # Upload new asset with progress
                 def progress_callback(uploaded: int, total: int):
                     percent = (uploaded / total) * 100
-                    print(f"\r  Progress: {percent:.1f%} ({uploaded}/{total} bytes)", end="")
+                    print(
+                        f"\r  Progress: {percent:.1f%} ({uploaded}/{total} bytes)",
+                        end="",
+                    )
 
                 result = client.upload_asset(release_id, asset, progress_callback)
                 print()  # New line after progress
@@ -452,7 +462,10 @@ def parse_repository_from_git() -> str:
         # Parse GitHub repository from URL
         import re
 
-        patterns = [r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?/?$", r"github\.com/([^/]+/[^/]+?)/?$"]
+        patterns = [
+            r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?/?$",
+            r"github\.com/([^/]+/[^/]+?)/?$",
+        ]
 
         for pattern in patterns:
             match = re.search(pattern, remote_url)
@@ -484,19 +497,31 @@ Environment Variables:
     )
 
     parser.add_argument(
-        "--project-root", "-p", help="Project root directory (default: current directory)"
+        "--project-root",
+        "-p",
+        help="Project root directory (default: current directory)",
     )
     parser.add_argument(
-        "--version", "-v", help="Release version (default: auto-detect from version.json)"
+        "--version",
+        "-v",
+        help="Release version (default: auto-detect from version.json)",
     )
-    parser.add_argument("--assets-dir", "-a", help="Assets directory (default: ./release-assets)")
     parser.add_argument(
-        "--repository", "-r", help="GitHub repository (owner/repo, default: auto-detect)"
+        "--assets-dir", "-a", help="Assets directory (default: ./release-assets)"
     )
-    parser.add_argument("--token", "-t", help="GitHub token (default: from environment)")
+    parser.add_argument(
+        "--repository",
+        "-r",
+        help="GitHub repository (owner/repo, default: auto-detect)",
+    )
+    parser.add_argument(
+        "--token", "-t", help="GitHub token (default: from environment)"
+    )
     parser.add_argument("--prerelease", action="store_true", help="Mark as prerelease")
     parser.add_argument("--draft", action="store_true", help="Create as draft")
-    parser.add_argument("--no-verify", action="store_true", help="Skip asset verification")
+    parser.add_argument(
+        "--no-verify", action="store_true", help="Skip asset verification"
+    )
     parser.add_argument(
         "--replace-assets",
         action="store_true",
