@@ -245,12 +245,18 @@ EOF
     
     log_info "Found ${#files[@]} files to checksum"
     
+    # Debug: List the files found
+    for file in "${files[@]}"; do
+        log_debug "Found file: $file"
+    done
+    
     # Generate checksums
     local success_count=0
     local total_count=0
     
     for file in "${files[@]}"; do
         ((total_count++))
+        log_debug "Processing file $total_count: $file"
         
         local checksum_line
         if checksum_line=$(generate_checksum "$file" "$algorithm"); then
