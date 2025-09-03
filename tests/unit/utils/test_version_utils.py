@@ -248,14 +248,8 @@ class TestVersionUtilityFunctions:
     def test_version_string_normalization(self):
         """Test version string normalization."""
         # Test would verify various version string formats are normalized correctly
-        test_cases = [
-            ("v1.0.0", "1.0.0"),
-            ("1.0.0", "1.0.0"),
-            ("V1.0.0", "1.0.0"),
-            ("1.0", "1.0.0"),
-        ]
-
         # Implementation would test actual normalization function
+        pass
 
     def test_version_validation(self):
         """Test version string validation."""
@@ -314,14 +308,8 @@ class TestEdgeCases:
 
     def test_unusual_version_formats(self):
         """Test handling of unusual but valid version formats."""
-        unusual_versions = [
-            "1.0.0-alpha+beta",
-            "1.0.0-x.7.z.92",
-            "1.0.0+20130313144700",
-            "1.0.0-beta+exp.sha.5114f85",
-        ]
-
         # Test handling of unusual formats
+        pass
 
     def test_version_overflow(self):
         """Test handling of very large version numbers."""
