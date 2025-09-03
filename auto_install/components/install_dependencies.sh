@@ -56,7 +56,7 @@ fi
 # Install git-delta
 curl -s -L https://api.github.com/repos/dandavison/delta/releases/latest | grep "browser_download_url.*amd64.deb" | cut -d : -f 2,3 | tr -d \" | wget -qi -
 sudo dpkg -i git-delta_*_amd64.deb
-rm *.deb
+rm ./*.deb
 
 # Clone wsl-tmux-nvim-setup
 git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-setup
