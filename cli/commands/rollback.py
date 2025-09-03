@@ -87,9 +87,7 @@ class RollbackManager:
 
         # Get version-based rollbacks (GitHub releases)
         try:
-            releases = self.install_manager.list_available_versions(
-                include_prerelease=False
-            )
+            releases = self.install_manager.list_available_versions(include_prerelease=False)
             current_version = self.config_manager.status.version
 
             if current_version != "unknown":
@@ -98,12 +96,7 @@ class RollbackManager:
 
                     # Only show older versions as rollback options
                     try:
-                        if (
-                            VersionComparator.compare_versions(
-                                release_version, current_version
-                            )
-                            < 0
-                        ):
+                        if VersionComparator.compare_versions(release_version, current_version) < 0:
                             rollback_options.append(
                                 {
                                     "type": "version",
@@ -137,12 +130,8 @@ class RollbackManager:
         if not options:
             self.console.print("[yellow]No rollback options available[/yellow]")
             self.console.print("To create rollback points:")
-            self.console.print(
-                "  • Backups are created automatically before installations/updates"
-            )
-            self.console.print(
-                "  • You can install older versions from GitHub releases"
-            )
+            self.console.print("  • Backups are created automatically before installations/updates")
+            self.console.print("  • You can install older versions from GitHub releases")
             return
 
         self.console.print("[bold blue]📦 Available Rollback Options[/bold blue]\n")
@@ -188,19 +177,13 @@ class RollbackManager:
                 version_table.add_row(
                     version["tag_name"],
                     version.get("name", ""),
-                    (
-                        version["published_at"][:10]
-                        if version["published_at"]
-                        else "Unknown"
-                    ),
+                    (version["published_at"][:10] if version["published_at"] else "Unknown"),
                     f"{asset_count} files",
                 )
 
             self.console.print(version_table)
 
-    def rollback_from_backup(
-        self, backup_name: str, restore_path: Optional[Path] = None
-    ) -> bool:
+    def rollback_from_backup(self, backup_name: str, restore_path: Optional[Path] = None) -> bool:
         """Rollback from a backup"""
         try:
             # Get backup info
@@ -239,9 +222,7 @@ class RollbackManager:
                 if current_backup:
                     self.console.print("[green]✓ Current state backed up[/green]")
             except BackupError as e:
-                self.console.print(
-                    f"[yellow]Warning: Could not backup current state: {e}[/yellow]"
-                )
+                self.console.print(f"[yellow]Warning: Could not backup current state: {e}[/yellow]")
 
             # Restore from backup
             restored_path = self.backup_manager.restore_backup(
@@ -276,10 +257,7 @@ class RollbackManager:
 
         # Validate that target version is older
         try:
-            if (
-                not force
-                and VersionComparator.compare_versions(version, current_version) >= 0
-            ):
+            if not force and VersionComparator.compare_versions(version, current_version) >= 0:
                 raise click.ClickException(
                     f"Version {version} is not older than current version {current_version}. "
                     "Use --force to install anyway."
@@ -291,9 +269,7 @@ class RollbackManager:
                 )
                 return False
 
-        self.console.print(
-            f"[blue]Rolling back from {current_version} to {version}[/blue]"
-        )
+        self.console.print(f"[blue]Rolling back from {current_version} to {version}[/blue]")
 
         # Show rollback information
         rollback_panel = Panel(
@@ -307,9 +283,7 @@ class RollbackManager:
         self.console.print(rollback_panel)
 
         # Confirm rollback
-        if not force and not Confirm.ask(
-            f"\nRollback to version {version}?", default=False
-        ):
+        if not force and not Confirm.ask(f"\nRollback to version {version}?", default=False):
             self.console.print("Rollback cancelled")
             return False
 
@@ -348,9 +322,7 @@ class RollbackManager:
         for instruction in instructions:
             self.console.print(f"[blue]•[/blue] {instruction}")
 
-        self.console.print(
-            "\n[dim]💡 Use 'wsm status' to verify the rollback was successful[/dim]"
-        )
+        self.console.print("\n[dim]💡 Use 'wsm status' to verify the rollback was successful[/dim]")
 
 
 @click.command()
@@ -418,9 +390,7 @@ def rollback(ctx_obj, target, list, backup, version, force, restore_to):
             if not rollback_version.startswith("v"):
                 rollback_version = f"v{rollback_version}"
 
-            success = rollback_manager.rollback_to_version(
-                rollback_version, force=force
-            )
+            success = rollback_manager.rollback_to_version(rollback_version, force=force)
             if not success:
                 sys.exit(1)
             return

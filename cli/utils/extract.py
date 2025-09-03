@@ -83,9 +83,7 @@ class ExtractManager:
         try:
             # Extract using appropriate method
             extractor = self.supported_formats[archive_format]
-            result_path = extractor(
-                archive_path, extract_to, strip_components, progress_callback
-            )
+            result_path = extractor(archive_path, extract_to, strip_components, progress_callback)
 
             if self.show_progress:
                 self.console.print(f"[green]✓ Extracted to: {result_path}[/green]")
@@ -129,9 +127,7 @@ class ExtractManager:
             task = None
             if self.show_progress:
                 progress = Progress(console=self.console)
-                task = progress.add_task(
-                    f"Extracting {archive_path.name}", total=total_members
-                )
+                task = progress.add_task(f"Extracting {archive_path.name}", total=total_members)
                 progress.start()
 
             try:
@@ -190,9 +186,7 @@ class ExtractManager:
             task = None
             if self.show_progress:
                 progress = Progress(console=self.console)
-                task = progress.add_task(
-                    f"Extracting {archive_path.name}", total=total_members
-                )
+                task = progress.add_task(f"Extracting {archive_path.name}", total=total_members)
                 progress.start()
 
             try:
@@ -355,9 +349,7 @@ class ExtractManager:
             elif archive_format == "tar":
                 mode = "w"
             elif archive_format == "zip":
-                return self._create_zip_archive(
-                    source_dir, archive_path, exclude_patterns
-                )
+                return self._create_zip_archive(source_dir, archive_path, exclude_patterns)
             else:
                 raise ExtractionError(f"Unsupported archive format: {archive_format}")
 
@@ -365,9 +357,7 @@ class ExtractManager:
             with tarfile.open(archive_path, mode) as tar:
                 for root, dirs, files in os.walk(source_dir):
                     # Filter out excluded directories
-                    dirs[:] = [
-                        d for d in dirs if not self._should_exclude(d, exclude_patterns)
-                    ]
+                    dirs[:] = [d for d in dirs if not self._should_exclude(d, exclude_patterns)]
 
                     for file in files:
                         file_path = Path(root) / file
@@ -393,9 +383,7 @@ class ExtractManager:
         with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zip_file:
             for root, dirs, files in os.walk(source_dir):
                 # Filter out excluded directories
-                dirs[:] = [
-                    d for d in dirs if not self._should_exclude(d, exclude_patterns)
-                ]
+                dirs[:] = [d for d in dirs if not self._should_exclude(d, exclude_patterns)]
 
                 for file in files:
                     file_path = Path(root) / file

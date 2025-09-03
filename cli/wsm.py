@@ -39,9 +39,7 @@ class WSMContext:
         self.verbose = False
         self.quiet = False
 
-    def initialize(
-        self, config_dir: Path = None, verbose: bool = False, quiet: bool = False
-    ):
+    def initialize(self, config_dir: Path = None, verbose: bool = False, quiet: bool = False):
         """Initialize the WSM context"""
         self.verbose = verbose
         self.quiet = quiet
@@ -90,9 +88,7 @@ ctx = WSMContext()
 
 
 @click.group(invoke_without_command=True)
-@click.option(
-    "--config-dir", "-c", type=click.Path(), help="Configuration directory path"
-)
+@click.option("--config-dir", "-c", type=click.Path(), help="Configuration directory path")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 @click.option("--quiet", "-q", is_flag=True, help="Suppress non-error output")
 @click.option("--version", is_flag=True, help="Show version and exit")
@@ -167,9 +163,7 @@ def show_welcome_screen():
     welcome_text.append("wsm --help", style="bold green")
     welcome_text.append(" for more options.")
 
-    panel = Panel(
-        welcome_text, title="🚀 Welcome", title_align="left", border_style="blue"
-    )
+    panel = Panel(welcome_text, title="🚀 Welcome", title_align="left", border_style="blue")
     console.print(panel)
 
     # Show current status if available
@@ -196,9 +190,7 @@ def show_welcome_screen():
 
             # Check for updates
             if config_manager.should_check_for_updates():
-                console.print(
-                    "\n[yellow]💡 Run 'wsm update --check' to check for updates[/yellow]"
-                )
+                console.print("\n[yellow]💡 Run 'wsm update --check' to check for updates[/yellow]")
 
     except Exception:
         # Don't fail if we can't show status
@@ -285,14 +277,10 @@ def doctor(ctx_obj):
         config = ctx_obj.config_manager.config
         status = ctx_obj.config_manager.status
 
-        config_table.add_row(
-            "Config Directory:", str(ctx_obj.config_manager.config_dir)
-        )
+        config_table.add_row("Config Directory:", str(ctx_obj.config_manager.config_dir))
         config_table.add_row("Installation Path:", config.installation_path)
         config_table.add_row("Current Version:", status.version)
-        config_table.add_row(
-            "Auto Update:", "✓ Enabled" if config.auto_update else "✗ Disabled"
-        )
+        config_table.add_row("Auto Update:", "✓ Enabled" if config.auto_update else "✗ Disabled")
         config_table.add_row("Backup Retention:", str(config.backup_retention))
 
     except Exception as e:
@@ -333,9 +321,7 @@ def doctor(ctx_obj):
 
     try:
         if not ctx_obj.config_manager.config.auto_update:
-            recommendations.append(
-                "Enable auto-updates with: wsm config set auto_update true"
-            )
+            recommendations.append("Enable auto-updates with: wsm config set auto_update true")
 
         if ctx_obj.config_manager.status.version == "unknown":
             recommendations.append("Install WSL setup with: wsm install")
@@ -369,9 +355,7 @@ def version_info(ctx_obj):
         components = version_manager.get_component_versions()
         compatibility = version_manager.get_compatibility_info()
 
-        console.print(
-            f"[bold blue]WSL-Tmux-Nvim-Setup v{current_version}[/bold blue]\n"
-        )
+        console.print(f"[bold blue]WSL-Tmux-Nvim-Setup v{current_version}[/bold blue]\n")
 
         if components:
             console.print("[bold]Component Versions:[/bold]")

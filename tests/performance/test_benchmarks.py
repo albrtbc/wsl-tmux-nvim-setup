@@ -31,9 +31,7 @@ class TestCLIResponseTime:
         start_time = time.perf_counter()
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, env=env, timeout=timeout
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=timeout)
 
             end_time = time.perf_counter()
             execution_time = end_time - start_time
@@ -139,9 +137,7 @@ class TestMemoryUsage:
             try:
                 if process.poll() is None:  # Process still running
                     memory_info = process.memory_info()
-                    memory_readings.append(
-                        memory_info.rss
-                    )  # Resident set size in bytes
+                    memory_readings.append(memory_info.rss)  # Resident set size in bytes
                 else:
                     break
                 time.sleep(interval)
@@ -255,9 +251,7 @@ class TestMemoryUsage:
 
             if total_memory_readings:
                 peak_total_memory_mb = max(total_memory_readings) / (1024 * 1024)
-                print(
-                    f"\nConcurrent operations peak memory: {peak_total_memory_mb:.2f}MB"
-                )
+                print(f"\nConcurrent operations peak memory: {peak_total_memory_mb:.2f}MB")
 
                 # Should not use excessive memory even with concurrent operations
                 assert (
@@ -321,9 +315,7 @@ class TestInstallationPerformance:
             assert result.returncode in [0, 1, 2]
 
         except subprocess.TimeoutExpired:
-            pytest.fail(
-                f"Installation simulation exceeded {target_install_time}s timeout"
-            )
+            pytest.fail(f"Installation simulation exceeded {target_install_time}s timeout")
         except FileNotFoundError:
             pytest.skip("Python3 not available for installation performance testing")
 
@@ -360,9 +352,7 @@ class TestInstallationPerformance:
             assert result.returncode in [0, 1, 2]
 
         except subprocess.TimeoutExpired:
-            pytest.fail(
-                f"Update check exceeded {target_update_check_time + 5}s timeout"
-            )
+            pytest.fail(f"Update check exceeded {target_update_check_time + 5}s timeout")
         except FileNotFoundError:
             pytest.skip("Python3 not available for update performance testing")
 
@@ -468,9 +458,7 @@ class TestScalabilityBenchmarks:
                 print(f"\nMany releases list time: {list_time:.2f}s")
 
                 # Should handle many releases efficiently
-                assert (
-                    list_time < 10
-                ), f"Listing many releases took {list_time:.2f}s (target: <10s)"
+                assert list_time < 10, f"Listing many releases took {list_time:.2f}s (target: <10s)"
 
         except subprocess.TimeoutExpired:
             pytest.fail("Many releases test timed out")
@@ -501,9 +489,7 @@ class TestPerformanceRegression:
         assert "installation_time" in performance_metrics
 
         # Example assertions against baselines
-        for command, response_time in performance_metrics[
-            "command_response_times"
-        ].items():
+        for command, response_time in performance_metrics["command_response_times"].items():
             if command in ["install", "update"]:
                 continue  # Skip slow commands
 
@@ -546,9 +532,7 @@ class TestPerformanceRegression:
                 mean_time = statistics.mean(times)
                 stdev_time = statistics.stdev(times)
 
-                print(
-                    f"\nConsistency test - Mean: {mean_time:.3f}s, StdDev: {stdev_time:.3f}s"
-                )
+                print(f"\nConsistency test - Mean: {mean_time:.3f}s, StdDev: {stdev_time:.3f}s")
 
                 # Coefficient of variation should be reasonable
                 cv = stdev_time / mean_time

@@ -93,9 +93,7 @@ class AutoInstallBridge:
             with open(components_file, "r") as f:
                 return json.load(f)
         except Exception as e:
-            self.console.print(
-                f"[yellow]Warning: Could not load components config: {e}[/yellow]"
-            )
+            self.console.print(f"[yellow]Warning: Could not load components config: {e}[/yellow]")
             return {"components": []}
 
     def _discover_component_scripts(self) -> Dict[str, ComponentScript]:
@@ -141,9 +139,7 @@ class AutoInstallBridge:
             "Kitty": "GPU-accelerated terminal emulator with advanced features like image display and multiplexing",
             "Git": "Distributed version control system with optimized configuration for development workflows",
         }
-        return descriptions.get(
-            name, f"Install and configure {name} for development environment"
-        )
+        return descriptions.get(name, f"Install and configure {name} for development environment")
 
     def _estimate_installation_time(self, component: str) -> int:
         """Estimate installation time in seconds"""
@@ -256,11 +252,7 @@ class AutoInstallBridge:
                 curses.curs_set(0)
                 components = list(self.component_scripts.values())
                 selected = self._curses_select_components(stdscr, components)
-                return [
-                    comp.name.lower()
-                    for i, comp in enumerate(components)
-                    if selected[i]
-                ]
+                return [comp.name.lower() for i, comp in enumerate(components) if selected[i]]
 
             selected_components = curses.wrapper(custom_main)
             return selected_components
@@ -272,9 +264,7 @@ class AutoInstallBridge:
             if str(self.auto_install_dir) in sys.path:
                 sys.path.remove(str(self.auto_install_dir))
 
-    def _curses_select_components(
-        self, stdscr, components: List[ComponentScript]
-    ) -> List[bool]:
+    def _curses_select_components(self, stdscr, components: List[ComponentScript]) -> List[bool]:
         """Enhanced curses component selection"""
         selected = [False] * len(components)
         current = 0
@@ -365,9 +355,7 @@ class AutoInstallBridge:
 
             # Summary
             selected_count = sum(selected)
-            total_size = sum(
-                comp.size_mb for i, comp in enumerate(components) if selected[i]
-            )
+            total_size = sum(comp.size_mb for i, comp in enumerate(components) if selected[i])
             total_time = sum(
                 comp.estimated_time for i, comp in enumerate(components) if selected[i]
             )
@@ -422,9 +410,7 @@ class AutoInstallBridge:
                     comp = components[current]
                     info_text = f"{comp.name}: {comp.description}"
                     try:
-                        stdscr.addstr(
-                            max_y - 1, 2, info_text[: max_x - 4], curses.A_BOLD
-                        )
+                        stdscr.addstr(max_y - 1, 2, info_text[: max_x - 4], curses.A_BOLD)
                         stdscr.getch()  # Wait for key press
                     except:
                         pass
@@ -444,9 +430,7 @@ class AutoInstallBridge:
         """Install selected components using appropriate method"""
 
         if not component_names:
-            self.console.print(
-                "[yellow]No components selected for installation[/yellow]"
-            )
+            self.console.print("[yellow]No components selected for installation[/yellow]")
             return True
 
         self.console.print(
@@ -460,9 +444,7 @@ class AutoInstallBridge:
             if name_lower in self.component_scripts:
                 valid_components.append(name_lower)
             else:
-                self.console.print(
-                    f"[yellow]Warning: Unknown component '{name}' skipped[/yellow]"
-                )
+                self.console.print(f"[yellow]Warning: Unknown component '{name}' skipped[/yellow]")
 
         if not valid_components:
             self.console.print("[red]No valid components to install[/red]")
@@ -503,9 +485,7 @@ class AutoInstallBridge:
                 for i, component_name in enumerate(valid_components):
                     component = self.component_scripts[component_name]
 
-                    progress.update(
-                        main_task, description=f"Installing {component.name}..."
-                    )
+                    progress.update(main_task, description=f"Installing {component.name}...")
 
                     success = self._install_single_component(component, mode)
 
@@ -516,9 +496,7 @@ class AutoInstallBridge:
                         )
                     else:
                         self.failed_components.append(component_name)
-                        progress.console.print(
-                            f"[red]✗ {component.name} installation failed[/red]"
-                        )
+                        progress.console.print(f"[red]✗ {component.name} installation failed[/red]")
 
                     progress.advance(main_task)
         else:
@@ -541,9 +519,7 @@ class AutoInstallBridge:
 
         return len(self.failed_components) == 0
 
-    def _install_single_component(
-        self, component: ComponentScript, mode: InstallationMode
-    ) -> bool:
+    def _install_single_component(self, component: ComponentScript, mode: InstallationMode) -> bool:
         """Install a single component"""
 
         try:
@@ -634,14 +610,8 @@ class AutoInstallBridge:
         for comp_name in all_components:
             if comp_name in self.component_scripts:
                 comp = self.component_scripts[comp_name]
-                status = (
-                    "✓ Success"
-                    if comp_name in self.successful_components
-                    else "✗ Failed"
-                )
-                status_style = (
-                    "green" if comp_name in self.successful_components else "red"
-                )
+                status = "✓ Success" if comp_name in self.successful_components else "✗ Failed"
+                status_style = "green" if comp_name in self.successful_components else "red"
 
                 table.add_row(
                     comp.name,
@@ -688,9 +658,7 @@ class AutoInstallBridge:
                 f.write("WSL-Tmux-Nvim-Setup Auto Install Log\n")
                 f.write("=" * 50 + "\n\n")
                 f.write(f"Timestamp: {time.ctime()}\n")
-                f.write(
-                    f"Successful components: {', '.join(self.successful_components)}\n"
-                )
+                f.write(f"Successful components: {', '.join(self.successful_components)}\n")
                 f.write(f"Failed components: {', '.join(self.failed_components)}\n\n")
 
                 for line in self.installation_log:

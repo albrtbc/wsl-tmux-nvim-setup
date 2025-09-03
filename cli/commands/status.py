@@ -51,9 +51,7 @@ class StatusManager:
             "installation_date": status.installation_date,
             "last_update": status.last_update,
             "last_update_check": status.last_update_check,
-            "installation_path": str(
-                self.config_manager.get_expanded_installation_path()
-            ),
+            "installation_path": str(self.config_manager.get_expanded_installation_path()),
         }
 
     def get_system_info(self) -> Dict[str, Any]:
@@ -79,10 +77,7 @@ class StatusManager:
                     system_info["wsl_detected"] = True
 
                     # Try to determine WSL version
-                    if (
-                        "wsl2" in version_info
-                        or "microsoft-standard-wsl2" in version_info
-                    ):
+                    if "wsl2" in version_info or "microsoft-standard-wsl2" in version_info:
                         system_info["wsl_version"] = "2"
                     else:
                         system_info["wsl_version"] = "1"
@@ -256,9 +251,7 @@ class StatusManager:
                     install_date = datetime.fromisoformat(
                         status["installation_date"].replace("Z", "+00:00")
                     )
-                    status_lines.append(
-                        f"Installed: {install_date.strftime('%Y-%m-%d %H:%M')}"
-                    )
+                    status_lines.append(f"Installed: {install_date.strftime('%Y-%m-%d %H:%M')}")
                 except Exception:
                     status_lines.append(f"Installed: {status['installation_date']}")
 
@@ -267,9 +260,7 @@ class StatusManager:
                     update_date = datetime.fromisoformat(
                         status["last_update"].replace("Z", "+00:00")
                     )
-                    status_lines.append(
-                        f"Last Updated: {update_date.strftime('%Y-%m-%d %H:%M')}"
-                    )
+                    status_lines.append(f"Last Updated: {update_date.strftime('%Y-%m-%d %H:%M')}")
                 except Exception:
                     status_lines.append(f"Last Updated: {status['last_update']}")
 
@@ -294,9 +285,7 @@ class StatusManager:
         self.console.print(status_panel)
 
         if detailed and status["installation_path"]:
-            self.console.print(
-                f"\n[dim]Installation Path: {status['installation_path']}[/dim]"
-            )
+            self.console.print(f"\n[dim]Installation Path: {status['installation_path']}[/dim]")
 
     def show_system_info(self) -> None:
         """Display system information"""
@@ -392,9 +381,7 @@ class StatusManager:
             if name == "wsm_config":
                 # Special handling for WSM config
                 status_display = (
-                    "[green]✓ Valid[/green]"
-                    if info.get("valid")
-                    else "[red]✗ Invalid[/red]"
+                    "[green]✓ Valid[/green]" if info.get("valid") else "[red]✗ Invalid[/red]"
                 )
                 size_display = ""
                 table.add_row("WSM Config", status_display, size_display, info["path"])
@@ -419,9 +406,7 @@ class StatusManager:
         settings_table.add_row(
             "Auto Update:", "✓ Enabled" if self.config.auto_update else "✗ Disabled"
         )
-        settings_table.add_row(
-            "Backup Retention:", f"{self.config.backup_retention} backups"
-        )
+        settings_table.add_row("Backup Retention:", f"{self.config.backup_retention} backups")
         settings_table.add_row(
             "GitHub Token:", "✓ Set" if self.config.github_token else "✗ Not set"
         )
@@ -435,20 +420,14 @@ class StatusManager:
         self.console.print("\n[bold blue]🔄 Updates[/bold blue]")
 
         if "error" in update_info:
-            self.console.print(
-                f"[red]Error checking for updates: {update_info['error']}[/red]"
-            )
+            self.console.print(f"[red]Error checking for updates: {update_info['error']}[/red]")
             return
 
         table = Table(show_header=False, box=None, padding=(0, 2))
-        table.add_row(
-            "Current Version:", f"[blue]{update_info['current_version']}[/blue]"
-        )
+        table.add_row("Current Version:", f"[blue]{update_info['current_version']}[/blue]")
 
         if update_info["update_available"]:
-            table.add_row(
-                "Latest Version:", f"[green]{update_info['latest_version']}[/green]"
-            )
+            table.add_row("Latest Version:", f"[green]{update_info['latest_version']}[/green]")
             update_type = update_info.get("update_type", "unknown")
             table.add_row("Update Type:", f"[yellow]{update_type.title()}[/yellow]")
 
@@ -456,9 +435,7 @@ class StatusManager:
                 table.add_row("Breaking Changes:", "[red]Yes[/red]")
 
             self.console.print(table)
-            self.console.print(
-                "\n[green]💡 Run 'wsm update' to install the latest version[/green]"
-            )
+            self.console.print("\n[green]💡 Run 'wsm update' to install the latest version[/green]")
         else:
             table.add_row("Status:", "[green]✓ Up to date[/green]")
             self.console.print(table)
@@ -469,16 +446,12 @@ class StatusManager:
             try:
                 from datetime import datetime
 
-                check_date = datetime.fromisoformat(
-                    status.last_update_check.replace("Z", "+00:00")
-                )
+                check_date = datetime.fromisoformat(status.last_update_check.replace("Z", "+00:00"))
                 self.console.print(
                     f"\n[dim]Last checked: {check_date.strftime('%Y-%m-%d %H:%M')}[/dim]"
                 )
             except Exception:
-                self.console.print(
-                    f"\n[dim]Last checked: {status.last_update_check}[/dim]"
-                )
+                self.console.print(f"\n[dim]Last checked: {status.last_update_check}[/dim]")
 
 
 @click.command()

@@ -157,14 +157,11 @@ class PerformanceCache:
         """Evict least recently used entries"""
         with self.lock:
             while (
-                self.stats.memory_usage > self.max_size
-                or len(self.cache) > self.max_entries
+                self.stats.memory_usage > self.max_size or len(self.cache) > self.max_entries
             ) and self.cache:
 
                 # Find least recently used entry
-                lru_key = min(
-                    self.access_times.keys(), key=lambda k: self.access_times[k]
-                )
+                lru_key = min(self.access_times.keys(), key=lambda k: self.access_times[k])
 
                 # Remove entry
                 self.stats.memory_usage -= self.entry_sizes.get(lru_key, 0)
@@ -321,9 +318,7 @@ class ResourceMonitor:
             r
             for r in self.resource_history
             if datetime.now()
-            - timedelta(
-                seconds=len(self.resource_history) - self.resource_history.index(r)
-            )
+            - timedelta(seconds=len(self.resource_history) - self.resource_history.index(r))
             >= cutoff_time
         ]
 
@@ -383,9 +378,7 @@ class ParallelProcessor:
             # Submit tasks
             future_to_task = {}
             for i, task in enumerate(tasks):
-                future = executor.submit(
-                    self._execute_with_monitoring, f"task_{i}", task
-                )
+                future = executor.submit(self._execute_with_monitoring, f"task_{i}", task)
                 future_to_task[future] = i
 
             # Collect results
@@ -518,9 +511,7 @@ class PerformanceOptimizer:
             download_manager.timeout = self.profile.timeout
 
         if hasattr(download_manager, "max_concurrent_downloads"):
-            download_manager.max_concurrent_downloads = (
-                self.profile.concurrent_downloads
-            )
+            download_manager.max_concurrent_downloads = self.profile.concurrent_downloads
 
     def get_performance_stats(self) -> Dict[str, Any]:
         """Get comprehensive performance statistics"""

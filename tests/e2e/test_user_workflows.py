@@ -486,9 +486,7 @@ class TestPerformanceWorkflows:
                 elapsed_time = time.time() - start_time
 
                 # Fast commands should complete quickly (target <2 seconds)
-                assert (
-                    elapsed_time < 2.0
-                ), f"Command {cmd} took {elapsed_time:.2f}s (>2s target)"
+                assert elapsed_time < 2.0, f"Command {cmd} took {elapsed_time:.2f}s (>2s target)"
                 assert result.returncode in [0, 1, 2]
 
             except subprocess.TimeoutExpired:

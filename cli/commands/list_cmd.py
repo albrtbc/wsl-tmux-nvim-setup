@@ -89,9 +89,7 @@ class ListManager:
         except GitHubAPIError as e:
             raise click.ClickException(f"Failed to get release details: {e}")
 
-    def show_releases_table(
-        self, releases: List[Dict[str, Any]], detailed: bool = False
-    ) -> None:
+    def show_releases_table(self, releases: List[Dict[str, Any]], detailed: bool = False) -> None:
         """Display releases in a formatted table"""
         if not releases:
             self.console.print("[yellow]No releases found[/yellow]")
@@ -121,9 +119,7 @@ class ListManager:
                 version_display = version
 
             # Published date
-            published = (
-                release["published_at"][:10] if release["published_at"] else "Unknown"
-            )
+            published = release["published_at"][:10] if release["published_at"] else "Unknown"
 
             # Release type
             if release["draft"]:
@@ -165,9 +161,7 @@ class ListManager:
         self.console.print(table)
 
         # Show legend
-        if any(
-            release["tag_name"].lstrip("v") == current_version for release in releases
-        ):
+        if any(release["tag_name"].lstrip("v") == current_version for release in releases):
             self.console.print("\n[dim]⭐ = Currently installed[/dim]")
 
     def show_release_details(self, release: Dict[str, Any]) -> None:
@@ -178,9 +172,7 @@ class ListManager:
 
         # Basic info
         info_table = Table(show_header=False, box=None, padding=(0, 2))
-        info_table.add_row(
-            "Published:", f"[green]{release['published_at'][:10]}[/green]"
-        )
+        info_table.add_row("Published:", f"[green]{release['published_at'][:10]}[/green]")
 
         if release["prerelease"]:
             info_table.add_row("Type:", "[yellow]Pre-release[/yellow]")
@@ -194,9 +186,7 @@ class ListManager:
         # Check if this is current version
         current_version = self.config_manager.status.version
         if release["tag_name"].lstrip("v") == current_version:
-            info_table.add_row(
-                "Status:", "[bold green]Currently Installed ⭐[/bold green]"
-            )
+            info_table.add_row("Status:", "[bold green]Currently Installed ⭐[/bold green]")
 
         self.console.print(info_table)
 
@@ -258,9 +248,7 @@ class ListManager:
             self.console.print("[yellow]No current installation to compare[/yellow]")
             return
 
-        self.console.print(
-            f"\n[bold]Version Comparison (Current: {current_version})[/bold]"
-        )
+        self.console.print(f"\n[bold]Version Comparison (Current: {current_version})[/bold]")
 
         # Sort releases by version
         try:
@@ -271,9 +259,7 @@ class ListManager:
             )
         except Exception:
             # Fallback to sorting by published date
-            sorted_releases = sorted(
-                releases, key=lambda r: r["published_at"] or "", reverse=True
-            )
+            sorted_releases = sorted(releases, key=lambda r: r["published_at"] or "", reverse=True)
 
         comparison_table = Table()
         comparison_table.add_column("Version", style="cyan")
@@ -289,21 +275,15 @@ class ListManager:
 
                 try:
                     release_sem = VersionComparator.parse_version(version)
-                    comparison = VersionComparator.compare_versions(
-                        current_sem, release_sem
-                    )
+                    comparison = VersionComparator.compare_versions(current_sem, release_sem)
 
                     if comparison == 0:
                         status = "[bold green]Current[/bold green]"
                         update_type = "N/A"
                     elif comparison < 0:
                         status = "[green]Newer[/green]"
-                        update_type = VersionComparator.get_update_type(
-                            current_sem, release_sem
-                        )
-                        if VersionComparator.check_breaking_change(
-                            current_sem, release_sem
-                        ):
+                        update_type = VersionComparator.get_update_type(current_sem, release_sem)
+                        if VersionComparator.check_breaking_change(current_sem, release_sem):
                             update_type += " (Breaking)"
                     else:
                         status = "[dim]Older[/dim]"
@@ -313,11 +293,7 @@ class ListManager:
                     status = "[yellow]Unknown[/yellow]"
                     update_type = "Unknown"
 
-                published = (
-                    release["published_at"][:10]
-                    if release["published_at"]
-                    else "Unknown"
-                )
+                published = release["published_at"][:10] if release["published_at"] else "Unknown"
 
                 comparison_table.add_row(version, status, update_type, published)
 
@@ -329,12 +305,8 @@ class ListManager:
 
 @click.command(name="list")
 @click.option("--prerelease", is_flag=True, help="Include prerelease versions")
-@click.option(
-    "--draft", is_flag=True, help="Include draft releases (if you have access)"
-)
-@click.option(
-    "--limit", "-l", default=20, type=int, help="Maximum number of releases to show"
-)
+@click.option("--draft", is_flag=True, help="Include draft releases (if you have access)")
+@click.option("--limit", "-l", default=20, type=int, help="Maximum number of releases to show")
 @click.option(
     "--detailed",
     "-d",
@@ -343,13 +315,9 @@ class ListManager:
 )
 @click.option("--search", "-s", type=str, help="Search releases by query string")
 @click.option("--version", "-v", type=str, help="Show details for specific version")
-@click.option(
-    "--compare", is_flag=True, help="Show version comparison with current installation"
-)
+@click.option("--compare", is_flag=True, help="Show version comparison with current installation")
 @click.pass_obj
-def list_releases(
-    ctx_obj, prerelease, draft, limit, detailed, search, version, compare
-):
+def list_releases(ctx_obj, prerelease, draft, limit, detailed, search, version, compare):
     """
     List available releases and versions
 
@@ -402,12 +370,8 @@ def list_releases(
             list_manager.show_version_comparison(releases)
 
         # Show helpful tips
-        console.print(
-            "\n[dim]💡 Use 'wsm list --version <tag>' for detailed information"
-        )
-        console.print(
-            "💡 Use 'wsm install <version>' to install a specific version[/dim]"
-        )
+        console.print("\n[dim]💡 Use 'wsm list --version <tag>' for detailed information")
+        console.print("💡 Use 'wsm install <version>' to install a specific version[/dim]")
 
     except click.ClickException:
         raise

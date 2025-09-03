@@ -167,9 +167,7 @@ class TestComponentVersionManager:
             pytest.skip("ComponentVersionManager not available for testing")
 
         if hasattr(version_manager, "version_manager"):
-            version_manager.version_manager.get_latest_release.return_value = (
-                sample_release_data
-            )
+            version_manager.version_manager.get_latest_release.return_value = sample_release_data
 
             result = version_manager.version_manager.get_latest_release()
             assert result == sample_release_data
@@ -200,9 +198,7 @@ class TestComponentVersionManager:
         }
 
         if hasattr(version_manager, "check_system_compatibility"):
-            version_manager.check_system_compatibility.return_value = (
-                expected_compatibility
-            )
+            version_manager.check_system_compatibility.return_value = expected_compatibility
 
             result = version_manager.check_system_compatibility()
             assert result == expected_compatibility

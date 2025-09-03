@@ -82,9 +82,7 @@ class UpdateManager:
 
                 is_newer = VersionComparator.is_newer_version(current_sem, latest_sem)
                 update_type = (
-                    VersionComparator.get_update_type(current_sem, latest_sem)
-                    if is_newer
-                    else None
+                    VersionComparator.get_update_type(current_sem, latest_sem) if is_newer else None
                 )
                 breaking_change = (
                     VersionComparator.check_breaking_change(current_sem, latest_sem)
@@ -240,9 +238,7 @@ class UpdateManager:
             for line in lines:
                 self.console.print(f"  {line}")
 
-            self.console.print(
-                f"\n[dim]Full release notes: {latest_release['html_url']}[/dim]"
-            )
+            self.console.print(f"\n[dim]Full release notes: {latest_release['html_url']}[/dim]")
 
     def auto_update_check(self) -> Optional[Dict[str, Any]]:
         """
@@ -277,17 +273,13 @@ class UpdateManager:
             self.console.print(
                 f"[yellow]💡 Update available: {current} → {latest} ({update_type})[/yellow]"
             )
-            self.console.print(
-                "[yellow]Run 'wsm update' to install the latest version[/yellow]"
-            )
+            self.console.print("[yellow]Run 'wsm update' to install the latest version[/yellow]")
         else:
             self.console.print("[green]✓ You are running the latest version[/green]")
 
 
 @click.command()
-@click.option(
-    "--check", "-c", is_flag=True, help="Only check for updates, do not install"
-)
+@click.option("--check", "-c", is_flag=True, help="Only check for updates, do not install")
 @click.option("--prerelease", is_flag=True, help="Include prerelease versions")
 @click.option("--force", is_flag=True, help="Force update without confirmation")
 @click.option("--skip-backup", is_flag=True, help="Skip creating backup before update")
@@ -325,9 +317,7 @@ def update(ctx_obj, check, prerelease, force, skip_backup, auto):
             # Only check for updates
             console.print("[blue]Checking for updates...[/blue]")
 
-            update_info = update_manager.check_for_updates(
-                include_prerelease=prerelease
-            )
+            update_info = update_manager.check_for_updates(include_prerelease=prerelease)
 
             if update_info["update_available"]:
                 update_manager.show_update_info(update_info)

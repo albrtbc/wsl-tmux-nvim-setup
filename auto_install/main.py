@@ -35,9 +35,7 @@ def custom_installation(stdscr, components):
     current = 0
     max_y, max_x = stdscr.getmaxyx()
     if len(components) + 3 > max_y:  # +3 for the additional lines
-        raise RuntimeError(
-            "The terminal window is too small to display all components."
-        )
+        raise RuntimeError("The terminal window is too small to display all components.")
 
     while True:
         stdscr.clear()
@@ -74,9 +72,7 @@ def main(stdscr):
         if selected[i]:
             run_script(component["script"])
 
-    stdscr.addstr(
-        len(components) + 2, 0, "Installation completed. Press any key to exit."
-    )
+    stdscr.addstr(len(components) + 2, 0, "Installation completed. Press any key to exit.")
     stdscr.getch()
 
 

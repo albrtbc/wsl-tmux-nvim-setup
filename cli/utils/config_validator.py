@@ -110,9 +110,7 @@ class EnhancedConfigModel(BaseModel):
 
     # Advanced settings
     debug_mode: bool = Field(default=False)
-    log_level: str = Field(
-        default="INFO", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
-    )
+    log_level: str = Field(default="INFO", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
     log_file_retention: int = Field(default=7, ge=1, le=365)
     enable_telemetry: bool = Field(default=False)
 
@@ -318,10 +316,7 @@ class ConfigValidator:
         try:
             with open("/proc/version", "r") as f:
                 version_info = f.read()
-                if (
-                    "microsoft" not in version_info.lower()
-                    and "wsl" not in version_info.lower()
-                ):
+                if "microsoft" not in version_info.lower() and "wsl" not in version_info.lower():
                     self.issues.append(
                         ConfigIssue(
                             type=ConfigIssueType.INFO,
@@ -432,9 +427,7 @@ class ConfigValidator:
                         type=ConfigIssueType.WARNING,
                         field="cache_size_mb",
                         message=f"Cache size ({cache_size_mb}MB) is large relative to available memory ({memory.available // (1024*1024)}MB)",
-                        suggested_value=min(
-                            256, memory.available // (1024 * 1024) // 4
-                        ),
+                        suggested_value=min(256, memory.available // (1024 * 1024) // 4),
                     )
                 )
 
@@ -558,9 +551,7 @@ class ConfigValidator:
         """Test GitHub token validity"""
         try:
             headers = {"Authorization": f"token {token}"}
-            response = requests.get(
-                "https://api.github.com/user", headers=headers, timeout=10
-            )
+            response = requests.get("https://api.github.com/user", headers=headers, timeout=10)
             return response.status_code == 200
         except:
             return False

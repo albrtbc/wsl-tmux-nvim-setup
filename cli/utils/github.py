@@ -116,9 +116,7 @@ class GitHubClient:
         except requests.exceptions.RequestException as e:
             raise GitHubAPIError(f"Failed to list releases: {e}")
 
-    def get_latest_release(
-        self, include_prerelease: bool = False
-    ) -> Optional[Dict[str, Any]]:
+    def get_latest_release(self, include_prerelease: bool = False) -> Optional[Dict[str, Any]]:
         """
         Get the latest release
 
@@ -274,10 +272,7 @@ class GitHubClient:
         matching_releases = []
 
         for release in releases:
-            if (
-                query_lower in release["tag_name"].lower()
-                or query_lower in release["name"].lower()
-            ):
+            if query_lower in release["tag_name"].lower() or query_lower in release["name"].lower():
                 matching_releases.append(release)
 
                 if len(matching_releases) >= limit:
@@ -353,9 +348,7 @@ class GitHubClient:
             "published_at": release["published_at"],
         }
 
-    def format_release_info(
-        self, release: Dict[str, Any], detailed: bool = False
-    ) -> str:
+    def format_release_info(self, release: Dict[str, Any], detailed: bool = False) -> str:
         """Format release information for display"""
         from rich.markup import escape
 
@@ -425,9 +418,7 @@ if __name__ == "__main__":
         """List available releases"""
         try:
             client = ctx.obj["client"]
-            releases = client.list_releases(
-                include_prerelease=include_prerelease, limit=limit
-            )
+            releases = client.list_releases(include_prerelease=include_prerelease, limit=limit)
 
             console = Console()
             for release in releases:

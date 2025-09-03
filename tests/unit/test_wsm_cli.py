@@ -37,9 +37,7 @@ class TestWSMContext:
         """Test context initialization with default config."""
         ctx = WSMContext()
 
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager):
             ctx.initialize()
             assert ctx.config_manager is mock_config_manager
 
@@ -113,9 +111,7 @@ class TestCLICommands:
 
     def test_cli_version_flag(self, cli_runner, mock_version_manager):
         """Test --version flag shows version information."""
-        with patch(
-            "cli.wsm.ComponentVersionManager", return_value=mock_version_manager
-        ):
+        with patch("cli.wsm.ComponentVersionManager", return_value=mock_version_manager):
             result = cli_runner.invoke(cli, ["--version"])
 
             assert result.exit_code == 0
@@ -123,9 +119,7 @@ class TestCLICommands:
 
     def test_cli_version_flag_fallback(self, cli_runner):
         """Test --version flag fallback when version detection fails."""
-        with patch(
-            "cli.wsm.ComponentVersionManager", side_effect=Exception("Version error")
-        ):
+        with patch("cli.wsm.ComponentVersionManager", side_effect=Exception("Version error")):
             result = cli_runner.invoke(cli, ["--version"])
 
             assert result.exit_code == 0
@@ -144,9 +138,9 @@ class TestCLICommands:
 
     def test_cli_no_command_shows_welcome(self, cli_runner, mock_config_manager):
         """Test CLI with no command shows welcome screen."""
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.show_welcome_screen") as mock_welcome:
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.show_welcome_screen"
+        ) as mock_welcome:
 
             result = cli_runner.invoke(cli, [])
 
@@ -155,9 +149,9 @@ class TestCLICommands:
 
     def test_cli_verbose_flag(self, cli_runner, mock_config_manager):
         """Test --verbose flag is passed to context."""
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.show_welcome_screen"):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.show_welcome_screen"
+        ):
 
             result = cli_runner.invoke(cli, ["--verbose"])
 
@@ -166,18 +160,16 @@ class TestCLICommands:
 
     def test_cli_quiet_flag(self, cli_runner, mock_config_manager):
         """Test --quiet flag is passed to context."""
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.show_welcome_screen"):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.show_welcome_screen"
+        ):
 
             result = cli_runner.invoke(cli, ["--quiet"])
 
             assert result.exit_code == 0
             # Context should be initialized with quiet=True
 
-    def test_cli_custom_config_dir(
-        self, cli_runner, temp_config_dir, mock_config_manager
-    ):
+    def test_cli_custom_config_dir(self, cli_runner, temp_config_dir, mock_config_manager):
         """Test --config-dir flag uses custom configuration directory."""
         with patch("cli.wsm.ConfigManager", return_value=mock_config_manager), patch(
             "cli.wsm.show_welcome_screen"
@@ -197,9 +189,9 @@ class TestWelcomeScreen:
         mock_config_manager.status.version = "unknown"
         mock_config_manager.status.installed_components = []
 
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.Console", return_value=mock_console):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.Console", return_value=mock_console
+        ):
 
             show_welcome_screen()
 
@@ -209,18 +201,16 @@ class TestWelcomeScreen:
             # Check that some form of welcome message was printed
             assert len(args) > 0
 
-    def test_show_welcome_screen_with_installation(
-        self, mock_console, mock_config_manager
-    ):
+    def test_show_welcome_screen_with_installation(self, mock_console, mock_config_manager):
         """Test welcome screen with existing installation."""
         mock_config_manager.status.version = "1.0.0"
         mock_config_manager.status.installed_components = ["tmux", "neovim"]
         mock_config_manager.status.installation_date = "2025-09-01"
         mock_config_manager.should_check_for_updates.return_value = False
 
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.Console", return_value=mock_console):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.Console", return_value=mock_console
+        ):
 
             show_welcome_screen()
 
@@ -228,25 +218,21 @@ class TestWelcomeScreen:
             assert mock_console.print.called
             assert len(mock_console.print.call_args_list) >= 2
 
-    def test_show_welcome_screen_update_reminder(
-        self, mock_console, mock_config_manager
-    ):
+    def test_show_welcome_screen_update_reminder(self, mock_console, mock_config_manager):
         """Test welcome screen shows update reminder."""
         mock_config_manager.status.version = "1.0.0"
         mock_config_manager.status.installed_components = ["tmux"]
         mock_config_manager.should_check_for_updates.return_value = True
 
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.Console", return_value=mock_console):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.Console", return_value=mock_console
+        ):
 
             show_welcome_screen()
 
             # Should suggest checking for updates
             call_args = [call.args[0] for call in mock_console.print.call_args_list]
-            update_reminder_found = any(
-                "update --check" in str(arg) for arg in call_args
-            )
+            update_reminder_found = any("update --check" in str(arg) for arg in call_args)
             assert update_reminder_found
 
     def test_show_welcome_screen_error_handling(self, mock_console):
@@ -265,13 +251,11 @@ class TestWelcomeScreen:
 class TestDoctorCommand:
     """Test the doctor diagnostic command."""
 
-    def test_doctor_command_basic(
-        self, cli_runner, mock_config_manager, mock_version_manager
-    ):
+    def test_doctor_command_basic(self, cli_runner, mock_config_manager, mock_version_manager):
         """Test doctor command shows system diagnostics."""
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.ComponentVersionManager", return_value=mock_version_manager):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.ComponentVersionManager", return_value=mock_version_manager
+        ):
 
             result = cli_runner.invoke(cli, ["doctor"])
 
@@ -283,13 +267,9 @@ class TestDoctorCommand:
         self, cli_runner, mock_config_manager, mock_version_manager
     ):
         """Test doctor command detects WSL environment."""
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch(
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
             "cli.wsm.ComponentVersionManager", return_value=mock_version_manager
-        ), patch(
-            "builtins.open", create=True
-        ) as mock_open:
+        ), patch("builtins.open", create=True) as mock_open:
 
             # Mock /proc/version to indicate WSL
             mock_file = MagicMock()
@@ -305,9 +285,9 @@ class TestDoctorCommand:
         self, cli_runner, mock_config_manager, mock_version_manager
     ):
         """Test doctor command checks dependencies."""
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.ComponentVersionManager", return_value=mock_version_manager):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.ComponentVersionManager", return_value=mock_version_manager
+        ):
 
             result = cli_runner.invoke(cli, ["doctor"])
 
@@ -324,9 +304,9 @@ class TestDoctorCommand:
         mock_config_manager.status.version = "unknown"
         mock_config_manager.config.github_token = None
 
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.ComponentVersionManager", return_value=mock_version_manager):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.ComponentVersionManager", return_value=mock_version_manager
+        ):
 
             result = cli_runner.invoke(cli, ["doctor"])
 
@@ -338,13 +318,11 @@ class TestDoctorCommand:
 class TestVersionInfoCommand:
     """Test the version-info command."""
 
-    def test_version_info_basic(
-        self, cli_runner, mock_config_manager, mock_version_manager
-    ):
+    def test_version_info_basic(self, cli_runner, mock_config_manager, mock_version_manager):
         """Test version-info command shows detailed version information."""
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.ComponentVersionManager", return_value=mock_version_manager):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.ComponentVersionManager", return_value=mock_version_manager
+        ):
 
             result = cli_runner.invoke(cli, ["version-info"])
 
@@ -361,9 +339,9 @@ class TestVersionInfoCommand:
             "git": "2.40.0",
         }
 
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.ComponentVersionManager", return_value=mock_version_manager):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.ComponentVersionManager", return_value=mock_version_manager
+        ):
 
             result = cli_runner.invoke(cli, ["version-info"])
 
@@ -380,9 +358,9 @@ class TestVersionInfoCommand:
             "required_tools": ["git", "curl", "wget"],
         }
 
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch("cli.wsm.ComponentVersionManager", return_value=mock_version_manager):
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
+            "cli.wsm.ComponentVersionManager", return_value=mock_version_manager
+        ):
 
             result = cli_runner.invoke(cli, ["version-info"])
 
@@ -391,9 +369,7 @@ class TestVersionInfoCommand:
 
     def test_version_info_error_handling(self, cli_runner, mock_config_manager):
         """Test version-info handles errors gracefully."""
-        with patch(
-            "cli.wsm.get_default_config_manager", return_value=mock_config_manager
-        ), patch(
+        with patch("cli.wsm.get_default_config_manager", return_value=mock_config_manager), patch(
             "cli.wsm.ComponentVersionManager", side_effect=Exception("Version error")
         ):
 
@@ -426,9 +402,7 @@ class TestMainFunction:
                 main()
 
             assert exc_info.value.code == 130
-            mock_console.print.assert_called_with(
-                "\n[yellow]Operation cancelled by user[/yellow]"
-            )
+            mock_console.print.assert_called_with("\n[yellow]Operation cancelled by user[/yellow]")
 
     def test_main_unexpected_error(self, mock_console):
         """Test main function handles unexpected errors."""
@@ -442,9 +416,7 @@ class TestMainFunction:
                 main()
 
             assert exc_info.value.code == 1
-            mock_console.print.assert_any_call(
-                "\n[red]Unexpected error: Unexpected error[/red]"
-            )
+            mock_console.print.assert_any_call("\n[red]Unexpected error: Unexpected error[/red]")
 
     def test_main_debug_mode(self, mock_console):
         """Test main function shows traceback in debug mode."""

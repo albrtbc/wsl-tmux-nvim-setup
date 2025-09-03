@@ -145,27 +145,20 @@ class TestCIWorkflowJobs:
         step_names = [step.get("name", "") for step in security_job["steps"]]
 
         # Should include security tools
+        assert any("bandit" in name.lower() or "security" in name.lower() for name in step_names)
         assert any(
-            "bandit" in name.lower() or "security" in name.lower()
-            for name in step_names
-        )
-        assert any(
-            "safety" in name.lower() or "vulnerabilit" in name.lower()
-            for name in step_names
+            "safety" in name.lower() or "vulnerabilit" in name.lower() for name in step_names
         )
 
     def test_documentation_job(self, ci_workflow):
         """Test documentation job configuration."""
         docs_job = ci_workflow["jobs"]["test-documentation"]
 
-        step_names = [
-            step.get("name", "") for step in step_names for step in docs_job["steps"]
-        ]
+        step_names = [step.get("name", "") for step in step_names for step in docs_job["steps"]]
 
         # Should validate documentation
         assert any(
-            "markdown" in name.lower() or "documentation" in name.lower()
-            for name in step_names
+            "markdown" in name.lower() or "documentation" in name.lower() for name in step_names
         )
 
 
@@ -210,9 +203,7 @@ class TestWorkflowIntegration:
         if shell_scripts:
             # Try to run ShellCheck if available
             try:
-                result = subprocess.run(
-                    ["shellcheck", "--version"], capture_output=True, text=True
-                )
+                result = subprocess.run(["shellcheck", "--version"], capture_output=True, text=True)
 
                 if result.returncode == 0:
                     # ShellCheck is available, test a few scripts
@@ -338,9 +329,7 @@ class TestWorkflowPerformance:
                 independent_jobs += 1
 
         # Should have some parallel jobs for efficiency
-        assert (
-            independent_jobs >= 2
-        ), "Workflow should have parallelizable jobs for efficiency"
+        assert independent_jobs >= 2, "Workflow should have parallelizable jobs for efficiency"
 
     def test_workflow_caching(self, workflows_dir):
         """Test workflows use caching where appropriate."""
@@ -385,9 +374,7 @@ class TestWorkflowMaintenance:
                                     version = action.split("@")[1]
                                     # Should use at least the minimum version
                                     # This is a simple check, real version comparison would be better
-                                    if version.startswith(
-                                        "v"
-                                    ) and min_version.startswith("v"):
+                                    if version.startswith("v") and min_version.startswith("v"):
                                         assert (
                                             version >= min_version
                                         ), f"Action {action_name} version {version} is older than recommended {min_version}"
@@ -399,9 +386,7 @@ class TestWorkflowMaintenance:
                 workflow = yaml.safe_load(f)
 
             # Workflow should have a name
-            assert (
-                "name" in workflow
-            ), f"Workflow {workflow_file.name} should have a name"
+            assert "name" in workflow, f"Workflow {workflow_file.name} should have a name"
 
             # Jobs should have descriptive names
             for job_name, job in workflow["jobs"].items():
@@ -412,9 +397,7 @@ class TestWorkflowMaintenance:
                     if "run" in step:
                         # Steps with run commands should have names
                         if not step.get("name"):
-                            pytest.skip(
-                                f"Step {i} in job {job_name} could use a descriptive name"
-                            )
+                            pytest.skip(f"Step {i} in job {job_name} could use a descriptive name")
 
 
 @pytest.mark.integration
