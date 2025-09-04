@@ -41,14 +41,14 @@ The WSL-Tmux-Nvim-Setup Manager (`wsm`) is a comprehensive command-line tool for
 
 ```bash
 # Download and install latest release
-curl -sSL https://github.com/user/wsl-tmux-nvim-setup/releases/latest/download/install.sh | bash
+curl -sSL https://github.com/albrtbc/wsl-tmux-nvim-setup/releases/latest/download/install.sh | bash
 ```
 
 ### From Source
 
 ```bash
 # Clone repository
-git clone https://github.com/user/wsl-tmux-nvim-setup.git
+git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git
 cd wsl-tmux-nvim-setup
 
 # Install with pip
@@ -687,4 +687,4 @@ fi
 
 ---
 
-*For more information, visit the [project repository](https://github.com/user/wsl-tmux-nvim-setup) or run `wsm --help` for quick reference.*
+*For more information, visit the [project repository](https://github.com/albrtbc/wsl-tmux-nvim-setup) or run `wsm --help` for quick reference.*

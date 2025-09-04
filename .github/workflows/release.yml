@@ -195,12 +195,16 @@ jobs:
       - name: Prepare release assets
         run: |
           chmod +x scripts/prepare-release.sh
+          chmod +x scripts/install.sh
 
           ./scripts/prepare-release.sh \
             --version "${{ needs.prepare-release.outputs.version }}" \
             --format "${{ matrix.archive_format }}" \
             --include-docs \
             --verbose
+          
+          # Copy install.sh to release assets for direct download
+          cp scripts/install.sh release-assets/install.sh
 
       - name: Generate checksums
         run: |
@@ -219,6 +223,7 @@ jobs:
             release-assets/*.tar.gz
             release-assets/*.zip
             release-assets/checksums-*.txt
+            release-assets/install.sh
           retention-days: 30
 
   create-release:
