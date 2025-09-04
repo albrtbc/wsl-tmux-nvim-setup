@@ -121,8 +121,6 @@ find_asset_files() {
     local assets_dir="$1"
     local recursive="$2"
     
-    log_debug "Searching for asset files in: $assets_dir"
-    
     local find_args=("$assets_dir")
     
     if [[ "$recursive" != "true" ]]; then
@@ -190,16 +188,18 @@ generate_checksum() {
     esac
     
     log_debug "Generating $algorithm checksum for: $(basename "$file")"
+    log_debug "Running command: $hash_cmd $file"
     
     # Generate checksum and format output
     local checksum_output
-    if checksum_output=$("$hash_cmd" "$file" 2>/dev/null); then
+    if checksum_output=$("$hash_cmd" "$file" 2>&1); then
         # Extract just the hash part (before the filename)
         local hash
         hash=$(echo "$checksum_output" | cut -d' ' -f1)
         echo "$hash  $(basename "$file")"
     else
         log_error "Failed to generate checksum for: $file"
+        log_error "Command output: $checksum_output"
         return 1
     fi
 }
@@ -218,6 +218,7 @@ create_checksums_file() {
     mkdir -p "$output_dir"
     
     # Create header for checksums file
+    log_debug "Creating output file: $output_file"
     cat > "$output_file" << EOF
 # WSL-Tmux-Nvim-Setup Release Checksums
 # Generated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -232,6 +233,7 @@ create_checksums_file() {
 # Format: <hash>  <filename>
 
 EOF
+    log_debug "Header written successfully"
     
     # Find all asset files
     local files
@@ -244,17 +246,26 @@ EOF
     
     log_info "Found ${#files[@]} files to checksum"
     
+    # Debug: List the files found
+    for file in "${files[@]}"; do
+        log_debug "Found file: $file"
+    done
+    
     # Generate checksums
     local success_count=0
     local total_count=0
     
+    log_debug "Starting checksum generation loop"
     for file in "${files[@]}"; do
-        ((total_count++))
+        total_count=$((total_count + 1))
+        log_debug "Processing file $total_count: $file"
         
         local checksum_line
+        log_debug "About to generate checksum for: $file"
         if checksum_line=$(generate_checksum "$file" "$algorithm"); then
+            log_debug "Checksum generated successfully: $checksum_line"
             echo "$checksum_line" >> "$output_file"
-            ((success_count++))
+            success_count=$((success_count + 1))
             
             if [[ "$VERBOSE" == "true" ]]; then
                 log_info "✓ $(basename "$file")"
@@ -263,6 +274,8 @@ EOF
             log_error "✗ Failed to checksum: $(basename "$file")"
         fi
     done
+    
+    log_debug "Checksum generation loop completed. Success: $success_count, Total: $total_count"
     
     # Add footer with statistics
     cat >> "$output_file" << EOF
@@ -486,8 +499,11 @@ main() {
                 echo "..."
             fi
         fi
+        
+        return 0
     fi
 }
 
 # Execute main function with all arguments
 main "$@"
+exit $?

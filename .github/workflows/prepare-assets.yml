@@ -166,8 +166,7 @@ jobs:
           ./scripts/create-checksums.sh \
             --directory build-env/output \
             --algorithm sha256 \
-            --algorithm sha512 \
-            --output build-env/output/checksums-${{ matrix.format }}.txt \
+            --output checksums-${{ matrix.format }}.txt \
             --verbose
 
           echo "✅ Checksums generated"
@@ -410,8 +409,13 @@ jobs:
           echo "🧪 Testing ${{ matrix.format }} extraction on Ubuntu \
             ${{ matrix.ubuntu_version }}..."
 
+          # Debug: List directory structure
+          echo "📂 Test assets directory structure:"
+          ls -la
+          find . -type f -name "*" | head -20
+
           # Find the archive file
-          ARCHIVE=$(ls -1 *.${{ matrix.format }} | head -1)
+          ARCHIVE=$(find . -name "*.${{ matrix.format }}" -type f | head -1)
 
           if [ -z "$ARCHIVE" ]; then
             echo "❌ No ${{ matrix.format }} archive found"
@@ -420,13 +424,18 @@ jobs:
 
           echo "📦 Testing archive: $ARCHIVE"
 
+          # Get the directory containing the archive for extraction
+          ARCHIVE_DIR=$(dirname "$ARCHIVE")
+          cd "$ARCHIVE_DIR"
+          ARCHIVE_NAME=$(basename "$ARCHIVE")
+
           # Extract the archive
           case "${{ matrix.format }}" in
             "tar.gz")
-              tar -xzf "$ARCHIVE"
+              tar -xzf "$ARCHIVE_NAME"
               ;;
             "zip")
-              unzip "$ARCHIVE"
+              unzip "$ARCHIVE_NAME"
               ;;
           esac
 
@@ -437,7 +446,7 @@ jobs:
           ls -la
 
           # Test basic file presence
-          EXTRACT_DIR=$(ls -d wsl-tmux-nvim-setup-* | head -1)
+          EXTRACT_DIR=$(ls -d wsl-tmux-nvim-setup-* 2>/dev/null | head -1)
           if [ -d "$EXTRACT_DIR" ]; then
             cd "$EXTRACT_DIR"
             echo "📋 Contents of $EXTRACT_DIR:"
@@ -448,9 +457,11 @@ jobs:
               if [ -f "$file" ]; then
                 echo "  ✅ $file present"
               else
-                  echo "  ❌ $file missing"
+                echo "  ❌ $file missing"
               fi
             done
+          else
+            echo "⚠️  No extracted directory found matching wsl-tmux-nvim-setup-*"
           fi
 
   cleanup:
