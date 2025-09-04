@@ -257,7 +257,7 @@ EOF
     
     log_debug "Starting checksum generation loop"
     for file in "${files[@]}"; do
-        ((total_count++))
+        total_count=$((total_count + 1))
         log_debug "Processing file $total_count: $file"
         
         local checksum_line
@@ -265,7 +265,7 @@ EOF
         if checksum_line=$(generate_checksum "$file" "$algorithm"); then
             log_debug "Checksum generated successfully: $checksum_line"
             echo "$checksum_line" >> "$output_file"
-            ((success_count++))
+            success_count=$((success_count + 1))
             
             if [[ "$VERBOSE" == "true" ]]; then
                 log_info "✓ $(basename "$file")"
