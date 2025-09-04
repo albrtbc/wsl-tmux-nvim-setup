@@ -188,6 +188,7 @@ generate_checksum() {
     esac
     
     log_debug "Generating $algorithm checksum for: $(basename "$file")"
+    log_debug "Running command: $hash_cmd $file"
     
     # Generate checksum and format output
     local checksum_output
@@ -259,7 +260,9 @@ EOF
         log_debug "Processing file $total_count: $file"
         
         local checksum_line
+        log_debug "About to generate checksum for: $file"
         if checksum_line=$(generate_checksum "$file" "$algorithm"); then
+            log_debug "Checksum generated successfully: $checksum_line"
             echo "$checksum_line" >> "$output_file"
             ((success_count++))
             
