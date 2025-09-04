@@ -202,7 +202,7 @@ jobs:
             --format "${{ matrix.archive_format }}" \
             --include-docs \
             --verbose
-          
+
           # Copy install.sh to release assets for direct download
           cp scripts/install.sh release-assets/install.sh
 
