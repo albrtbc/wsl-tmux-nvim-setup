@@ -255,6 +255,7 @@ EOF
     local success_count=0
     local total_count=0
     
+    log_debug "Starting checksum generation loop"
     for file in "${files[@]}"; do
         ((total_count++))
         log_debug "Processing file $total_count: $file"
@@ -273,6 +274,8 @@ EOF
             log_error "✗ Failed to checksum: $(basename "$file")"
         fi
     done
+    
+    log_debug "Checksum generation loop completed. Success: $success_count, Total: $total_count"
     
     # Add footer with statistics
     cat >> "$output_file" << EOF
