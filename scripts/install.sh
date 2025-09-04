@@ -239,7 +239,7 @@ main() {
     
     # Create temporary directory
     TEMP_DIR=$(mktemp -d)
-    trap "rm -rf $TEMP_DIR" EXIT
+    trap 'rm -rf "$TEMP_DIR"' EXIT
     
     # Download release
     download_release "$INSTALL_VERSION" "$TEMP_DIR"
