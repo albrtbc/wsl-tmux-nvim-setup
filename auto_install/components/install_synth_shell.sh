@@ -21,4 +21,5 @@ rm -rf synth-shell
 # Clone wsl-tmux-nvim-setup
 git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-setup
 
+mkdir -p ~/.config/synth-shell/
 cp /tmp/wsl-tmux-nvim-setup/synth-shell/* ~/.config/synth-shell/
