@@ -17,4 +17,5 @@ sudo apt install -y cargo
 cargo install --locked yazi-fm
 
 git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-setup
+mkdir -p ~/.config/yazi/
 cp -r /tmp/wsl-tmux-nvim-setup/yazi/* ~/.config/yazi/
