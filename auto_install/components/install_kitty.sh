@@ -9,5 +9,8 @@ REPO_DIR="${REPO_DIR:-/tmp/wsl-tmux-nvim-setup}"
 if [ -z "${WSL_DISTRO_NAME:-}" ]; then
     mkdir -p ~/.config/kitty/
     cp "$REPO_DIR/kitty.conf" ~/.config/kitty/kitty.conf
-    gsettings set org.gnome.desktop.default-applications.terminal exec 'kitty'
+    # Set as default terminal if gsettings is available (GNOME)
+    if command -v gsettings > /dev/null 2>&1; then
+        gsettings set org.gnome.desktop.default-applications.terminal exec 'kitty'
+    fi
 fi

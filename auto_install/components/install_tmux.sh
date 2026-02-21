@@ -12,4 +12,9 @@ cp "$REPO_DIR/.tmux.conf" ~/.tmux.conf
 mkdir -p ~/.tmux/plugins
 rm -rf ~/.tmux/plugins/tpm
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+# Install plugins (requires a temporary tmux server)
+tmux start-server
+tmux new-session -d -s __tpm_install
 ~/.tmux/plugins/tpm/scripts/install_plugins.sh
+tmux kill-server

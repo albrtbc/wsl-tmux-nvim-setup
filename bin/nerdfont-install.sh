@@ -1,4 +1,7 @@
 #!/bin/bash
+set -u
+set -e
+set -x
 
 # Define the download URL
 URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip"
@@ -6,6 +9,9 @@ URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.z
 # Define the temporary directory where the font will be downloaded and extracted
 TEMP_DIR="/tmp/firacode_font"
 mkdir -p "$TEMP_DIR"
+
+# Ensure dependencies are available
+sudo apt install -y unzip fontconfig
 
 # Download the ZIP file
 echo "Downloading Fira Code..."
@@ -35,4 +41,3 @@ echo "Updating the system's font cache..."
 sudo fc-cache -fv
 
 echo "Fira Code installation has completed successfully."
-

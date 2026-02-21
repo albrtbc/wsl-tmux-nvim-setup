@@ -7,10 +7,12 @@ REPO_DIR="${REPO_DIR:-/tmp/wsl-tmux-nvim-setup}"
 
 # Install dependencies
 # https://github.com/nvim-lua/kickstart.nvim#Install-Recipes
+sudo apt update
+sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt update
-sudo apt install -y make gcc ripgrep unzip git tmux neovim nodejs
+sudo apt install -y make gcc ripgrep unzip git tmux neovim nodejs fontconfig
 
 # Install ubuntu dependencies
 if [ -z "${WSL_DISTRO_NAME:-}" ]; then
