@@ -41,6 +41,12 @@ Already-installed components are skipped. Use `--force` to reinstall everything:
 python3 ~/bin/auto_install/main.py --force
 ```
 
+You can also pass `--force` directly to the bootstrap script:
+
+```bash
+./install.sh --force
+```
+
 ## Project structure
 
 ```
