@@ -31,4 +31,4 @@ grep -qxF 'alias gasbo="python3 ~/bin/auto_install/main.py"' ~/.bashrc || echo '
 # Set PATH for current session (avoid sourcing .bashrc which exits on non-interactive shells)
 export PATH="$HOME/bin:$PATH"
 
-python3 ~/bin/auto_install/main.py
+python3 ~/bin/auto_install/main.py "$@"
