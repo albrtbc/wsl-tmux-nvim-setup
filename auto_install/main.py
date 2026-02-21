@@ -1,4 +1,5 @@
 import os
+import sys
 import curses
 import json
 import subprocess
@@ -6,6 +7,7 @@ import shutil
 
 REPO_URL = "https://github.com/albrtbc/wsl-tmux-nvim-setup.git"
 REPO_DIR = "/tmp/wsl-tmux-nvim-setup"
+FORCE_INSTALL = '--force' in sys.argv
 
 def load_components():
     dir_path = os.path.expanduser('~/.config/auto_install/')
@@ -26,6 +28,60 @@ def cleanup_repo():
 
 def configure_terminal():
     subprocess.run('stty onlcr', shell=True, check=True)
+
+def is_installed(check_command):
+    """Return True if check_command exits 0 (component already installed)."""
+    if not check_command:
+        return False
+    try:
+        subprocess.run(check_command, shell=True, check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+def resolve_dependencies(components, selected):
+    """Auto-include dependencies for all selected components.
+    Returns (new_selected, auto_added_names)."""
+    name_to_idx = {c['name']: i for i, c in enumerate(components)}
+    resolved = set(i for i, s in enumerate(selected) if s)
+
+    changed = True
+    while changed:
+        changed = False
+        for i in list(resolved):
+            for dep_name in components[i].get('depends_on', []):
+                dep_idx = name_to_idx.get(dep_name)
+                if dep_idx is not None and dep_idx not in resolved:
+                    resolved.add(dep_idx)
+                    changed = True
+
+    new_selected = [i in resolved for i in range(len(components))]
+    auto_added = [components[i]['name'] for i in sorted(resolved) if not selected[i]]
+    return new_selected, auto_added
+
+def topological_sort(components, selected):
+    """Return indices of selected components in dependency-first order."""
+    name_to_idx = {c['name']: i for i, c in enumerate(components)}
+    selected_set = set(i for i, s in enumerate(selected) if s)
+    visited = set()
+    order = []
+
+    def visit(idx):
+        if idx in visited or idx not in selected_set:
+            return
+        visited.add(idx)
+        for dep_name in components[idx].get('depends_on', []):
+            dep_idx = name_to_idx.get(dep_name)
+            if dep_idx is not None:
+                visit(dep_idx)
+        order.append(idx)
+
+    for i in range(len(components)):
+        if i in selected_set:
+            visit(i)
+
+    return order
 
 def run_script(script):
     dir_path = os.path.expanduser('~/.config/auto_install/')
@@ -79,14 +135,20 @@ def main(stdscr):
     components = load_components()
     selected = custom_installation(stdscr, components)
 
-    selected_components = [(i, c) for i, c in enumerate(components) if selected[i]]
-    if not selected_components:
+    if not any(selected):
         stdscr.addstr(len(components) + 2, 0, "No components selected. Press any key to exit.")
         stdscr.getch()
         return
 
+    # Resolve dependencies and sort in dependency-first order
+    selected, auto_added = resolve_dependencies(components, selected)
+    install_order = topological_sort(components, selected)
+
     # Exit curses so script output is visible in terminal
     curses.endwin()
+
+    if auto_added:
+        print(f"\nAuto-included dependencies: {', '.join(auto_added)}")
 
     # Clone repo once for all components
     print("\nCloning configuration repository...")
@@ -96,15 +158,25 @@ def main(stdscr):
         print(f"Failed to clone repository: {e}")
         return
 
-    # Run selected components and track results
+    # Run selected components in dependency order and track results
     results = {}
     try:
-        for i, component in selected_components:
+        for i in install_order:
+            component = components[i]
+            name = component['name']
+            check_cmd = component.get('check_command', '')
+
+            # Skip if already installed (unless --force)
+            if check_cmd and not FORCE_INSTALL and is_installed(check_cmd):
+                print(f"\n[SKIP] {name} is already installed (use --force to reinstall)")
+                results[name] = 'skipped'
+                continue
+
             print(f"\n{'='*60}")
-            print(f"  Installing: {component['name']}")
+            print(f"  Installing: {name}")
             print(f"{'='*60}")
             success = run_script(component['script'])
-            results[component['name']] = success
+            results[name] = 'ok' if success else 'failed'
     finally:
         cleanup_repo()
 
@@ -112,12 +184,15 @@ def main(stdscr):
     print(f"\n{'='*60}")
     print("  INSTALLATION SUMMARY")
     print(f"{'='*60}")
-    for name, success in results.items():
-        symbol = "+" if success else "X"
-        status = "OK" if success else "FAILED"
-        print(f"  [{symbol}] {name}: {status}")
+    for name, status in results.items():
+        if status == 'ok':
+            print(f"  [+] {name}: OK")
+        elif status == 'skipped':
+            print(f"  [-] {name}: SKIPPED (already installed)")
+        else:
+            print(f"  [X] {name}: FAILED")
 
-    failed = [n for n, s in results.items() if not s]
+    failed = [n for n, s in results.items() if s == 'failed']
     if failed:
         print(f"\n  {len(failed)} component(s) failed. Re-run to retry.")
     else:

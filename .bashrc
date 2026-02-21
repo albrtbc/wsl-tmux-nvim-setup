@@ -2,9 +2,10 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.cargo/bin:$PATH"
 export PATH="/opt/nvim-linux64/bin:$PATH"
 alias vim="nvim"
+alias gasbo="python3 ~/bin/auto_install/main.py"
 alias lg="lazygit"
 alias py="python3"
 alias python="python3"

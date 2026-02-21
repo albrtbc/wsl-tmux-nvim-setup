@@ -3,5 +3,7 @@ set -u
 set -e
 set -x
 
-# Install NERDFont FiraCode
-curl https://raw.githubusercontent.com/albrtbc/wsl-tmux-nvim-setup/main/bin/nerdfont-install.sh -sSf | sh
+REPO_DIR="${REPO_DIR:-/tmp/wsl-tmux-nvim-setup}"
+
+# Install NERDFont FiraCode using local script
+bash "$REPO_DIR/bin/nerdfont-install.sh"

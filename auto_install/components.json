@@ -2,40 +2,57 @@
   "components": [
     {
       "name": "Dependencies",
-      "script": "install_dependencies.sh"
+      "script": "install_dependencies.sh",
+      "depends_on": [],
+      "check_command": "command -v nvim && command -v rg && command -v node"
     },
     {
       "name": "Lazygit",
-      "script": "install_lazygit.sh"
+      "script": "install_lazygit.sh",
+      "depends_on": ["Dependencies"],
+      "check_command": "command -v lazygit"
     },
     {
       "name": "Yazi",
-      "script": "install_yazi.sh"
+      "script": "install_yazi.sh",
+      "depends_on": ["Dependencies"],
+      "check_command": "command -v yazi"
     },
     {
       "name": "NERDFonts",
-      "script": "install_nerdfonts.sh"
+      "script": "install_nerdfonts.sh",
+      "depends_on": ["Dependencies"],
+      "check_command": "fc-list | grep -qi firacode"
     },
     {
       "name": "Synth Shell",
-      "script": "install_synth_shell.sh"
+      "script": "install_synth_shell.sh",
+      "depends_on": [],
+      "check_command": "test -f ~/.config/synth-shell/synth-shell-prompt.sh"
     },
     {
       "name": "Tmux",
-      "script": "install_tmux.sh"
+      "script": "install_tmux.sh",
+      "depends_on": ["Dependencies"],
+      "check_command": "test -d ~/.tmux/plugins/tpm"
     },
     {
       "name": "Neovim",
-      "script": "install_nvim.sh"
+      "script": "install_nvim.sh",
+      "depends_on": ["Dependencies", "NERDFonts"],
+      "check_command": "test -d ~/.config/nvim/lua"
     },
     {
       "name": "Kitty",
-      "script": "install_kitty.sh"
+      "script": "install_kitty.sh",
+      "depends_on": ["Dependencies"],
+      "check_command": "test -f ~/.config/kitty/kitty.conf"
     },
     {
       "name": "Git",
-      "script": "install_git.sh"
+      "script": "install_git.sh",
+      "depends_on": [],
+      "check_command": "test -f ~/.gitconfig"
     }
   ]
 }
-
