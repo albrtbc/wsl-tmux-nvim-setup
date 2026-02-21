@@ -10,7 +10,7 @@ sudo apt update
 sudo apt install -y build-essential
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 . "$HOME/.cargo/env"
-cargo install --locked yazi-fm yazi-cli
+cargo install --force yazi-build
 
 # Move yazi config files
 mkdir -p ~/.config/yazi/
