@@ -14,6 +14,9 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubc
 sudo apt update
 sudo apt install -y gh
 
+# Copy gitconfig
+cp "$REPO_DIR/.gitconfig" ~/.gitconfig
+
 # Move git scripts
 mkdir -p ~/.git-scripts/
 cp "$REPO_DIR/.git-scripts/"* ~/.git-scripts/
