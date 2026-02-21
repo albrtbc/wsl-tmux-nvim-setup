@@ -3,19 +3,13 @@ set -u
 set -e
 set -x
 
-# Clean up
-cleanup() {
-    echo "Cleaning up..."
-    rm -rf /tmp/wsl-tmux-nvim-setup
-}
-
-trap cleanup EXIT INT TERM
+REPO_DIR="${REPO_DIR:-/tmp/wsl-tmux-nvim-setup}"
 
 # Install yazi
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-sudo apt install -y cargo
-cargo install --locked yazi-fm
+. "$HOME/.cargo/env"
+cargo install --locked yazi-fm yazi-cli
 
-git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-setup
+# Move yazi config files
 mkdir -p ~/.config/yazi/
-cp -r /tmp/wsl-tmux-nvim-setup/yazi/* ~/.config/yazi/
+cp -r "$REPO_DIR/yazi/"* ~/.config/yazi/

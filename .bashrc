@@ -218,8 +218,8 @@ function git_tably () {
 
 ##-----------------------------------------------------
 ## synth-shell-prompt.sh
-if [ -f /home/albert/.config/synth-shell/synth-shell-prompt.sh ] && [ -n "$( echo $- | grep i )" ]; then
-	source /home/albert/.config/synth-shell/synth-shell-prompt.sh
+if [ -f "$HOME/.config/synth-shell/synth-shell-prompt.sh" ] && [ -n "$( echo $- | grep i )" ]; then
+	source "$HOME/.config/synth-shell/synth-shell-prompt.sh"
 fi
 
 

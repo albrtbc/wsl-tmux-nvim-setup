@@ -3,23 +3,16 @@ set -u
 set -e
 set -x
 
-# Clean up
-cleanup() {
-    echo "Cleaning up..."
-    rm -rf /tmp/wsl-tmux-nvim-setup
-}
-
-trap cleanup EXIT INT TERM
+REPO_DIR="${REPO_DIR:-/tmp/wsl-tmux-nvim-setup}"
 
 # Install Synth Shell
-git clone --recursive https://github.com/andresgongora/synth-shell.git
-cd synth-shell
+rm -rf /tmp/synth-shell
+git clone --recursive https://github.com/andresgongora/synth-shell.git /tmp/synth-shell
+cd /tmp/synth-shell
 ./setup.sh
-cd ..
-rm -rf synth-shell
+cd /tmp
+rm -rf /tmp/synth-shell
 
-# Clone wsl-tmux-nvim-setup
-git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-setup
-
+# Move synth-shell config files
 mkdir -p ~/.config/synth-shell/
-cp /tmp/wsl-tmux-nvim-setup/synth-shell/* ~/.config/synth-shell/
+cp "$REPO_DIR/synth-shell/"* ~/.config/synth-shell/
