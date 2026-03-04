@@ -144,8 +144,8 @@ if d.get('_rate_limited'):
 
 fh = d.get('five_hour') or {}
 sd = d.get('seven_day') or {}
-fv = max(0, 100 - int(fh['utilization'])) if 'utilization' in fh else ''
-sv = max(0, 100 - int(sd['utilization'])) if 'utilization' in sd else ''
+fv = round(fh['utilization']) if 'utilization' in fh else ''
+sv = round(sd['utilization']) if 'utilization' in sd else ''
 print(f'{fv} {sv}')
 " "$raw" 2>/dev/null) || true
 fi
@@ -159,12 +159,12 @@ out+="${git_part}"
 bracket_items=""
 
 if [[ -n "$five_h" && "$five_h" -gt 0 ]] 2>/dev/null; then
-  bracket_items+="${TEAL}5h:${RST}$(color_pct "$five_h" "$((100 - five_h))")"
+  bracket_items+="${TEAL}5h:${RST}$(color_pct "$five_h" "$five_h")"
 fi
 
 if [[ -n "$seven_d" && "$seven_d" -gt 0 ]] 2>/dev/null; then
   [[ -n "$bracket_items" ]] && bracket_items+=" "
-  bracket_items+="${TEAL}wk:${RST}$(color_pct "$seven_d" "$((100 - seven_d))")"
+  bracket_items+="${TEAL}wk:${RST}$(color_pct "$seven_d" "$seven_d")"
 fi
 
 [[ -n "$bracket_items" ]] && bracket_items+=" "
