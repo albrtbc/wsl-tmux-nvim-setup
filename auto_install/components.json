@@ -53,6 +53,12 @@
       "script": "install_git.sh",
       "depends_on": [],
       "check_command": "test -f ~/.gitconfig"
+    },
+    {
+      "name": "Claude Code",
+      "script": "install_claude.sh",
+      "depends_on": [],
+      "check_command": "test -f ~/.claude/statusline.sh"
     }
   ]
 }
