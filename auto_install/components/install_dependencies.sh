@@ -24,7 +24,6 @@ curl -s -L https://api.github.com/repos/dandavison/delta/releases/latest | grep 
 sudo dpkg -i /tmp/git-delta_*_amd64.deb
 rm -f /tmp/git-delta_*_amd64.deb
 
-# Move bash config files
-cp "$REPO_DIR/.gitconfig" ~/.gitconfig
+# Move bash config files (.gitconfig is handled by install_git.sh)
 cp "$REPO_DIR/.gitignore_global" ~/.gitignore_global
 cp "$REPO_DIR/.bashrc" ~/.bashrc

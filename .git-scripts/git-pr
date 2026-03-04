@@ -45,7 +45,7 @@ if command -v gh &> /dev/null; then
         # Use last commit message
         commit_title=$(git log -1 --pretty=format:%s)
         commit_body=$(git log -1 --pretty=format:%b)
-        gh pr create --base "$main_branch" --head "$current_branch" --title "$commit_title" --body "$commit_body"
+        gh pr create --base "$main_branch" --head "$current_branch" --title "$commit_title" --body "${commit_body:-$commit_title}"
     fi
     
 elif command -v hub &> /dev/null; then
@@ -71,13 +71,15 @@ else
     # Try to get remote URL
     remote_url=$(git config --get remote.origin.url)
     if [[ "$remote_url" == git@github.com:* ]]; then
-        # SSH URL format
         repo_path=${remote_url#git@github.com:}
         repo_path=${repo_path%.git}
         echo "  https://github.com/$repo_path/pull/new/$current_branch"
     elif [[ "$remote_url" == https://github.com/* ]]; then
-        # HTTPS URL format
         repo_path=${remote_url#https://github.com/}
+        repo_path=${repo_path%.git}
+        echo "  https://github.com/$repo_path/pull/new/$current_branch"
+    elif [[ "$remote_url" == git://github.com/* ]]; then
+        repo_path=${remote_url#git://github.com/}
         repo_path=${repo_path%.git}
         echo "  https://github.com/$repo_path/pull/new/$current_branch"
     else

@@ -91,7 +91,6 @@ def run_script(script):
     env['REPO_DIR'] = REPO_DIR
 
     try:
-        configure_terminal()
         subprocess.run(['bash', script_path], check=True, env=env)
         return True
     except subprocess.CalledProcessError as e:
@@ -159,6 +158,7 @@ def main(stdscr):
         return
 
     # Run selected components in dependency order and track results
+    configure_terminal()
     results = {}
     try:
         for i in install_order:

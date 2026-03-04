@@ -3,7 +3,7 @@
 branch=$(git branch --show-current)
 
 # Check if branch exist in remote
-if ! git ls-remote --exit-code --heads origin "$branch"; then
+if ! git ls-remote --exit-code --heads origin "$branch" > /dev/null 2>&1; then
     # Create branch if does not exist
     echo "Branch does not exist on remote. Creating..."
     git push --set-upstream origin "$branch"
@@ -23,4 +23,3 @@ if [[ $proceed == "Y" || $proceed == "y" || $proceed == "s" || $proceed == "" ]]
 else
     echo "Operation cancelled."
 fi
-

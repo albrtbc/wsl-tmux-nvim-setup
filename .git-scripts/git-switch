@@ -7,29 +7,24 @@ if [ -n "$branchName" ]
 then
     git stash save "$stashName"
 
-    if ! git ls-remote --heads origin "$branchName" | grep -q "$branchName"
-    then
-        if ! git branch -l | grep -q -w "^ *$branchName\$"
-        then
-            git switch -c "$branchName"
-        else
-            git switch "$branchName"
-        fi
-    else
+    # Check local first, then remote (avoids unnecessary network call)
+    if git branch -l | grep -q -w "^ *$branchName\$"; then
+        git switch "$branchName"
+    elif git ls-remote --heads origin "$branchName" | grep -q "$branchName"; then
         git fetch origin "$branchName"
         git switch "$branchName"
+    else
+        git switch -c "$branchName"
     fi
 
     # Gets the specific stash ID
-    stashID=$(git stash list | grep "$stashName" | awk '{print $1}' | sed 's/://')
+    stashID=$(git stash list | awk -F: -v name="$stashName" '$0 ~ name {gsub(/ /, "", $1); print $1; exit}')
 
     # If it exists, apply
-    if [ ! -z "$stashID" ]
+    if [ -n "$stashID" ]
     then
         git stash pop "$stashID"
     fi
 else
     echo "Branch name is not specified"
 fi
-
-

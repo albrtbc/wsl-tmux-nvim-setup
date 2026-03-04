@@ -186,14 +186,12 @@ deploy_lambda() {
     echo "   Path: $PROJECT_PATH"
     echo ""
     
-    # Ensure AWS SSO session
+    # Ensure AWS SSO session and get account ID
     print_info "🔎 Ensuring AWS SSO session..."
     ensure_sso
-    
-    # Get AWS account ID
-    print_info "🔎 Getting AWS account ID..."
+
     ACCOUNT_ID=$(aws sts get-caller-identity --profile "$PROFILE" --query "Account" --output text)
-    echo "   Account ID: $ACCOUNT_ID"
+    print_info "🔎 AWS Account ID: $ACCOUNT_ID"
     echo ""
     
     # Check if Lambda tools are installed

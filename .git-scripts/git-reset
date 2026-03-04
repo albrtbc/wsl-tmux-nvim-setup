@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
 current_branch="$(git branch --show-current)"
 echo "Reset soft from $current_branch to $1 branch..."
 
-git fetch
 git pull
-git switch $1
+git switch "$1"
 git pull
-git switch $current_branch
-git reset --soft $1
+git switch "$current_branch"
+git reset --soft "$1"

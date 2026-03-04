@@ -11,7 +11,7 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-sudo apt install git python3
+sudo apt install -y git python3
 
 # Clone wsl-tmux-nvim-setup
 git clone https://github.com/albrtbc/wsl-tmux-nvim-setup.git /tmp/wsl-tmux-nvim-setup
