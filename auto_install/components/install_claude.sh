@@ -4,6 +4,7 @@ set -euo pipefail
 # Install Claude Code statusline configuration
 # Deploys statusline.sh and merges statusLine config into settings.json
 
+REPO_DIR="${REPO_DIR:-/tmp/wsl-tmux-nvim-setup}"
 CLAUDE_DIR="$HOME/.claude"
 SETTINGS_FILE="$CLAUDE_DIR/settings.json"
 
