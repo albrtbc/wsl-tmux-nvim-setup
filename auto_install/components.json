@@ -59,6 +59,12 @@
       "script": "install_claude.sh",
       "depends_on": [],
       "check_command": "test -f ~/.claude/statusline.sh"
+    },
+    {
+      "name": "Screenshot Bridge",
+      "script": "install_screenshots.sh",
+      "depends_on": [],
+      "check_command": "test -d ~/dev/windows-to-wsl2-screenshots"
     }
   ]
 }
